@@ -651,6 +651,166 @@
     border-radius: 2px;
     cursor: pointer;
   }
+
+  /* ── Meals tab ── */
+  .meals-header {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .meals-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 4px;
+  }
+  .meals-sub {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--stone);
+    text-transform: uppercase;
+  }
+  .meal-section { margin-bottom: 36px; }
+  .meal-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .meal-section-name {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--stone);
+    white-space: nowrap;
+  }
+  .meal-section-meta {
+    font-size: 0.58rem;
+    color: var(--warm);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .meal-section-line { flex: 1; height: 1px; background: var(--rule); }
+  .meal-card {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .meal-card:hover { border-color: var(--warm-light); }
+  .meal-card.selected {
+    border-color: var(--warm);
+    background: #fffdf8;
+  }
+  .meal-card.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 0.7rem;
+    color: var(--warm);
+  }
+  .meal-card-top {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
+    padding-right: 20px;
+  }
+  .meal-name {
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    flex: 1;
+  }
+  .meal-kcal {
+    font-size: 0.6rem;
+    color: var(--warm);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .meal-macros {
+    font-size: 0.58rem;
+    color: var(--stone);
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .meal-macros span { margin-right: 10px; }
+  .meal-notes {
+    font-size: 0.62rem;
+    color: var(--stone);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    line-height: 1.5;
+  }
+  .meal-tag {
+    display: inline-block;
+    font-size: 0.48rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--moss);
+    border: 1px solid var(--moss);
+    padding: 1px 5px;
+    border-radius: 2px;
+    margin-top: 5px;
+    margin-right: 4px;
+    font-style: normal;
+    font-family: 'DM Mono', monospace;
+  }
+  .meal-tag.quick { color: #5a6b7a; border-color: #5a6b7a; }
+  .meal-tag.japanese { color: var(--moss); border-color: var(--moss); }
+  .meal-day-total {
+    margin-top: 32px;
+    padding: 16px;
+    border: 1px solid var(--warm-light);
+    border-radius: 4px;
+    background: #fffdf8;
+  }
+  .meal-day-total-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--stone);
+    margin-bottom: 10px;
+  }
+  .meal-day-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .meal-day-total-row.total {
+    border-top: 1px solid var(--rule);
+    padding-top: 8px;
+    margin-top: 4px;
+    font-size: 0.72rem;
+  }
+  .meal-day-total-row span:last-child { color: var(--warm); }
+  .meal-reset-btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 8px;
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--stone);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .meal-reset-btn:hover { border-color: var(--warm); color: var(--warm); }
+
 </style>
 </head>
 <body>
@@ -659,6 +819,7 @@
 <nav class="nav">
   <button class="nav-tab active" onclick="showTab('checklist')">Checklist</button>
   <button class="nav-tab" onclick="showTab('supplements')">Supplements</button>
+  <button class="nav-tab" onclick="showTab('meals')">Meals</button>
 </nav>
 
 <!-- Sync status bar -->
@@ -798,6 +959,19 @@
   </div>
 
 </div>
+
+
+  <!-- ── Meals tab ── -->
+  <div class="tab-content" id="tab-meals">
+    <div class="meals-header">
+      <div class="meals-title">Meal Plan</div>
+      <div class="meals-sub">~1800–2000 kcal · High protein · Select one per meal</div>
+    </div>
+    <div id="mealSections"></div>
+    <div id="dayTotals"></div>
+    <button class="meal-reset-btn" onclick="resetMeals()">↺ Reset selections</button>
+  </div>
+
 
 <!-- Day complete overlay -->
 <div class="day-complete" id="dayComplete">
@@ -1219,6 +1393,314 @@ function showUpdateBanner(worker) {
     navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
   };
 }
+
+
+
+// ── Meal data ─────────────────────────────────────────────────────────────────
+const MEALS = {
+  breakfast: {
+    label: 'Breakfast',
+    meta: '~500–600 kcal · Quick',
+    options: [
+      {
+        id: 'b1',
+        name: 'Greek yoghurt bowl',
+        kcal: 520, protein: 42, carbs: 38, fat: 18,
+        notes: 'Full-fat Greek yoghurt, mixed berries, handful of granola, drizzle of honey. Stir in creatine.',
+        tags: ['quick']
+      },
+      {
+        id: 'b2',
+        name: 'Scrambled eggs on sourdough',
+        kcal: 540, protein: 35, carbs: 40, fat: 22,
+        notes: '3 eggs scrambled in butter, 2 slices sourdough, smoked salmon optional. 10 minutes.',
+        tags: ['quick']
+      },
+      {
+        id: 'b3',
+        name: 'Protein oats',
+        kcal: 490, protein: 38, carbs: 52, fat: 12,
+        notes: 'Oats cooked with milk, scoop of unflavoured whey or Greek yoghurt stirred in, banana, peanut butter. Prep night before for overnight oats.',
+        tags: ['quick']
+      },
+      {
+        id: 'b4',
+        name: 'Tamago gohan (egg on rice)',
+        kcal: 510, protein: 32, carbs: 55, fat: 14,
+        notes: 'Hot Japanese short-grain rice, 2 raw eggs, soy sauce, sesame oil, furikake. Classic Japanese breakfast — 5 minutes if rice is precooked.',
+        tags: ['quick', 'japanese']
+      },
+      {
+        id: 'b5',
+        name: 'Smoked salmon bagel',
+        kcal: 560, protein: 38, carbs: 48, fat: 16,
+        notes: 'Wholegrain bagel, cream cheese, smoked salmon, capers, red onion. Good prep-free option.',
+        tags: ['quick']
+      },
+      {
+        id: 'b6',
+        name: 'Full English (lighter version)',
+        kcal: 590, protein: 44, carbs: 28, fat: 26,
+        notes: '2 eggs, 2 bacon medallions, grilled tomato, mushrooms, 1 slice sourdough. Weekend option — 20 minutes.',
+        tags: []
+      }
+    ]
+  },
+  lunch: {
+    label: 'Lunch',
+    meta: '~500–600 kcal · Portable or desk-friendly',
+    options: [
+      {
+        id: 'l1',
+        name: 'Chicken and quinoa bowl',
+        kcal: 540, protein: 48, carbs: 42, fat: 14,
+        notes: 'Grilled chicken breast, quinoa, roasted veg, olive oil, lemon. Batch cook quinoa on Sunday.',
+        tags: ['quick']
+      },
+      {
+        id: 'l2',
+        name: 'Miso soup with tofu and rice',
+        kcal: 480, protein: 28, carbs: 58, fat: 12,
+        notes: 'Dashi-based miso soup, silken tofu, wakame, spring onion, steamed rice. Keep dashi stock in fridge. 10 minutes.',
+        tags: ['quick', 'japanese']
+      },
+      {
+        id: 'l3',
+        name: 'Tuna nicoise salad',
+        kcal: 510, protein: 44, carbs: 28, fat: 22,
+        notes: 'Tinned tuna or seared, boiled eggs, green beans, olives, cherry tomatoes, Dijon dressing. No cooking needed if using tinned.',
+        tags: ['quick']
+      },
+      {
+        id: 'l4',
+        name: 'Lentil and vegetable soup',
+        kcal: 460, protein: 26, carbs: 62, fat: 8,
+        notes: 'Red lentils, tomatoes, cumin, coriander, spinach. Batch cook Sunday — reheats in 3 minutes. Add crusty bread for extra kcal.',
+        tags: []
+      },
+      {
+        id: 'l5',
+        name: 'Soba noodle salad',
+        kcal: 490, protein: 30, carbs: 56, fat: 12,
+        notes: 'Cold soba, edamame, cucumber, spring onion, sesame seeds, soy-ginger dressing. Good cold — works as desk lunch.',
+        tags: ['japanese']
+      },
+      {
+        id: 'l7',
+        name: 'Black bean and corn quesadillas',
+        kcal: 560, protein: 28, carbs: 58, fat: 22,
+        notes: 'Black beans, sweetcorn, cheddar, smoked paprika, cumin, wholegrain tortillas. Serve with soured cream and salsa. 15 minutes — good desk lunch cut into wedges.',
+        tags: ['quick']
+      },
+      {
+        id: 'l6',
+        name: 'Chicken and avocado wrap',
+        kcal: 560, protein: 42, carbs: 38, fat: 22,
+        notes: 'Wholegrain wrap, grilled chicken, avocado, spinach, Greek yoghurt dressing. Quick to assemble if chicken is pre-cooked.',
+        tags: ['quick']
+      }
+    ]
+  },
+  dinner: {
+    label: 'Dinner',
+    meta: '~650–750 kcal · Mix of quick and proper cook',
+    options: [
+      {
+        id: 'd1',
+        name: 'Salmon teriyaki with rice and greens',
+        kcal: 680, protein: 48, carbs: 58, fat: 22,
+        notes: 'Salmon fillet in homemade teriyaki (soy, mirin, sake, sugar), steamed rice, bok choy or tenderstem. 20–25 minutes. Use your mirin and sake.',
+        tags: ['quick', 'japanese']
+      },
+      {
+        id: 'd2',
+        name: 'Chicken thigh katsu curry',
+        kcal: 720, protein: 52, carbs: 68, fat: 18,
+        notes: 'Panko-crumbed chicken thighs, Japanese curry roux (S&B block), steamed rice, shredded cabbage. 35–40 minutes. A proper cook.',
+        tags: ['japanese']
+      },
+      {
+        id: 'd3',
+        name: 'Beef and vegetable stir-fry',
+        kcal: 650, protein: 50, carbs: 48, fat: 20,
+        notes: 'Sirloin strips, broccoli, sugar snap peas, oyster sauce, ginger, garlic, rice. 20 minutes. High heat essential.',
+        tags: ['quick']
+      },
+      {
+        id: 'd4',
+        name: 'Baked cod with roasted vegetables',
+        kcal: 580, protein: 52, carbs: 38, fat: 14,
+        notes: 'Cod fillet, cherry tomatoes, courgette, peppers, olive oil, lemon, capers. Tray bake — 30 minutes, minimal effort.',
+        tags: ['quick']
+      },
+      {
+        id: 'd5',
+        name: 'Tofu and aubergine dengaku',
+        kcal: 610, protein: 28, carbs: 62, fat: 22,
+        notes: 'Grilled aubergine and tofu with white miso glaze (miso, mirin, sugar, sake), steamed rice, sesame. 30 minutes. Vegetarian — good for lighter days.',
+        tags: ['japanese']
+      },
+      {
+        id: 'd6',
+        name: 'Lamb chops with roasted root veg',
+        kcal: 740, protein: 54, carbs: 42, fat: 30,
+        notes: 'Lamb chops with rosemary and garlic, roasted sweet potato and parsnip, wilted greens. 40 minutes — proper weekend cook.',
+        tags: []
+      },
+      {
+        id: 'd7',
+        name: 'Prawn and vegetable ramen',
+        kcal: 620, protein: 44, carbs: 58, fat: 14,
+        notes: 'Dashi or chicken broth, ramen noodles, prawns, soft-boiled egg, corn, spring onion, nori. 25 minutes. Keep dashi in fridge.',
+        tags: ['japanese']
+      },
+      {
+        id: 'd8',
+        name: 'Chicken and chickpea one-pot',
+        kcal: 660, protein: 52, carbs: 52, fat: 16,
+        notes: 'Chicken thighs, chickpeas, tomatoes, spinach, smoked paprika, cumin. One pan — 35 minutes. Excellent batch cook.',
+        tags: []
+      },
+      {
+        id: 'd9',
+        name: 'Beef ragu with pappardelle',
+        kcal: 740, protein: 52, carbs: 68, fat: 24,
+        notes: 'Slow-cooked beef shin or chuck, San Marzano tomatoes, red wine, soffritto, pappardelle, parmesan. 3–4 hrs low and slow — batch cook Sunday, reheats brilliantly all week.',
+        tags: []
+      },
+      {
+        id: 'd10',
+        name: 'Spaghetti carbonara',
+        kcal: 720, protein: 46, carbs: 64, fat: 28,
+        notes: 'Guanciale or pancetta, eggs, pecorino, black pepper. No cream — ever. 20 minutes. The technique is everything: off the heat before adding eggs.',
+        tags: ['quick']
+      },
+      {
+        id: 'd11',
+        name: 'Chilli con carne with rice',
+        kcal: 680, protein: 54, carbs: 72, fat: 16,
+        notes: 'Beef mince, kidney beans, chipotle, cumin, smoked paprika, dark chocolate. Steamed rice, soured cream, coriander. Batch cook — better on day two. 45 minutes.',
+        tags: []
+      },
+    ]
+  }
+};
+
+// ── Meal state ────────────────────────────────────────────────────────────────
+let mealState = loadMealState();
+
+function loadMealState() {
+  const saved = localStorage.getItem('protocol-meals-v1');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (parsed.date === new Date().toDateString()) return parsed;
+  }
+  return { date: new Date().toDateString(), selected: {} };
+}
+
+function saveMealState() {
+  localStorage.setItem('protocol-meals-v1', JSON.stringify(mealState));
+}
+
+function selectMeal(mealType, mealId) {
+  if (mealState.selected[mealType] === mealId) {
+    delete mealState.selected[mealType];
+  } else {
+    mealState.selected[mealType] = mealId;
+  }
+  saveMealState();
+  renderMeals();
+}
+
+function resetMeals() {
+  mealState.selected = {};
+  saveMealState();
+  renderMeals();
+}
+
+function renderMeals() {
+  const container = document.getElementById('mealSections');
+  container.innerHTML = '';
+
+  Object.entries(MEALS).forEach(([type, section]) => {
+    const sec = document.createElement('div');
+    sec.className = 'meal-section';
+
+    sec.innerHTML = `
+      <div class="meal-section-header">
+        <div class="meal-section-name">${section.label}</div>
+        <div class="meal-section-line"></div>
+        <div class="meal-section-meta">${section.meta}</div>
+      </div>
+    `;
+
+    section.options.forEach(meal => {
+      const isSelected = mealState.selected[type] === meal.id;
+      const card = document.createElement('div');
+      card.className = `meal-card ${isSelected ? 'selected' : ''}`;
+      card.innerHTML = `
+        <div class="meal-card-top">
+          <div class="meal-name">${meal.name}</div>
+          <div class="meal-kcal">${meal.kcal} kcal</div>
+        </div>
+        <div class="meal-macros">
+          <span>P ${meal.protein}g</span>
+          <span>C ${meal.carbs}g</span>
+          <span>F ${meal.fat}g</span>
+        </div>
+        <div class="meal-notes">${meal.notes}</div>
+        ${meal.tags.map(t => `<span class="meal-tag ${t}">${t}</span>`).join('')}
+      `;
+      card.addEventListener('click', () => selectMeal(type, meal.id));
+      sec.appendChild(card);
+    });
+
+    container.appendChild(sec);
+  });
+
+  renderDayTotals();
+}
+
+function renderDayTotals() {
+  const totalsEl = document.getElementById('dayTotals');
+  const selected = mealState.selected;
+  const count = Object.keys(selected).length;
+
+  if (count === 0) {
+    totalsEl.innerHTML = '';
+    return;
+  }
+
+  let totalKcal = 0, totalProtein = 0, totalCarbs = 0, totalFat = 0;
+  const rows = [];
+
+  Object.entries(selected).forEach(([type, id]) => {
+    const meal = MEALS[type].options.find(m => m.id === id);
+    if (!meal) return;
+    totalKcal += meal.kcal;
+    totalProtein += meal.protein;
+    totalCarbs += meal.carbs;
+    totalFat += meal.fat;
+    rows.push(`<div class="meal-day-total-row">
+      <span>${MEALS[type].label}</span>
+      <span>${meal.kcal} kcal · P${meal.protein}g</span>
+    </div>`);
+  });
+
+  totalsEl.innerHTML = `
+    <div class="meal-day-total">
+      <div class="meal-day-total-label">Day total — ${count} of 3 meals selected</div>
+      ${rows.join('')}
+      <div class="meal-day-total-row total">
+        <span>Total</span>
+        <span>${totalKcal} kcal · P${totalProtein}g · C${totalCarbs}g · F${totalFat}g</span>
+      </div>
+    </div>
+  `;
+}
+
+// Init meals on load
+renderMeals();
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 loadFromServer();
