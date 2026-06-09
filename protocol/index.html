@@ -811,6 +811,39 @@
   }
   .meal-reset-btn:hover { border-color: var(--warm); color: var(--warm); }
 
+
+  /* ── Meal ingredients ── */
+  .meal-ingredients {
+    margin-top: 8px;
+    margin-bottom: 4px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 12px;
+  }
+  .meal-ingredient {
+    font-size: 0.6rem;
+    color: var(--stone);
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+    display: flex;
+    gap: 5px;
+    align-items: baseline;
+  }
+  .meal-ingredient-amount {
+    color: var(--warm);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 0.58rem;
+  }
+  .meal-ingredient-name {
+    color: var(--stone);
+  }
+  .meal-divider {
+    height: 1px;
+    background: var(--rule);
+    margin: 8px 0;
+  }
+
 </style>
 </head>
 <body>
@@ -1404,6 +1437,13 @@ const MEALS = {
     options: [
       {
         id: 'b1',
+        ingredients: [
+          {amount: '200g', name: 'full-fat Greek yoghurt'},
+          {amount: '80g', name: 'mixed berries'},
+          {amount: '40g', name: 'granola'},
+          {amount: '1 tsp', name: 'honey'},
+          {amount: '5g', name: 'creatine (stir in)'},
+        ],
         name: 'Greek yoghurt bowl',
         kcal: 520, protein: 42, carbs: 38, fat: 18,
         notes: 'Full-fat Greek yoghurt, mixed berries, handful of granola, drizzle of honey. Stir in creatine.',
@@ -1411,6 +1451,13 @@ const MEALS = {
       },
       {
         id: 'b2',
+        ingredients: [
+          {amount: '3', name: 'large eggs'},
+          {amount: '15g', name: 'butter'},
+          {amount: '2 slices', name: 'sourdough'},
+          {amount: '80g', name: 'smoked salmon (optional)'},
+          {amount: '1 tbsp', name: 'crème fraîche (optional)'},
+        ],
         name: 'Scrambled eggs on sourdough',
         kcal: 540, protein: 35, carbs: 40, fat: 22,
         notes: '3 eggs scrambled in butter, 2 slices sourdough, smoked salmon optional. 10 minutes.',
@@ -1418,6 +1465,13 @@ const MEALS = {
       },
       {
         id: 'b3',
+        ingredients: [
+          {amount: '80g', name: 'rolled oats'},
+          {amount: '300ml', name: 'whole milk'},
+          {amount: '150g', name: 'Greek yoghurt or 1 scoop whey'},
+          {amount: '1', name: 'banana'},
+          {amount: '1 tbsp', name: 'peanut butter'},
+        ],
         name: 'Protein oats',
         kcal: 490, protein: 38, carbs: 52, fat: 12,
         notes: 'Oats cooked with milk, scoop of unflavoured whey or Greek yoghurt stirred in, banana, peanut butter. Prep night before for overnight oats.',
@@ -1425,6 +1479,13 @@ const MEALS = {
       },
       {
         id: 'b4',
+        ingredients: [
+          {amount: '200g', name: 'cooked Japanese short-grain rice'},
+          {amount: '2', name: 'very fresh eggs'},
+          {amount: '1 tbsp', name: 'soy sauce'},
+          {amount: '½ tsp', name: 'sesame oil'},
+          {amount: '1 tsp', name: 'furikake'},
+        ],
         name: 'Tamago gohan (egg on rice)',
         kcal: 510, protein: 32, carbs: 55, fat: 14,
         notes: 'Hot Japanese short-grain rice, 2 raw eggs, soy sauce, sesame oil, furikake. Classic Japanese breakfast — 5 minutes if rice is precooked.',
@@ -1432,6 +1493,13 @@ const MEALS = {
       },
       {
         id: 'b5',
+        ingredients: [
+          {amount: '1', name: 'wholegrain bagel'},
+          {amount: '40g', name: 'cream cheese'},
+          {amount: '100g', name: 'smoked salmon'},
+          {amount: '1 tbsp', name: 'capers'},
+          {amount: '¼', name: 'red onion, thinly sliced'},
+        ],
         name: 'Smoked salmon bagel',
         kcal: 560, protein: 38, carbs: 48, fat: 16,
         notes: 'Wholegrain bagel, cream cheese, smoked salmon, capers, red onion. Good prep-free option.',
@@ -1439,6 +1507,13 @@ const MEALS = {
       },
       {
         id: 'b6',
+        ingredients: [
+          {amount: '2', name: 'large eggs'},
+          {amount: '2', name: 'bacon medallions'},
+          {amount: '2', name: 'tomatoes, halved'},
+          {amount: '100g', name: 'mushrooms'},
+          {amount: '1 slice', name: 'sourdough'},
+        ],
         name: 'Full English (lighter version)',
         kcal: 590, protein: 44, carbs: 28, fat: 26,
         notes: '2 eggs, 2 bacon medallions, grilled tomato, mushrooms, 1 slice sourdough. Weekend option — 20 minutes.',
@@ -1452,6 +1527,13 @@ const MEALS = {
     options: [
       {
         id: 'l1',
+        ingredients: [
+          {amount: '180g', name: 'chicken breast'},
+          {amount: '80g', name: 'quinoa (dry weight)'},
+          {amount: '150g', name: 'roasted mixed veg'},
+          {amount: '1 tbsp', name: 'olive oil'},
+          {amount: '½', name: 'lemon, juiced'},
+        ],
         name: 'Chicken and quinoa bowl',
         kcal: 540, protein: 48, carbs: 42, fat: 14,
         notes: 'Grilled chicken breast, quinoa, roasted veg, olive oil, lemon. Batch cook quinoa on Sunday.',
@@ -1459,6 +1541,14 @@ const MEALS = {
       },
       {
         id: 'l2',
+        ingredients: [
+          {amount: '600ml', name: 'dashi stock'},
+          {amount: '2 tbsp', name: 'white miso paste'},
+          {amount: '150g', name: 'silken tofu'},
+          {amount: '10g', name: 'dried wakame'},
+          {amount: '150g', name: 'steamed rice'},
+          {amount: '2', name: 'spring onions'},
+        ],
         name: 'Miso soup with tofu and rice',
         kcal: 480, protein: 28, carbs: 58, fat: 12,
         notes: 'Dashi-based miso soup, silken tofu, wakame, spring onion, steamed rice. Keep dashi stock in fridge. 10 minutes.',
@@ -1466,6 +1556,14 @@ const MEALS = {
       },
       {
         id: 'l3',
+        ingredients: [
+          {amount: '160g', name: 'tuna (tinned or seared)'},
+          {amount: '2', name: 'boiled eggs'},
+          {amount: '100g', name: 'green beans, blanched'},
+          {amount: '10', name: 'olives'},
+          {amount: '100g', name: 'cherry tomatoes'},
+          {amount: '1 tsp', name: 'Dijon mustard'},
+        ],
         name: 'Tuna nicoise salad',
         kcal: 510, protein: 44, carbs: 28, fat: 22,
         notes: 'Tinned tuna or seared, boiled eggs, green beans, olives, cherry tomatoes, Dijon dressing. No cooking needed if using tinned.',
@@ -1473,6 +1571,14 @@ const MEALS = {
       },
       {
         id: 'l4',
+        ingredients: [
+          {amount: '150g', name: 'red lentils (dry)'},
+          {amount: '400g', name: 'tinned tomatoes'},
+          {amount: '1 tsp', name: 'cumin'},
+          {amount: '1 tsp', name: 'ground coriander'},
+          {amount: '80g', name: 'spinach'},
+          {amount: '1', name: 'onion'},
+        ],
         name: 'Lentil and vegetable soup',
         kcal: 460, protein: 26, carbs: 62, fat: 8,
         notes: 'Red lentils, tomatoes, cumin, coriander, spinach. Batch cook Sunday — reheats in 3 minutes. Add crusty bread for extra kcal.',
@@ -1480,6 +1586,15 @@ const MEALS = {
       },
       {
         id: 'l5',
+        ingredients: [
+          {amount: '100g', name: 'soba noodles (dry)'},
+          {amount: '100g', name: 'edamame (shelled)'},
+          {amount: '½', name: 'cucumber, julienned'},
+          {amount: '2 tbsp', name: 'soy sauce'},
+          {amount: '1 tbsp', name: 'rice vinegar'},
+          {amount: '1 tsp', name: 'sesame oil'},
+          {amount: '1 tsp', name: 'fresh ginger, grated'},
+        ],
         name: 'Soba noodle salad',
         kcal: 490, protein: 30, carbs: 56, fat: 12,
         notes: 'Cold soba, edamame, cucumber, spring onion, sesame seeds, soy-ginger dressing. Good cold — works as desk lunch.',
@@ -1487,6 +1602,15 @@ const MEALS = {
       },
       {
         id: 'l7',
+        ingredients: [
+          {amount: '400g', name: 'black beans (tinned, drained)'},
+          {amount: '150g', name: 'sweetcorn (tinned or frozen)'},
+          {amount: '80g', name: 'cheddar, grated'},
+          {amount: '1 tsp', name: 'smoked paprika'},
+          {amount: '½ tsp', name: 'cumin'},
+          {amount: '4', name: 'wholegrain tortillas'},
+          {amount: '2 tbsp', name: 'soured cream'},
+        ],
         name: 'Black bean and corn quesadillas',
         kcal: 560, protein: 28, carbs: 58, fat: 22,
         notes: 'Black beans, sweetcorn, cheddar, smoked paprika, cumin, wholegrain tortillas. Serve with soured cream and salsa. 15 minutes — good desk lunch cut into wedges.',
@@ -1494,6 +1618,14 @@ const MEALS = {
       },
       {
         id: 'l6',
+        ingredients: [
+          {amount: '1', name: 'wholegrain wrap'},
+          {amount: '150g', name: 'grilled chicken breast'},
+          {amount: '½', name: 'avocado'},
+          {amount: '40g', name: 'baby spinach'},
+          {amount: '2 tbsp', name: 'Greek yoghurt'},
+          {amount: '1 tsp', name: 'lemon juice'},
+        ],
         name: 'Chicken and avocado wrap',
         kcal: 560, protein: 42, carbs: 38, fat: 22,
         notes: 'Wholegrain wrap, grilled chicken, avocado, spinach, Greek yoghurt dressing. Quick to assemble if chicken is pre-cooked.',
@@ -1507,6 +1639,15 @@ const MEALS = {
     options: [
       {
         id: 'd1',
+        ingredients: [
+          {amount: '200g', name: 'salmon fillet'},
+          {amount: '3 tbsp', name: 'soy sauce'},
+          {amount: '2 tbsp', name: 'mirin'},
+          {amount: '1 tbsp', name: 'sake'},
+          {amount: '1 tsp', name: 'sugar'},
+          {amount: '150g', name: 'steamed rice'},
+          {amount: '150g', name: 'bok choy or tenderstem'},
+        ],
         name: 'Salmon teriyaki with rice and greens',
         kcal: 680, protein: 48, carbs: 58, fat: 22,
         notes: 'Salmon fillet in homemade teriyaki (soy, mirin, sake, sugar), steamed rice, bok choy or tenderstem. 20–25 minutes. Use your mirin and sake.',
@@ -1514,6 +1655,16 @@ const MEALS = {
       },
       {
         id: 'd2',
+        ingredients: [
+          {amount: '2', name: 'chicken thighs, boneless'},
+          {amount: '50g', name: 'panko breadcrumbs'},
+          {amount: '1', name: 'egg, beaten'},
+          {amount: '½ block', name: 'S&B curry roux'},
+          {amount: '1', name: 'onion'},
+          {amount: '1', name: 'carrot'},
+          {amount: '150g', name: 'steamed rice'},
+          {amount: '100g', name: 'white cabbage, shredded'},
+        ],
         name: 'Chicken thigh katsu curry',
         kcal: 720, protein: 52, carbs: 68, fat: 18,
         notes: 'Panko-crumbed chicken thighs, Japanese curry roux (S&B block), steamed rice, shredded cabbage. 35–40 minutes. A proper cook.',
@@ -1521,6 +1672,17 @@ const MEALS = {
       },
       {
         id: 'd3',
+        ingredients: [
+          {amount: '200g', name: 'sirloin steak, thin sliced'},
+          {amount: '150g', name: 'broccoli florets'},
+          {amount: '100g', name: 'sugar snap peas'},
+          {amount: '2 tbsp', name: 'oyster sauce'},
+          {amount: '1 tbsp', name: 'soy sauce'},
+          {amount: '1 tsp', name: 'sesame oil'},
+          {amount: '2 cloves', name: 'garlic'},
+          {amount: '1 tsp', name: 'fresh ginger'},
+          {amount: '150g', name: 'steamed rice'},
+        ],
         name: 'Beef and vegetable stir-fry',
         kcal: 650, protein: 50, carbs: 48, fat: 20,
         notes: 'Sirloin strips, broccoli, sugar snap peas, oyster sauce, ginger, garlic, rice. 20 minutes. High heat essential.',
@@ -1528,6 +1690,15 @@ const MEALS = {
       },
       {
         id: 'd4',
+        ingredients: [
+          {amount: '200g', name: 'cod fillet'},
+          {amount: '150g', name: 'cherry tomatoes'},
+          {amount: '1', name: 'courgette, sliced'},
+          {amount: '1', name: 'red pepper, sliced'},
+          {amount: '2 tbsp', name: 'olive oil'},
+          {amount: '1', name: 'lemon, sliced'},
+          {amount: '1 tbsp', name: 'capers'},
+        ],
         name: 'Baked cod with roasted vegetables',
         kcal: 580, protein: 52, carbs: 38, fat: 14,
         notes: 'Cod fillet, cherry tomatoes, courgette, peppers, olive oil, lemon, capers. Tray bake — 30 minutes, minimal effort.',
@@ -1535,6 +1706,16 @@ const MEALS = {
       },
       {
         id: 'd5',
+        ingredients: [
+          {amount: '1', name: 'aubergine, halved'},
+          {amount: '300g', name: 'firm tofu, sliced'},
+          {amount: '2 tbsp', name: 'white miso'},
+          {amount: '1 tbsp', name: 'mirin'},
+          {amount: '1 tbsp', name: 'sake'},
+          {amount: '1 tsp', name: 'sugar'},
+          {amount: '150g', name: 'steamed rice'},
+          {amount: '1 tsp', name: 'sesame seeds'},
+        ],
         name: 'Tofu and aubergine dengaku',
         kcal: 610, protein: 28, carbs: 62, fat: 22,
         notes: 'Grilled aubergine and tofu with white miso glaze (miso, mirin, sugar, sake), steamed rice, sesame. 30 minutes. Vegetarian — good for lighter days.',
@@ -1542,6 +1723,15 @@ const MEALS = {
       },
       {
         id: 'd6',
+        ingredients: [
+          {amount: '3–4', name: 'lamb chops'},
+          {amount: '2 sprigs', name: 'rosemary'},
+          {amount: '3 cloves', name: 'garlic'},
+          {amount: '200g', name: 'sweet potato, cubed'},
+          {amount: '150g', name: 'parsnip, cubed'},
+          {amount: '100g', name: 'wilted greens (kale or spinach)'},
+          {amount: '1 tbsp', name: 'olive oil'},
+        ],
         name: 'Lamb chops with roasted root veg',
         kcal: 740, protein: 54, carbs: 42, fat: 30,
         notes: 'Lamb chops with rosemary and garlic, roasted sweet potato and parsnip, wilted greens. 40 minutes — proper weekend cook.',
@@ -1549,6 +1739,16 @@ const MEALS = {
       },
       {
         id: 'd7',
+        ingredients: [
+          {amount: '700ml', name: 'dashi or chicken broth'},
+          {amount: '100g', name: 'ramen noodles (dry)'},
+          {amount: '150g', name: 'raw prawns'},
+          {amount: '1', name: 'soft-boiled egg'},
+          {amount: '80g', name: 'sweetcorn'},
+          {amount: '2', name: 'spring onions'},
+          {amount: '1 sheet', name: 'nori, torn'},
+          {amount: '1 tbsp', name: 'soy sauce'},
+        ],
         name: 'Prawn and vegetable ramen',
         kcal: 620, protein: 44, carbs: 58, fat: 14,
         notes: 'Dashi or chicken broth, ramen noodles, prawns, soft-boiled egg, corn, spring onion, nori. 25 minutes. Keep dashi in fridge.',
@@ -1556,6 +1756,15 @@ const MEALS = {
       },
       {
         id: 'd8',
+        ingredients: [
+          {amount: '4', name: 'chicken thighs, bone-in'},
+          {amount: '400g', name: 'chickpeas (tinned, drained)'},
+          {amount: '400g', name: 'tinned tomatoes'},
+          {amount: '80g', name: 'spinach'},
+          {amount: '1 tsp', name: 'smoked paprika'},
+          {amount: '1 tsp', name: 'cumin'},
+          {amount: '1', name: 'onion'},
+        ],
         name: 'Chicken and chickpea one-pot',
         kcal: 660, protein: 52, carbs: 52, fat: 16,
         notes: 'Chicken thighs, chickpeas, tomatoes, spinach, smoked paprika, cumin. One pan — 35 minutes. Excellent batch cook.',
@@ -1563,6 +1772,16 @@ const MEALS = {
       },
       {
         id: 'd9',
+        ingredients: [
+          {amount: '600g', name: 'beef shin or chuck, diced'},
+          {amount: '400g', name: 'San Marzano tinned tomatoes'},
+          {amount: '150ml', name: 'red wine'},
+          {amount: '1', name: 'onion, finely diced'},
+          {amount: '2', name: 'carrots, finely diced'},
+          {amount: '2 sticks', name: 'celery, finely diced'},
+          {amount: '200g', name: 'pappardelle (dry)'},
+          {amount: '30g', name: 'parmesan, grated'},
+        ],
         name: 'Beef ragu with pappardelle',
         kcal: 740, protein: 52, carbs: 68, fat: 24,
         notes: 'Slow-cooked beef shin or chuck, San Marzano tomatoes, red wine, soffritto, pappardelle, parmesan. 3–4 hrs low and slow — batch cook Sunday, reheats brilliantly all week.',
@@ -1570,6 +1789,14 @@ const MEALS = {
       },
       {
         id: 'd10',
+        ingredients: [
+          {amount: '150g', name: 'spaghetti (dry)'},
+          {amount: '100g', name: 'guanciale or pancetta'},
+          {amount: '2', name: 'whole eggs'},
+          {amount: '2', name: 'egg yolks'},
+          {amount: '60g', name: 'pecorino romano, grated'},
+          {amount: '1 tsp', name: 'black pepper, coarsely ground'},
+        ],
         name: 'Spaghetti carbonara',
         kcal: 720, protein: 46, carbs: 64, fat: 28,
         notes: 'Guanciale or pancetta, eggs, pecorino, black pepper. No cream — ever. 20 minutes. The technique is everything: off the heat before adding eggs.',
@@ -1577,6 +1804,16 @@ const MEALS = {
       },
       {
         id: 'd11',
+        ingredients: [
+          {amount: '500g', name: 'beef mince (15% fat)'},
+          {amount: '400g', name: 'kidney beans (tinned, drained)'},
+          {amount: '400g', name: 'tinned tomatoes'},
+          {amount: '1', name: 'chipotle chilli in adobo'},
+          {amount: '1 tsp', name: 'cumin'},
+          {amount: '1 tsp', name: 'smoked paprika'},
+          {amount: '20g', name: 'dark chocolate (70%)'},
+          {amount: '150g', name: 'steamed rice'},
+        ],
         name: 'Chilli con carne with rice',
         kcal: 680, protein: 54, carbs: 72, fat: 16,
         notes: 'Beef mince, kidney beans, chipotle, cumin, smoked paprika, dark chocolate. Steamed rice, soured cream, coriander. Batch cook — better on day two. 45 minutes.',
@@ -1648,6 +1885,15 @@ function renderMeals() {
           <span>C ${meal.carbs}g</span>
           <span>F ${meal.fat}g</span>
         </div>
+        ${meal.ingredients ? `
+        <div class="meal-ingredients">
+          ${meal.ingredients.map(i => `
+            <div class="meal-ingredient">
+              <span class="meal-ingredient-amount">${i.amount}</span>
+              <span class="meal-ingredient-name">${i.name}</span>
+            </div>`).join('')}
+        </div>
+        <div class="meal-divider"></div>` : ''}
         <div class="meal-notes">${meal.notes}</div>
         ${meal.tags.map(t => `<span class="meal-tag ${t}">${t}</span>`).join('')}
       `;
