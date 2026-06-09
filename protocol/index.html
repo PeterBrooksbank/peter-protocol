@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f5f0e8">
+<link rel="manifest" href="manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Protocol</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap');
+
+  :root {
+    --ink: #1a1714;
+    --paper: #f5f0e8;
+    --warm: #c8a96e;
+    --warm-light: #e8d9be;
+    --moss: #4a5240;
+    --stone: #8a8278;
+    --rule: rgba(26,23,20,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Nav tabs ── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .nav-tab {
+    flex: 1;
+    max-width: 160px;
+    padding: 14px 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--stone);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+
+  .nav-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--warm);
+  }
+
+  /* ── Sync status ── */
+  .sync-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 24px;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: var(--stone);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .sync-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--stone);
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+
+  .sync-dot.synced { background: var(--moss); }
+  .sync-dot.syncing { background: var(--warm); animation: pulse 1s infinite; }
+  .sync-dot.error { background: #8b3a2a; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── App shell ── */
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── Header ── */
+  .header {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+
+  .date {
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--stone);
+    text-transform: uppercase;
+  }
+
+  .progress-bar-wrap {
+    margin-top: 16px;
+    height: 2px;
+    background: var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: var(--warm);
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+
+  .progress-label {
+    margin-top: 8px;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--stone);
+    text-transform: uppercase;
+  }
+
+  .reset-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 8px;
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--stone);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { border-color: var(--warm); color: var(--warm); }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 40px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .section-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--stone);
+    white-space: nowrap;
+  }
+
+  .section-time {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    color: var(--warm);
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .section-count {
+    font-size: 0.58rem;
+    color: var(--stone);
+    letter-spacing: 0.05em;
+    transition: color 0.3s;
+  }
+
+  .section-count.all-done { color: var(--warm); }
+
+  .section-done {
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--warm);
+    margin-top: 6px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s;
+    opacity: 0;
+  }
+  .section-done.visible { max-height: 24px; opacity: 1; }
+
+  /* ── Items ── */
+  .items { margin-top: 10px; }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .item:last-child { border-bottom: none; }
+
+  /* Ripple on tap */
+  .item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--warm);
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+  }
+
+  .item.tapped::after { opacity: 0.06; }
+
+  .item.done .item-text {
+    color: var(--stone);
+    text-decoration: line-through;
+    text-decoration-color: var(--warm);
+    text-decoration-thickness: 1px;
+  }
+
+  .item.done .item-check {
+    background: var(--warm);
+    border-color: var(--warm);
+    transform: scale(1.1);
+  }
+
+  .item.done .item-check svg { opacity: 1; transform: scale(1); }
+
+  /* Check box */
+  .item-check {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--stone);
+    border-radius: 3px;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .item-check svg {
+    width: 10px;
+    height: 10px;
+    stroke: white;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .item-content { flex: 1; min-width: 0; }
+
+  .item-text {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    transition: color 0.2s;
+  }
+
+  .item-note {
+    font-size: 0.62rem;
+    color: var(--stone);
+    margin-top: 3px;
+    letter-spacing: 0.02em;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    line-height: 1.45;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s;
+  }
+
+  .item.expanded .item-note { max-height: 80px; opacity: 1; }
+
+  .item-tag {
+    flex-shrink: 0;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: white;
+    background: var(--moss);
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-top: 3px;
+    align-self: flex-start;
+  }
+
+  .item-tag.supp { background: var(--warm); }
+  .item-tag.body { background: var(--moss); }
+  .item-tag.mind { background: #5a6b7a; }
+
+  /* ── Day complete overlay ── */
+  .day-complete {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(245,240,232,0.97);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    padding: 40px;
+  }
+
+  .day-complete.visible { display: flex; animation: fadeIn 0.4s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+
+  .day-complete-ring {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 2px solid var(--warm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    animation: ringIn 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
+  }
+
+  @keyframes ringIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .day-complete-ring svg {
+    width: 28px; height: 28px;
+    stroke: var(--warm); stroke-width: 1.5;
+    stroke-linecap: round; stroke-linejoin: round;
+    fill: none;
+  }
+
+  .day-complete-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 300;
+    color: var(--ink);
+  }
+
+  .day-complete-sub {
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--stone);
+  }
+
+  .day-complete-stats {
+    margin-top: 8px;
+    font-size: 0.65rem;
+    color: var(--stone);
+    line-height: 1.8;
+    letter-spacing: 0.05em;
+  }
+
+  .day-complete-stats strong { color: var(--warm); font-weight: 400; }
+
+  .day-complete-btn {
+    margin-top: 20px;
+    padding: 11px 32px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: opacity 0.2s;
+  }
+  .day-complete-btn:hover { opacity: 0.8; }
+
+  /* ── Weekly tracker ── */
+  .weekly {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .weekly-title {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--stone);
+    margin-bottom: 14px;
+  }
+
+  .weekly-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .day-dot {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 2px;
+    transition: all 0.2s;
+  }
+
+  .day-dot.active { border-color: var(--warm); }
+  .day-dot.complete { background: var(--warm); border-color: var(--warm); }
+  .day-dot .day-label { font-size: 0.48rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--stone); }
+  .day-dot.complete .day-label, .day-dot.complete .day-num { color: white; }
+  .day-dot .day-num { font-size: 0.55rem; color: var(--ink); }
+
+  .streak {
+    margin-top: 14px;
+    font-size: 0.62rem;
+    color: var(--stone);
+    letter-spacing: 0.06em;
+  }
+  .streak span { color: var(--warm); }
+
+  /* ── Supplements tab ── */
+  .supps-header {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .supps-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 4px;
+  }
+
+  .supps-sub {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--stone);
+    text-transform: uppercase;
+  }
+
+  .supp-timing {
+    margin-bottom: 36px;
+  }
+
+  .supp-timing-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .supp-timing-name {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--stone);
+    white-space: nowrap;
+  }
+
+  .supp-timing-line {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .supp-timing-time {
+    font-size: 0.58rem;
+    color: var(--warm);
+    letter-spacing: 0.08em;
+  }
+
+  .supp-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .supp-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--warm);
+    border-radius: 4px 0 0 4px;
+  }
+
+  .supp-card-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .supp-name {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+
+  .supp-dose {
+    font-size: 0.62rem;
+    color: var(--warm);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .supp-detail {
+    font-size: 0.6rem;
+    color: var(--stone);
+    letter-spacing: 0.02em;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    line-height: 1.5;
+  }
+
+  .supp-food-flag {
+    display: inline-block;
+    margin-top: 5px;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--moss);
+    border: 1px solid var(--moss);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-style: normal;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Loading / offline indicator ── */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 2px;
+    z-index: 100;
+    animation: slideUp 0.2s ease;
+  }
+
+  .loading-overlay.visible { display: block; }
+
+  @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Update banner ── */
+  .update-banner {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border-radius: 3px;
+    z-index: 300;
+    align-items: center;
+    gap: 16px;
+    animation: slideUp 0.3s ease;
+    white-space: nowrap;
+  }
+  .update-banner.visible { display: flex; }
+  .update-banner-btn {
+    background: var(--warm);
+    color: white;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <button class="nav-tab active" onclick="showTab('checklist')">Checklist</button>
+  <button class="nav-tab" onclick="showTab('supplements')">Supplements</button>
+</nav>
+
+<!-- Sync status bar -->
+<div class="sync-bar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncStatus">Loading…</span>
+</div>
+
+<div class="app">
+
+  <!-- ── Checklist tab ── -->
+  <div class="tab-content active" id="tab-checklist">
+    <div class="header">
+      <div class="header-top">
+        <h1 class="title">Daily Protocol</h1>
+        <div class="date" id="dateDisplay"></div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-label" id="progressLabel">Loading…</div>
+      <button class="reset-btn" onclick="resetDay()">↺ Reset today</button>
+    </div>
+
+    <div id="sections"></div>
+
+    <div class="weekly">
+      <div class="weekly-title">This week</div>
+      <div class="weekly-grid" id="weeklyGrid"></div>
+      <div class="streak" id="streakDisplay"></div>
+    </div>
+  </div>
+
+  <!-- ── Supplements tab ── -->
+  <div class="tab-content" id="tab-supplements">
+    <div class="supps-header">
+      <div class="supps-title">Supplements</div>
+      <div class="supps-sub">Daily stack — timing & rationale</div>
+    </div>
+
+    <div class="supp-timing">
+      <div class="supp-timing-label">
+        <div class="supp-timing-name">Morning</div>
+        <div class="supp-timing-line"></div>
+        <div class="supp-timing-time">With breakfast</div>
+      </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">Vitamin D3 + K2</div>
+          <div class="supp-dose">4000 IU + 100mcg MK-7</div>
+        </div>
+        <div class="supp-detail">D3 corrects near-certain deficiency in North Yorkshire — directly linked to brain fog, fatigue, low mood. K2 MK-7 directs calcium to bones not arteries. Fat-soluble — must take with food.</div>
+        <span class="supp-food-flag">With food</span>
+      </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">Omega-3 (EPA/DHA)</div>
+          <div class="supp-dose">2g combined</div>
+        </div>
+        <div class="supp-detail">Brain function, inflammation, cardiovascular, mood. Triglyceride form (Bare Biology) — 70% more bioavailable than ethyl ester. Takes 8–12 weeks to see full cognitive effect.</div>
+        <span class="supp-food-flag">With food</span>
+      </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">B Complex (methylated)</div>
+          <div class="supp-dose">1 capsule</div>
+        </div>
+        <div class="supp-detail">Methylcobalamin B12 + methylfolate B9 — active forms only. Stress depletes B vitamins heavily. Cofactors for energy production and neurotransmitter synthesis. Can be stimulating — morning only.</div>
+        <span class="supp-food-flag">Morning only</span>
+      </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">Zinc Bisglycinate</div>
+          <div class="supp-dose">15–25mg</div>
+        </div>
+        <div class="supp-detail">Mild deficiency common in active, stressed men. Supports testosterone production, immune function, skin. Bisglycinate form — best absorbed, gentlest on digestion.</div>
+        <span class="supp-food-flag">With food</span>
+      </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">Ashwagandha KSM-66</div>
+          <div class="supp-dose">300–600mg</div>
+        </div>
+        <div class="supp-detail">Cortisol reduction, stress resilience, cognitive function under load. KSM-66 is the most clinically studied extract. Cycle 8–12 weeks on, 4 weeks off. Also supports testosterone in stressed men.</div>
+        <span class="supp-food-flag">Morning</span>
+      </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">Creatine Monohydrate</div>
+          <div class="supp-dose">5g</div>
+        </div>
+        <div class="supp-detail">Cognitive benefits well-established — improves processing speed and working memory, especially effective when sleep-deprived. Also critical for muscle retention. Any pure monohydrate brand. Anytime.</div>
+      </div>
+    </div>
+
+    <div class="supp-timing">
+      <div class="supp-timing-label">
+        <div class="supp-timing-name">Midday</div>
+        <div class="supp-timing-line"></div>
+        <div class="supp-timing-time">With lunch</div>
+      </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">Marine Collagen</div>
+          <div class="supp-dose">2331mg — 650 Dalton</div>
+        </div>
+        <div class="supp-detail">650 Da peptides absorb largely intact as bioactive di/tripeptides — stimulates fibroblasts directly. Take with food containing Vitamin C (any fruit or veg) which is essential for collagen synthesis. Skin, joints, connective tissue.</div>
+        <span class="supp-food-flag">With Vitamin C</span>
+      </div>
+    </div>
+
+    <div class="supp-timing">
+      <div class="supp-timing-label">
+        <div class="supp-timing-name">Evening</div>
+        <div class="supp-timing-line"></div>
+        <div class="supp-timing-time">30–60 min before bed</div>
+      </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">Magnesium Glycinate</div>
+          <div class="supp-dose">300–400mg</div>
+        </div>
+        <div class="supp-detail">The supplement most people feel fastest. Improves sleep quality, reduces stress response, supports muscle recovery. Glycinate form only — won't cause digestive issues. Most people notice better sleep depth within a week.</div>
+        <span class="supp-food-flag">Before bed</span>
+      </div>
+    </div>
+
+    <div class="supp-timing">
+      <div class="supp-timing-label">
+        <div class="supp-timing-name">Note</div>
+        <div class="supp-timing-line"></div>
+      </div>
+      <div style="font-size:0.65rem; color:var(--stone); font-style:italic; font-family:'Cormorant Garamond',serif; line-height:1.7; letter-spacing:0.02em;">
+        Get a Medichecks Advanced Well Man blood panel (~£150) when time permits. Will confirm Vitamin D loading dose needed, B12 status, thyroid, testosterone, HbA1c. Until then, the above stack is calibrated for likely deficiencies at your age, latitude, and stress load.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Day complete overlay -->
+<div class="day-complete" id="dayComplete">
+  <div class="day-complete-ring">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div class="day-complete-title">Protocol Complete</div>
+  <div class="day-complete-sub">Well done. Rest now.</div>
+  <div class="day-complete-stats" id="dayCompleteStats"></div>
+  <button class="day-complete-btn" onclick="closeDayComplete()">Continue</button>
+</div>
+
+<!-- Toast -->
+<div class="loading-overlay" id="toast"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+// Replace with your deployed Worker URL after deploying worker.js to Cloudflare
+const WORKER_URL = 'https://protocol-sync.peter-c-brooksbank.workers.dev';
+
+// ── Protocol data ────────────────────────────────────────────────────────────
+const PROTOCOL = [
+  {
+    id: 'morning', label: 'Morning', time: 'On waking',
+    items: [
+      { id: 'light', text: 'Natural light — open door or window immediately', note: 'Sets circadian clock. Even 5 minutes outside counts. Critical for melatonin regulation and cortisol rhythm.', tag: 'mind' },
+      { id: 'water', text: 'Large glass of water (500ml)', note: 'You\'re dehydrated after sleep. Do this before coffee.' },
+      { id: 'supps-am', text: 'Supplements — D3/K2, Omega-3, B Complex, Zinc, Ashwagandha', note: 'All with breakfast. Creatine in coffee or water anytime.', tag: 'supp' },
+      { id: 'coffee-wait', text: 'Wait 60–90 min before first coffee', note: 'Lets adenosine clear naturally. Prevents the mid-afternoon energy crash.', tag: 'mind' },
+      { id: 'breakfast', text: 'High-protein breakfast — 40–50g protein', note: 'Sets satiety hormones for the whole day. Eggs, Greek yoghurt, meat.' },
+    ]
+  },
+  {
+    id: 'grooming', label: 'Morning Grooming', time: 'Post-shower',
+    items: [
+      { id: 'shower', text: 'Shower — end with 30s cold', note: 'Cold finish raises alertness and circulation. Cleanse face in shower with dedicated cleanser.', tag: 'body' },
+      { id: 'vit-c-serum', text: 'Vitamin C + Glycolic Acid Serum — 3 drops', note: 'Apply to clean dry skin. Antioxidant protection works best AM. Brightens and evens tone.' },
+      { id: 'firming-am', text: 'Face Firming Gel — AM moisturiser', note: 'Replaces separate moisturiser. Hyaluronic acid + peptides. Focus on lines.' },
+      { id: 'eye-cream', text: 'Under Eye Cream — metal applicator', note: 'Cold applicator depuffs in AM. Tap gently, don\'t drag or pull.' },
+      { id: 'spf', text: 'SPF 30+ — last skincare step', note: 'Daily, year-round. Yorkshire overcast still delivers UV. After all serums.' },
+      { id: 'teeth-am', text: 'Brush teeth — 2 min, electric', note: 'Don\'t rinse with water after — let fluoride sit on teeth.' },
+      { id: 'floss', text: 'Floss or interdental brushes', note: 'Once daily. Morning or evening — just be consistent.' },
+    ]
+  },
+  {
+    id: 'work', label: 'Work', time: 'Morning block',
+    items: [
+      { id: 'deep-work', text: '90-min deep work block — no messages, no Slack', note: 'Prefrontal cortex is freshest. Use it for the hardest thinking.', tag: 'mind' },
+      { id: 'move-desk', text: 'Move every 45–60 min — stand up, 2 min', note: 'Set a repeating timer. Prolonged sitting is independently harmful even with exercise.' },
+      { id: 'caffeine-cut', text: 'Last coffee by 1–2pm', note: '6-hour half-life. Post-2pm coffee is still active at midnight.', tag: 'mind' },
+    ]
+  },
+  {
+    id: 'lunch', label: 'Midday', time: 'Lunch',
+    items: [
+      { id: 'real-lunch', text: 'Real meal — not desk food', note: 'Legumes, brassicas, protein, olive oil. Simple is fine.' },
+      { id: 'walk-lunch', text: '10–15 min walk after lunch', note: 'Reduces blood glucose spike. One of the best free cognitive interventions.', tag: 'body' },
+      { id: 'collagen', text: 'Collagen — with lunch (needs Vitamin C)', note: 'Marine collagen 2331mg at 650 Dalton. Any fruit or veg provides the Vitamin C needed for synthesis.', tag: 'supp' },
+    ]
+  },
+  {
+    id: 'exercise', label: 'Exercise', time: '3–4× per week',
+    items: [
+      { id: 'workout', text: 'Structured session — 45 min', note: 'Alternate strength / Zone 2 cardio. Zone 2 = conversational pace. Critical for cognitive function.', tag: 'body' },
+    ]
+  },
+  {
+    id: 'pureclarity', label: 'PureClarity', time: '8pm – 9pm',
+    items: [
+      { id: 'pureclarity', text: 'One improvement to PureClarity — ship something', note: 'Fix, feature, copy, infra, docs. Size doesn\'t matter. Daily momentum compounds.', tag: 'mind' },
+    ]
+  },
+  {
+    id: 'evening', label: 'Evening', time: 'Wind-down',
+    items: [
+      { id: 'eating-cut', text: 'Last food by 8pm (3hrs before bed)', note: 'Single biggest sleep quality lever. Late eating raises resting heart rate significantly.' },
+      { id: 'dim-lights', text: 'Dim lights from 9pm', note: 'Lamps only. Overhead lights off. Blue-spectrum light suppresses melatonin production.' },
+      { id: 'screens', text: 'Blue light filter on all screens from 9pm', note: 'f.lux on Windows, Night Mode on Android. Or screens off by 10pm.', tag: 'mind' },
+      { id: 'face-eve', text: 'Cleanse — remove SPF and day grime', note: 'Full cleanse essential at night. SPF left on overnight clogs pores and degrades skin.' },
+      { id: 'sal-serum', text: 'Salicylic Acid + Niacinamide Serum — 3 drops', note: 'PM only. BHA exfoliant — clears pores and reduces redness. Let absorb 60 seconds before next step.' },
+      { id: 'retinol-serum', text: 'Bio-Retinol + Argireline Peptide Serum — 3 drops', note: 'PM only — photosensitive. Anti-wrinkle, firms, reduces dark spots. Apply after salicylic.' },
+      { id: 'firming-pm', text: 'Face Firming Gel — PM moisturiser', note: 'Seals serums in. Hyaluronic acid + peptides work during sleep.' },
+      { id: 'teeth-pm', text: 'Brush teeth — 2 min. No rinsing.', note: 'Floss if not done in morning.' },
+    ]
+  },
+  {
+    id: 'bed', label: 'Bed', time: 'Before sleep',
+    items: [
+      { id: 'magnesium', text: 'Magnesium Glycinate 400mg', note: '30–60 min before sleep. Most people notice improved sleep depth within the first week.', tag: 'supp' },
+      { id: 'bedroom-temp', text: 'Bedroom 18–20°C — crack window', note: 'New builds run warm. Core temperature drop is the primary trigger for sleep onset.' },
+      { id: 'phone-out', text: 'Phone outside bedroom or face-down and silenced', note: 'Charger in another room is the only reliably effective fix.' },
+      { id: 'consistent-time', text: 'Bed at consistent time', note: 'Circadian rhythm runs on regularity more than total hours.' },
+    ]
+  }
+];
+
+// ── Device ID ────────────────────────────────────────────────────────────────
+function getDeviceId() {
+  let id = localStorage.getItem('protocol-device-id');
+  if (!id) {
+    id = 'dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('protocol-device-id', id);
+  }
+  return id;
+}
+
+const DEVICE_ID = getDeviceId();
+const TODAY = new Date().toDateString();
+
+// ── State ────────────────────────────────────────────────────────────────────
+let state = {
+  date: TODAY,
+  checked: {},
+  history: [],
+  allDone: false
+};
+
+let syncTimer = null;
+let hasSynced = false;
+
+// ── Sync ─────────────────────────────────────────────────────────────────────
+function setSyncStatus(status, msg) {
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncStatus');
+  dot.className = 'sync-dot ' + status;
+  label.textContent = msg;
+}
+
+async function loadFromServer() {
+  if (!WORKER_URL || WORKER_URL === 'YOUR_WORKER_URL_HERE') {
+    // Fallback to localStorage only
+    const saved = localStorage.getItem('protocol-state-v2');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = migrateState(parsed);
+    }
+    setSyncStatus('', 'Local only — deploy Worker to enable sync');
+    hasSynced = true;
+    renderAll();
+    return;
+  }
+
+  setSyncStatus('syncing', 'Syncing…');
+  try {
+    const res = await fetch(`${WORKER_URL}/state?id=${DEVICE_ID}`, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error('Server error');
+    const data = await res.json();
+    state = migrateState(data);
+    saveLocal();
+    setSyncStatus('synced', 'Synced');
+    hasSynced = true;
+  } catch (e) {
+    // Fall back to local
+    const saved = localStorage.getItem('protocol-state-v2');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = migrateState(parsed);
+    }
+    setSyncStatus('error', 'Offline — changes saved locally');
+    hasSynced = true;
+  }
+  renderAll();
+}
+
+function migrateState(data) {
+  if (!data) return { date: TODAY, checked: {}, history: [], allDone: false };
+  // Handle day rollover
+  if (data.date !== TODAY) {
+    const history = data.history || [];
+    if (data.allDone && !history.includes(data.date)) history.push(data.date);
+    return { date: TODAY, checked: {}, history, allDone: false };
+  }
+  return {
+    date: data.date || TODAY,
+    checked: data.checked || {},
+    history: data.history || [],
+    allDone: data.allDone || false
+  };
+}
+
+function saveLocal() {
+  localStorage.setItem('protocol-state-v2', JSON.stringify(state));
+}
+
+async function pushToServer() {
+  if (!WORKER_URL || WORKER_URL === 'YOUR_WORKER_URL_HERE') return;
+  try {
+    await fetch(`${WORKER_URL}/state?id=${DEVICE_ID}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state),
+      signal: AbortSignal.timeout(5000)
+    });
+    setSyncStatus('synced', 'Synced');
+  } catch {
+    setSyncStatus('error', 'Offline — will sync when reconnected');
+  }
+}
+
+function schedulePush() {
+  saveLocal();
+  clearTimeout(syncTimer);
+  setSyncStatus('syncing', 'Saving…');
+  syncTimer = setTimeout(pushToServer, 1200);
+}
+
+// ── Tab navigation ───────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function getAllItems() { return PROTOCOL.flatMap(s => s.items); }
+function getCheckedCount() { return Object.values(state.checked).filter(Boolean).length; }
+function getTotalCount() { return getAllItems().length; }
+
+function updateProgress() {
+  const done = getCheckedCount();
+  const total = getTotalCount();
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${done} of ${total} complete — ${pct}%`;
+
+  if (done === total && total > 0 && !state.allDone) {
+    state.allDone = true;
+    if (!state.history.includes(state.date)) state.history.push(state.date);
+    schedulePush();
+    setTimeout(showDayComplete, 400);
+  }
+  renderWeekly();
+}
+
+function showDayComplete() {
+  // Build stats
+  const total = getTotalCount();
+  const streak = calcStreak();
+  document.getElementById('dayCompleteStats').innerHTML =
+    `<strong>${total}</strong> items complete<br>` +
+    `<strong>${streak}</strong> day streak`;
+  document.getElementById('dayComplete').classList.add('visible');
+}
+
+function closeDayComplete() {
+  document.getElementById('dayComplete').classList.remove('visible');
+}
+
+function toggle(itemId) {
+  state.checked[itemId] = !state.checked[itemId];
+  schedulePush();
+
+  const el = document.querySelector(`[data-id="${itemId}"]`);
+  if (el) {
+    // Tap ripple
+    el.classList.add('tapped');
+    setTimeout(() => el.classList.remove('tapped'), 200);
+    el.classList.toggle('done', state.checked[itemId]);
+    // Expand note on first check
+    if (state.checked[itemId]) el.classList.remove('expanded');
+  }
+
+  updateProgress();
+
+  PROTOCOL.forEach(s => {
+    const allDone = s.items.every(i => state.checked[i.id]);
+    const doneEl = document.getElementById(`sdone-${s.id}`);
+    if (doneEl) doneEl.classList.toggle('visible', allDone);
+    const countEl = document.getElementById(`scount-${s.id}`);
+    if (countEl) {
+      const done = s.items.filter(i => state.checked[i.id]).length;
+      countEl.textContent = `${done}/${s.items.length}`;
+      countEl.classList.toggle('all-done', allDone);
+    }
+  });
+}
+
+function resetDay() {
+  state.checked = {};
+  state.allDone = false;
+  schedulePush();
+  renderAll();
+}
+
+function renderAll() {
+  renderDate();
+  renderSections();
+  updateProgress();
+  renderWeekly();
+}
+
+function renderDate() {
+  const opts = { weekday: 'long', day: 'numeric', month: 'long' };
+  document.getElementById('dateDisplay').textContent =
+    new Date().toLocaleDateString('en-GB', opts).toUpperCase();
+}
+
+function renderSections() {
+  const container = document.getElementById('sections');
+  container.innerHTML = '';
+
+  PROTOCOL.forEach(section => {
+    const doneCount = section.items.filter(i => state.checked[i.id]).length;
+    const allDone = doneCount === section.items.length;
+
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    sec.innerHTML = `
+      <div class="section-header">
+        <div class="section-label">${section.label}</div>
+        <div class="section-time">${section.time}</div>
+        <div class="section-line"></div>
+        <div class="section-count ${allDone ? 'all-done' : ''}" id="scount-${section.id}">${doneCount}/${section.items.length}</div>
+      </div>
+      <div class="items" id="items-${section.id}"></div>
+      <div class="section-done ${allDone ? 'visible' : ''}" id="sdone-${section.id}">✓ Complete</div>
+    `;
+    container.appendChild(sec);
+
+    const itemsEl = sec.querySelector(`#items-${section.id}`);
+    section.items.forEach(item => {
+      const el = document.createElement('div');
+      el.className = `item ${state.checked[item.id] ? 'done' : ''}`;
+      el.dataset.id = item.id;
+      el.innerHTML = `
+        <div class="item-check">
+          <svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>
+        </div>
+        <div class="item-content">
+          <div class="item-text">${item.text}</div>
+          ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
+        </div>
+        ${item.tag ? `<div class="item-tag ${item.tag}">${item.tag}</div>` : ''}
+      `;
+
+      // Tap: toggle. Long press: expand note
+      let pressTimer;
+      el.addEventListener('pointerdown', () => {
+        pressTimer = setTimeout(() => {
+          el.classList.toggle('expanded');
+        }, 400);
+      });
+      el.addEventListener('pointerup', () => clearTimeout(pressTimer));
+      el.addEventListener('pointercancel', () => clearTimeout(pressTimer));
+      el.addEventListener('click', () => toggle(item.id));
+
+      itemsEl.appendChild(el);
+    });
+  });
+}
+
+function calcStreak() {
+  const today = new Date();
+  const todayStr = today.toDateString();
+  let streak = 0;
+  const check = new Date(today);
+  if (!state.allDone) check.setDate(check.getDate() - 1);
+  while (state.history.includes(check.toDateString())) {
+    streak++;
+    check.setDate(check.getDate() - 1);
+  }
+  if (state.allDone) streak = Math.max(1, streak);
+  return streak;
+}
+
+function renderWeekly() {
+  const grid = document.getElementById('weeklyGrid');
+  grid.innerHTML = '';
+  const today = new Date();
+  const todayStr = today.toDateString();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dow = today.getDay();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - ((dow + 6) % 7));
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    const dStr = d.toDateString();
+    const isToday = dStr === todayStr;
+    const isDone = state.history.includes(dStr) || (isToday && state.allDone);
+    const dot = document.createElement('div');
+    dot.className = `day-dot${isToday ? ' active' : ''}${isDone ? ' complete' : ''}`;
+    dot.innerHTML = `<span class="day-label">${days[d.getDay()]}</span><span class="day-num">${d.getDate()}</span>`;
+    grid.appendChild(dot);
+  }
+
+  const streak = calcStreak();
+  const streakEl = document.getElementById('streakDisplay');
+  streakEl.innerHTML = streak > 0
+    ? `Current streak — <span>${streak} day${streak !== 1 ? 's' : ''}</span>`
+    : `Start your streak today`;
+}
+
+// ── Service worker with update detection ────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateBanner(newWorker);
+          }
+        });
+      });
+    } catch (e) {}
+  });
+}
+
+function showUpdateBanner(worker) {
+  const banner = document.getElementById('updateBanner');
+  if (!banner) return;
+  banner.classList.add('visible');
+  document.getElementById('updateBtn').onclick = () => {
+    worker.postMessage('skipWaiting');
+    navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+  };
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+loadFromServer();
+</script>
+
+<!-- Update banner -->
+<div id="updateBanner" class="update-banner">
+  <span>Update available</span>
+  <button id="updateBtn" class="update-banner-btn">Refresh</button>
+</div>
+</body>
+</html>

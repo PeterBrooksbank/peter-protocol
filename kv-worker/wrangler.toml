@@ -1,0 +1,8 @@
+name = "protocol-sync"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+ 
+[[kv_namespaces]]
+binding = "PROTOCOL_KV"
+id = "71e8aa9b342c49c481340f4967c96ee4"
+ 
