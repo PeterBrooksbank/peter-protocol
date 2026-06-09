@@ -84,6 +84,12 @@
     border-bottom: 1px solid var(--rule);
   }
 
+  .sync-meta {
+    margin-left: auto;
+    color: var(--stone);
+    opacity: 0.9;
+  }
+
   .sync-dot {
     width: 5px;
     height: 5px;
@@ -859,6 +865,7 @@
 <div class="sync-bar">
   <div class="sync-dot" id="syncDot"></div>
   <span id="syncStatus">Loading…</span>
+  <span class="sync-meta" id="syncMeta">Not yet synced</span>
 </div>
 
 <div class="app">
@@ -1124,6 +1131,8 @@ let state = {
 
 let syncTimer = null;
 let hasSynced = false;
+let syncInFlight = false;
+let lastSyncAt = Number(localStorage.getItem('protocol-last-sync-at-v1') || 0) || null;
 
 // ── Sync ─────────────────────────────────────────────────────────────────────
 function setSyncStatus(status, msg) {
@@ -1131,42 +1140,69 @@ function setSyncStatus(status, msg) {
   const label = document.getElementById('syncStatus');
   dot.className = 'sync-dot ' + status;
   label.textContent = msg;
+  if (status === 'synced') {
+    lastSyncAt = Date.now();
+    localStorage.setItem('protocol-last-sync-at-v1', String(lastSyncAt));
+  }
+  renderSyncMeta();
+}
+
+function renderSyncMeta() {
+  const meta = document.getElementById('syncMeta');
+  if (!meta) return;
+  if (!lastSyncAt) {
+    meta.textContent = 'Not yet synced';
+    return;
+  }
+  const time = new Date(lastSyncAt).toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  meta.textContent = `Last synced ${time}`;
 }
 
 async function loadFromServer() {
-  if (!WORKER_URL || WORKER_URL === 'YOUR_WORKER_URL_HERE') {
-    // Fallback to localStorage only
-    const saved = localStorage.getItem('protocol-state-v2');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      state = migrateState(parsed);
-    }
-    setSyncStatus('', 'Local only — deploy Worker to enable sync');
-    hasSynced = true;
-    renderAll();
-    return;
-  }
+  if (syncInFlight) return;
+  syncInFlight = true;
 
-  setSyncStatus('syncing', 'Syncing…');
   try {
-    const res = await fetch(`${WORKER_URL}/state?id=${DEVICE_ID}`, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) throw new Error('Server error');
-    const data = await res.json();
-    state = migrateState(data);
-    saveLocal();
-    setSyncStatus('synced', 'Synced');
-    hasSynced = true;
-  } catch (e) {
-    // Fall back to local
-    const saved = localStorage.getItem('protocol-state-v2');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      state = migrateState(parsed);
+    if (!WORKER_URL || WORKER_URL === 'YOUR_WORKER_URL_HERE') {
+      // Fallback to localStorage only
+      const saved = localStorage.getItem('protocol-state-v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        state = migrateState(parsed);
+      }
+      setSyncStatus('', 'Local only — deploy Worker to enable sync');
+      hasSynced = true;
+      renderAll();
+      return;
     }
-    setSyncStatus('error', 'Offline — changes saved locally');
-    hasSynced = true;
+
+    setSyncStatus('syncing', 'Syncing…');
+    try {
+      const res = await fetch(`${WORKER_URL}/state?id=${DEVICE_ID}`, { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) throw new Error('Server error');
+      const data = await res.json();
+      state = migrateState(data);
+      saveLocal();
+      setSyncStatus('synced', 'Synced');
+      hasSynced = true;
+    } catch (e) {
+      // Fall back to local
+      const saved = localStorage.getItem('protocol-state-v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        state = migrateState(parsed);
+      }
+      setSyncStatus('error', 'Offline — changes saved locally');
+      hasSynced = true;
+    }
+
+    renderAll();
+  } finally {
+    syncInFlight = false;
   }
-  renderAll();
 }
 
 function migrateState(data) {
@@ -2081,7 +2117,16 @@ function renderDayTotals() {
 renderMeals();
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
+renderSyncMeta();
 loadFromServer();
+
+window.addEventListener('pageshow', () => {
+  if (hasSynced) loadFromServer();
+});
+
+window.addEventListener('online', () => {
+  loadFromServer();
+});
 </script>
 
 <!-- Update banner -->

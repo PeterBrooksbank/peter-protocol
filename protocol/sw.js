@@ -1,4 +1,4 @@
-const CACHE = 'protocol-v2';
+const CACHE = 'protocol-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -26,6 +26,16 @@ self.addEventListener('activate', e => {
 
 // Fetch: cache-first with background revalidation (stale-while-revalidate)
 self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+  const isApiLikeCrossOrigin = !isSameOrigin && e.request.destination === '';
+
+  // Never cache API-like requests (for example sync calls to a Worker domain).
+  if (e.request.method !== 'GET' || isApiLikeCrossOrigin) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
   e.respondWith(
     caches.open(CACHE).then(cache =>
       cache.match(e.request).then(cached => {
