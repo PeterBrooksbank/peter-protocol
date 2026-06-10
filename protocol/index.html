@@ -84,12 +84,6 @@
     border-bottom: 1px solid var(--rule);
   }
 
-  .sync-meta {
-    margin-left: auto;
-    color: var(--stone);
-    opacity: 0.9;
-  }
-
   .sync-dot {
     width: 5px;
     height: 5px;
@@ -865,7 +859,6 @@
 <div class="sync-bar">
   <div class="sync-dot" id="syncDot"></div>
   <span id="syncStatus">Loading…</span>
-  <span class="sync-meta" id="syncMeta">Not yet synced</span>
 </div>
 
 <div class="app">
@@ -953,6 +946,22 @@
         </div>
         <div class="supp-detail">Cognitive benefits well-established — improves processing speed and working memory, especially effective when sleep-deprived. Also critical for muscle retention. Any pure monohydrate brand. Anytime.</div>
       </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">Lion's Mane</div>
+          <div class="supp-dose">500–1000mg</div>
+        </div>
+        <div class="supp-detail">Stimulates nerve growth factor (NGF) — supports cognitive function, focus, and memory. Emerging evidence for neuroplasticity. Fruiting body extract only (not mycelium on grain). Directly relevant to your brain fog target.</div>
+        <span class="supp-food-flag">Morning</span>
+      </div>
+      <div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-name">Ginkgo Biloba</div>
+          <div class="supp-dose">120mg</div>
+        </div>
+        <div class="supp-detail">Improves cerebral blood flow and oxygen delivery to the brain. Good evidence for processing speed, memory, and mental clarity. Mild anticoagulant — avoid if taking blood thinners or aspirin regularly.</div>
+        <span class="supp-food-flag">Morning</span>
+      </div>
     </div>
 
     <div class="supp-timing">
@@ -1039,7 +1048,7 @@ const PROTOCOL = [
     items: [
       { id: 'light', text: 'Natural light — open door or window immediately', note: 'Sets circadian clock. Even 5 minutes outside counts. Critical for melatonin regulation and cortisol rhythm.', tag: 'mind' },
       { id: 'water', text: 'Large glass of water (500ml)', note: 'You\'re dehydrated after sleep. Do this before coffee.' },
-      { id: 'supps-am', text: 'Supplements — D3/K2, Omega-3, B Complex, Zinc, Ashwagandha', note: 'All with breakfast. Creatine in coffee or water anytime.', tag: 'supp' },
+      { id: 'supps-am', text: 'Supplements — D3/K2, Omega-3, B Complex, Zinc, Ashwagandha, Creatine, Lion\'s Mane, Ginkgo', note: 'All with breakfast. Creatine in water or coffee.', tag: 'supp' },
       { id: 'coffee-wait', text: 'Wait 60–90 min before first coffee', note: 'Lets adenosine clear naturally. Prevents the mid-afternoon energy crash.', tag: 'mind' },
       { id: 'breakfast', text: 'High-protein breakfast — 40–50g protein', note: 'Sets satiety hormones for the whole day. Eggs, Greek yoghurt, meat.' },
     ]
@@ -1131,8 +1140,6 @@ let state = {
 
 let syncTimer = null;
 let hasSynced = false;
-let syncInFlight = false;
-let lastSyncAt = Number(localStorage.getItem('protocol-last-sync-at-v1') || 0) || null;
 
 // ── Sync ─────────────────────────────────────────────────────────────────────
 function setSyncStatus(status, msg) {
@@ -1140,69 +1147,42 @@ function setSyncStatus(status, msg) {
   const label = document.getElementById('syncStatus');
   dot.className = 'sync-dot ' + status;
   label.textContent = msg;
-  if (status === 'synced') {
-    lastSyncAt = Date.now();
-    localStorage.setItem('protocol-last-sync-at-v1', String(lastSyncAt));
-  }
-  renderSyncMeta();
-}
-
-function renderSyncMeta() {
-  const meta = document.getElementById('syncMeta');
-  if (!meta) return;
-  if (!lastSyncAt) {
-    meta.textContent = 'Not yet synced';
-    return;
-  }
-  const time = new Date(lastSyncAt).toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-  meta.textContent = `Last synced ${time}`;
 }
 
 async function loadFromServer() {
-  if (syncInFlight) return;
-  syncInFlight = true;
-
-  try {
-    if (!WORKER_URL || WORKER_URL === 'YOUR_WORKER_URL_HERE') {
-      // Fallback to localStorage only
-      const saved = localStorage.getItem('protocol-state-v2');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        state = migrateState(parsed);
-      }
-      setSyncStatus('', 'Local only — deploy Worker to enable sync');
-      hasSynced = true;
-      renderAll();
-      return;
+  if (!WORKER_URL || WORKER_URL === 'YOUR_WORKER_URL_HERE') {
+    // Fallback to localStorage only
+    const saved = localStorage.getItem('protocol-state-v2');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = migrateState(parsed);
     }
-
-    setSyncStatus('syncing', 'Syncing…');
-    try {
-      const res = await fetch(`${WORKER_URL}/state?id=${DEVICE_ID}`, { signal: AbortSignal.timeout(5000) });
-      if (!res.ok) throw new Error('Server error');
-      const data = await res.json();
-      state = migrateState(data);
-      saveLocal();
-      setSyncStatus('synced', 'Synced');
-      hasSynced = true;
-    } catch (e) {
-      // Fall back to local
-      const saved = localStorage.getItem('protocol-state-v2');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        state = migrateState(parsed);
-      }
-      setSyncStatus('error', 'Offline — changes saved locally');
-      hasSynced = true;
-    }
-
+    setSyncStatus('', 'Local only — deploy Worker to enable sync');
+    hasSynced = true;
     renderAll();
-  } finally {
-    syncInFlight = false;
+    return;
   }
+
+  setSyncStatus('syncing', 'Syncing…');
+  try {
+    const res = await fetch(`${WORKER_URL}/state?id=${DEVICE_ID}`, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error('Server error');
+    const data = await res.json();
+    state = migrateState(data);
+    saveLocal();
+    setSyncStatus('synced', 'Synced');
+    hasSynced = true;
+  } catch (e) {
+    // Fall back to local
+    const saved = localStorage.getItem('protocol-state-v2');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = migrateState(parsed);
+    }
+    setSyncStatus('error', 'Offline — changes saved locally');
+    hasSynced = true;
+  }
+  renderAll();
 }
 
 function migrateState(data) {
@@ -2117,16 +2097,7 @@ function renderDayTotals() {
 renderMeals();
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
-renderSyncMeta();
 loadFromServer();
-
-window.addEventListener('pageshow', () => {
-  if (hasSynced) loadFromServer();
-});
-
-window.addEventListener('online', () => {
-  loadFromServer();
-});
 </script>
 
 <!-- Update banner -->
