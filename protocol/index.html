@@ -1196,6 +1196,7 @@
 <!-- Toast -->
 <div class="loading-overlay" id="toast"></div>
 
+<script src="state.js"></script>
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
 // Replace with your deployed Worker URL after deploying worker.js to Cloudflare
@@ -1230,8 +1231,7 @@ let state = {
   allDone: false
 };
 
-let syncTimer = null;
-let hasSynced = false;
+let stateManager = null;
 
 // ── Sync ─────────────────────────────────────────────────────────────────────
 function isValidProtocolData(data) {
@@ -1290,81 +1290,14 @@ function setSyncStatus(status, msg) {
 }
 
 async function loadFromServer() {
-  if (!WORKER_URL || WORKER_URL === 'YOUR_WORKER_URL_HERE') {
-    // Fallback to localStorage only
-    const saved = localStorage.getItem('protocol-state-v2');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      state = migrateState(parsed);
-    }
-    setSyncStatus('', 'Local only — deploy Worker to enable sync');
-    hasSynced = true;
-    renderAll();
-    return;
-  }
-
-  setSyncStatus('syncing', 'Syncing…');
-  try {
-    const res = await fetch(`${WORKER_URL}/state?id=${DEVICE_ID}`, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) throw new Error('Server error');
-    const data = await res.json();
-    state = migrateState(data);
-    saveLocal();
-    setSyncStatus('synced', 'Synced');
-    hasSynced = true;
-  } catch (e) {
-    // Fall back to local
-    const saved = localStorage.getItem('protocol-state-v2');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      state = migrateState(parsed);
-    }
-    setSyncStatus('error', 'Offline — changes saved locally');
-    hasSynced = true;
-  }
+  if (!stateManager) return;
+  state = await stateManager.load();
   renderAll();
 }
 
-function migrateState(data) {
-  if (!data) return { date: TODAY, checked: {}, history: [], allDone: false };
-  // Handle day rollover
-  if (data.date !== TODAY) {
-    const history = data.history || [];
-    if (data.allDone && !history.includes(data.date)) history.push(data.date);
-    return { date: TODAY, checked: {}, history, allDone: false };
-  }
-  return {
-    date: data.date || TODAY,
-    checked: data.checked || {},
-    history: data.history || [],
-    allDone: data.allDone || false
-  };
-}
-
-function saveLocal() {
-  localStorage.setItem('protocol-state-v2', JSON.stringify(state));
-}
-
-async function pushToServer() {
-  if (!WORKER_URL || WORKER_URL === 'YOUR_WORKER_URL_HERE') return;
-  try {
-    await fetch(`${WORKER_URL}/state?id=${DEVICE_ID}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state),
-      signal: AbortSignal.timeout(5000)
-    });
-    setSyncStatus('synced', 'Synced');
-  } catch {
-    setSyncStatus('error', 'Offline — will sync when reconnected');
-  }
-}
-
 function schedulePush() {
-  saveLocal();
-  clearTimeout(syncTimer);
-  setSyncStatus('syncing', 'Saving…');
-  syncTimer = setTimeout(pushToServer, 1200);
+  if (!stateManager) return;
+  stateManager.schedulePush(state, 1200);
 }
 
 // ── Tab navigation ───────────────────────────────────────────────────────────
@@ -1894,6 +1827,13 @@ function renderDayTotals() {
 (async function boot() {
   const loaded = await loadProtocolData();
   if (!loaded) return;
+
+  stateManager = window.createProtocolStateManager({
+    workerUrl: WORKER_URL,
+    deviceId: DEVICE_ID,
+    today: TODAY,
+    setSyncStatus
+  });
 
   renderMeals();
   await loadFromServer();
