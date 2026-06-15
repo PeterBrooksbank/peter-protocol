@@ -1,11 +1,17 @@
-const CACHE = 'protocol-v8';
+const CACHE = 'protocol-v9';
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/state.js',
+  '/device-identity.js',
+  '/meal-state.js',
   '/meal-logic.js',
+  '/meal-display.js',
   '/checklist-logic.js',
+  '/tab-nav.js',
+  '/render-coordinator.js',
+  '/day-completion.js',
   '/update-coordinator.js',
   '/protocol.json',
   '/meals.json',

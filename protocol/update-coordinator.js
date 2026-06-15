@@ -1,8 +1,11 @@
 (function attachUpdateCoordinator(global) {
   function createProtocolUpdateCoordinator(options) {
     const hasPendingSync = options.hasPendingSync;
+    const onPendingSyncChange = options.onPendingSyncChange || (() => () => {});
     const promptUpdate = options.promptUpdate;
     const showToast = options.showToast;
+    let releasePendingSyncSubscription = null;
+    let waitingWorker = null;
 
     function deferUntilSynced(worker) {
       if (!hasPendingSync()) {
@@ -14,12 +17,16 @@
         showToast('Update downloaded — waiting for sync');
       }
 
-      const timer = setInterval(() => {
-        if (!hasPendingSync()) {
-          clearInterval(timer);
-          promptUpdate(worker);
+      waitingWorker = worker;
+      if (releasePendingSyncSubscription) return;
+
+      releasePendingSyncSubscription = onPendingSyncChange(isPending => {
+        if (!isPending && waitingWorker) {
+          const nextWorker = waitingWorker;
+          waitingWorker = null;
+          promptUpdate(nextWorker);
         }
-      }, 1000);
+      });
     }
 
     function register() {

@@ -13,6 +13,19 @@
 
     let pushTimer = null;
     let pendingSync = false;
+    const pendingSyncListeners = new Set();
+
+    function setPendingSync(value) {
+      if (pendingSync === value) return;
+      pendingSync = value;
+      pendingSyncListeners.forEach(listener => {
+        try {
+          listener(pendingSync);
+        } catch {
+          // Ignore listener errors to keep state flow stable.
+        }
+      });
+    }
 
     function migrateState(data) {
       if (!data) return defaultState(today);
@@ -87,7 +100,7 @@
           body: JSON.stringify(state),
           signal: AbortSignal.timeout(5000)
         });
-        pendingSync = false;
+        setPendingSync(false);
         setSyncStatus('synced', 'Synced');
       } catch {
         setSyncStatus('error', 'Offline — will sync when reconnected');
@@ -97,7 +110,7 @@
     function schedulePush(state, delayMs) {
       saveLocal(state);
       clearTimeout(pushTimer);
-      pendingSync = true;
+      setPendingSync(true);
       setSyncStatus('syncing', 'Saving...');
       pushTimer = setTimeout(() => {
         push(state);
@@ -108,11 +121,17 @@
       return pendingSync;
     }
 
+    function onPendingSyncChange(listener) {
+      pendingSyncListeners.add(listener);
+      return () => pendingSyncListeners.delete(listener);
+    }
+
     return {
       load,
       schedulePush,
       push,
       hasPendingSync,
+      onPendingSyncChange,
       saveLocal,
       migrateState
     };

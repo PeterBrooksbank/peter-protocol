@@ -1004,9 +1004,9 @@
 
 <!-- Navigation -->
 <nav class="nav">
-  <button class="nav-tab active" onclick="showTab('checklist')">Checklist</button>
-  <button class="nav-tab" onclick="showTab('supplements')">Supplements</button>
-  <button class="nav-tab" onclick="showTab('meals')">Meals</button>
+  <button class="nav-tab active" data-tab="checklist" onclick="showTab('checklist')">Checklist</button>
+  <button class="nav-tab" data-tab="supplements" onclick="showTab('supplements')">Supplements</button>
+  <button class="nav-tab" data-tab="meals" onclick="showTab('meals')">Meals</button>
 </nav>
 
 <!-- Sync status bar -->
@@ -1197,8 +1197,14 @@
 <div class="loading-overlay" id="toast"></div>
 
 <script src="state.js"></script>
+<script src="device-identity.js"></script>
+<script src="meal-state.js"></script>
 <script src="meal-logic.js"></script>
+<script src="meal-display.js"></script>
 <script src="checklist-logic.js"></script>
+<script src="tab-nav.js"></script>
+<script src="render-coordinator.js"></script>
+<script src="day-completion.js"></script>
 <script src="update-coordinator.js"></script>
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
@@ -1214,16 +1220,10 @@ const DATA_FILES = {
 };
 
 // ── Device ID ────────────────────────────────────────────────────────────────
-function getDeviceId() {
-  let id = localStorage.getItem('protocol-device-id');
-  if (!id) {
-    id = 'dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-    localStorage.setItem('protocol-device-id', id);
-  }
-  return id;
-}
-
-const DEVICE_ID = getDeviceId();
+const deviceIdentity = window.createProtocolDeviceIdentity({
+  storageKey: 'protocol-device-id'
+});
+const DEVICE_ID = deviceIdentity.getOrCreate();
 const TODAY = new Date().toDateString();
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -1236,6 +1236,11 @@ let state = {
 
 let stateManager = null;
 let checklistLogic = null;
+let dayCompletion = null;
+let mealStateManager = null;
+let mealDisplay = null;
+let tabNavigation = null;
+let renderCoordinator = null;
 let updateCoordinator = null;
 
 // ── Sync ─────────────────────────────────────────────────────────────────────
@@ -1307,10 +1312,8 @@ function schedulePush() {
 
 // ── Tab navigation ───────────────────────────────────────────────────────────
 function showTab(name) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
+  if (!tabNavigation) return;
+  tabNavigation.show(name);
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────
@@ -1325,7 +1328,7 @@ function getTotalCount() {
 }
 
 function updateProgress() {
-  if (!checklistLogic) return;
+  if (!checklistLogic || !dayCompletion) return;
 
   const progress = checklistLogic.getProgress(state, PROTOCOL);
   const done = progress.done;
@@ -1334,20 +1337,16 @@ function updateProgress() {
   document.getElementById('progressBar').style.width = pct + '%';
   document.getElementById('progressLabel').textContent = `${done} of ${total} complete — ${pct}%`;
 
-  if (checklistLogic.markDayCompleteIfNeeded(state, progress)) {
-    schedulePush();
-    setTimeout(showDayComplete, 400);
-  }
+  dayCompletion.handleProgress(state, progress);
   renderWeekly();
 }
 
 function showDayComplete() {
-  // Build stats
+  if (!dayCompletion) return;
+
   const total = getTotalCount();
-  const streak = calcStreak();
-  document.getElementById('dayCompleteStats').innerHTML =
-    `<strong>${total}</strong> items complete<br>` +
-    `<strong>${streak}</strong> day streak`;
+  const streak = dayCompletion.computeStreak(state, new Date());
+  document.getElementById('dayCompleteStats').innerHTML = dayCompletion.buildStatsHtml(total, streak);
   document.getElementById('dayComplete').classList.add('visible');
 }
 
@@ -1392,10 +1391,8 @@ function resetDay() {
 }
 
 function renderAll() {
-  renderDate();
-  renderSections();
-  updateProgress();
-  renderWeekly();
+  if (!renderCoordinator) return;
+  renderCoordinator.onProtocolStateChange();
 }
 
 function renderDate() {
@@ -1459,17 +1456,8 @@ function renderSections() {
 }
 
 function calcStreak() {
-  const today = new Date();
-  const todayStr = today.toDateString();
-  let streak = 0;
-  const check = new Date(today);
-  if (!state.allDone) check.setDate(check.getDate() - 1);
-  while (state.history.includes(check.toDateString())) {
-    streak++;
-    check.setDate(check.getDate() - 1);
-  }
-  if (state.allDone) streak = Math.max(1, streak);
-  return streak;
+  if (!dayCompletion) return 0;
+  return dayCompletion.computeStreak(state, new Date());
 }
 
 function renderWeekly() {
@@ -1516,27 +1504,15 @@ function showUpdateBanner(worker) {
 // ── Meal data loaded from meals.json ──────────────────────────────────────────────
 
 // ── Meal state ────────────────────────────────────────────────────────────────
-function loadMealState() {
-  const saved = localStorage.getItem('protocol-meals-v1');
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    if (parsed.date === new Date().toDateString()) return parsed;
-  }
-  return { date: new Date().toDateString(), selected: {} };
-}
-
-function saveMealState() {
-  localStorage.setItem('protocol-meals-v1', JSON.stringify(mealState));
-}
-
-let mealState = loadMealState();
-let planMode = localStorage.getItem('protocol-plan-mode') || 'standard';
+let mealState = { date: TODAY, selected: {} };
+let planMode = 'standard';
 let mealLogic = null;
 
 function setPlanMode(mode) {
+  if (!mealStateManager || !renderCoordinator) return;
   planMode = mode;
-  localStorage.setItem('protocol-plan-mode', mode);
-  renderMeals();
+  mealStateManager.setMode(mode);
+  renderCoordinator.onMealStateChange();
 }
 
 // ── Macro plan targets ──────────────────────────────────────────────────────
@@ -1552,72 +1528,20 @@ const MACRO_PLAN = {
 };
 
 function selectMeal(mealType, mealId) {
-  if (mealState.selected[mealType] === mealId) {
-    delete mealState.selected[mealType];
-  } else {
-    mealState.selected[mealType] = mealId;
-  }
-  saveMealState();
-  renderMeals();
+  if (!mealStateManager || !renderCoordinator) return;
+  mealState = mealStateManager.toggleSelection(mealState, mealType, mealId);
+  renderCoordinator.onMealStateChange();
 }
 
 function resetMeals() {
-  mealState.selected = {};
-  saveMealState();
-  renderMeals();
+  if (!mealStateManager || !renderCoordinator) return;
+  mealState = mealStateManager.resetSelections(mealState);
+  renderCoordinator.onMealStateChange();
 }
 
-
-function copyMealIngredients(meal, showPlan, btnEl) {
-  let lines = [meal.name + ':'];
-
-  if (showPlan && meal.plan) {
-    meal.plan.items.forEach(item => {
-      lines.push(`- ${item.amount} ${item.name}`);
-    });
-  } else if (meal.ingredients) {
-    meal.ingredients.forEach(item => {
-      lines.push(`- ${item.amount} ${item.name}`);
-    });
-  }
-
-  const text = lines.join('\n');
-
-  const showCopied = () => {
-    btnEl.classList.add('copied');
-    btnEl.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
-    const toast = document.getElementById('copyToast');
-    toast.textContent = `Copied "${meal.name}" ingredients`;
-    toast.classList.add('visible');
-    clearTimeout(window._copyToastTimer);
-    clearTimeout(window._copyBtnTimer);
-    window._copyToastTimer = setTimeout(() => toast.classList.remove('visible'), 1800);
-    window._copyBtnTimer = setTimeout(() => {
-      btnEl.classList.remove('copied');
-      btnEl.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
-    }, 1200);
-  };
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text, showCopied));
-  } else {
-    fallbackCopy(text, showCopied);
-  }
-}
-
-function fallbackCopy(text, cb) {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); cb(); } catch (e) {}
-  document.body.removeChild(ta);
-}
 
 function renderMeals() {
-  if (!mealLogic) return;
+  if (!mealLogic || !mealDisplay) return;
 
   const container = document.getElementById('mealSections');
   container.innerHTML = '';
@@ -1662,60 +1586,12 @@ function renderMeals() {
       const isSelected = mealState.selected[type] === meal.id;
       const card = document.createElement('div');
       card.className = `meal-card ${isSelected ? 'selected' : ''}`;
-
-      let planHtml = '';
-      if (showPlan && meal.plan) {
-        const planItems = meal.plan.items.map(item => `
-          <div class="meal-plan-row">
-            <span class="meal-plan-item">${item.name}</span>
-            <span>
-              <span class="meal-plan-amount">${item.amount}</span>
-              ${item.kcal > 0 ? `<span class="meal-plan-kcal">${item.kcal} kcal</span>` : ''}
-            </span>
-          </div>`).join('');
-        planHtml = `
-          <div class="meal-plan-amounts">
-            ${planItems}
-            <div class="meal-plan-total">
-              <span class="meal-plan-total-label">Meal total</span>
-              <span class="meal-plan-total-value">${meal.plan.kcal} kcal · P${meal.plan.protein}g</span>
-            </div>
-          </div>
-          <div class="meal-divider"></div>`;
-      }
-
-      const ingredientsHtml = (!showPlan && meal.ingredients) ? `
-        <div class="meal-ingredients">
-          ${meal.ingredients.map(i => `
-            <div class="meal-ingredient">
-              <span class="meal-ingredient-amount">${i.amount}</span>
-              <span class="meal-ingredient-name">${i.name}</span>
-            </div>`).join('')}
-        </div>
-        <div class="meal-divider"></div>` : '';
-
-      card.innerHTML = `
-        <button class="meal-copy-btn" title="Copy ingredients">
-          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-        </button>
-        <div class="meal-card-top">
-          <div class="meal-name">${meal.name}${meal.plan ? '<span class="plan-badge">1400</span>' : ''}</div>
-          <div class="meal-kcal">${meal.kcal} kcal</div>
-        </div>
-        <div class="meal-macros">
-          <span>P ${meal.protein}g</span>
-          <span>C ${meal.carbs}g</span>
-          <span>F ${meal.fat}g</span>
-        </div>
-        ${showPlan ? planHtml : ingredientsHtml}
-        <div class="meal-notes">${meal.notes}</div>
-        ${meal.tags.map(t => `<span class="meal-tag ${t}">${t}</span>`).join('')}
-      `;
+      card.innerHTML = mealDisplay.buildCardHtml(meal, isSelected, showPlan);
       card.addEventListener('click', () => selectMeal(type, meal.id));
       const copyBtn = card.querySelector('.meal-copy-btn');
       copyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        copyMealIngredients(meal, showPlan, copyBtn);
+        mealDisplay.copyIngredients(meal, showPlan, copyBtn);
       });
       sec.appendChild(card);
     });
@@ -1774,11 +1650,40 @@ function renderDayTotals() {
   const loaded = await loadProtocolData();
   if (!loaded) return;
 
+  tabNavigation = window.createProtocolTabNavigation({
+    tabSelector: '.tab-content',
+    navSelector: '.nav-tab',
+    tabPrefix: 'tab-'
+  });
+
+  mealStateManager = window.createProtocolMealStateManager({
+    stateKey: 'protocol-meals-v1',
+    modeKey: 'protocol-plan-mode',
+    todayProvider: () => new Date().toDateString()
+  });
+  mealState = mealStateManager.loadState();
+  planMode = mealStateManager.loadMode();
+
   checklistLogic = window.createProtocolChecklistLogic();
+  dayCompletion = window.createProtocolDayCompletionOrchestrator({
+    checklistLogic,
+    schedulePush,
+    showDayComplete
+  });
 
   mealLogic = window.createProtocolMealLogic({
     meals: MEALS,
     macroPlan: MACRO_PLAN
+  });
+  mealDisplay = window.createProtocolMealDisplayAdapter({
+    copyToastId: 'copyToast'
+  });
+
+  renderCoordinator = window.createProtocolRenderCoordinator({
+    renderDate,
+    renderSections,
+    updateProgress,
+    renderMeals
   });
 
   stateManager = window.createProtocolStateManager({
@@ -1790,6 +1695,7 @@ function renderDayTotals() {
 
   updateCoordinator = window.createProtocolUpdateCoordinator({
     hasPendingSync: () => stateManager.hasPendingSync(),
+    onPendingSyncChange: (listener) => stateManager.onPendingSyncChange(listener),
     promptUpdate: showUpdateBanner,
     showToast: (msg) => {
       const toast = document.getElementById('toast');
@@ -1802,7 +1708,7 @@ function renderDayTotals() {
   });
   updateCoordinator.register();
 
-  renderMeals();
+  renderCoordinator.onInit();
   await loadFromServer();
 })();
 </script>
