@@ -1,0 +1,272 @@
+[
+  {
+    "id": "morning",
+    "label": "Morning",
+    "time": "On waking",
+    "items": [
+      {
+        "id": "light",
+        "text": "Natural light — open door or window immediately",
+        "note": "Sets circadian clock. Even 5 minutes outside counts. Critical for melatonin regulation and cortisol rhythm.",
+        "tag": "mind"
+      },
+      {
+        "id": "water",
+        "text": "Large glass of water (500ml)",
+        "note": "You're dehydrated after sleep. Do this before coffee."
+      },
+      {
+        "id": "supp-d3",
+        "text": "Vitamin D3 + K2",
+        "note": "4000 IU D3 + 100mcg K2 MK-7. With food.",
+        "tag": "supp"
+      },
+      {
+        "id": "supp-omega",
+        "text": "Omega-3",
+        "note": "2g EPA/DHA. With food.",
+        "tag": "supp"
+      },
+      {
+        "id": "supp-bcomplex",
+        "text": "B Complex (methylated)",
+        "note": "1 capsule. Morning only — can be stimulating.",
+        "tag": "supp"
+      },
+      {
+        "id": "supp-zinc",
+        "text": "Zinc Bisglycinate",
+        "note": "15–25mg. With food.",
+        "tag": "supp"
+      },
+      {
+        "id": "supp-ashwagandha",
+        "text": "Ashwagandha KSM-66",
+        "note": "300–600mg. Cycle 8–12 weeks on, 4 weeks off.",
+        "tag": "supp"
+      },
+      {
+        "id": "supp-creatine",
+        "text": "Creatine Monohydrate",
+        "note": "5g. In water or coffee.",
+        "tag": "supp"
+      },
+      {
+        "id": "supp-lionsmane",
+        "text": "Lion's Mane",
+        "note": "500–1000mg. Fruiting body extract only.",
+        "tag": "supp"
+      },
+      {
+        "id": "supp-ginkgo",
+        "text": "Ginkgo Biloba",
+        "note": "120mg. Avoid if taking blood thinners.",
+        "tag": "supp"
+      },
+      {
+        "id": "coffee-wait",
+        "text": "Wait 60–90 min before first coffee",
+        "note": "Lets adenosine clear naturally. Prevents the mid-afternoon energy crash.",
+        "tag": "mind"
+      },
+      {
+        "id": "breakfast",
+        "text": "High-protein breakfast — 40–50g protein",
+        "note": "Sets satiety hormones for the whole day. Eggs, Greek yoghurt, meat."
+      }
+    ]
+  },
+  {
+    "id": "grooming",
+    "label": "Morning Grooming",
+    "time": "Post-shower",
+    "items": [
+      {
+        "id": "shower",
+        "text": "Shower — end with 30s cold",
+        "note": "Cold finish raises alertness and circulation. Cleanse face in shower with dedicated cleanser.",
+        "tag": "body"
+      },
+      {
+        "id": "vit-c-serum",
+        "text": "Vitamin C + Glycolic Acid Serum — 3 drops",
+        "note": "Apply to clean dry skin. Antioxidant protection works best AM. Brightens and evens tone."
+      },
+      {
+        "id": "firming-am",
+        "text": "Face Firming Gel — AM moisturiser",
+        "note": "Replaces separate moisturiser. Hyaluronic acid + peptides. Focus on lines."
+      },
+      {
+        "id": "eye-cream",
+        "text": "Under Eye Cream — metal applicator",
+        "note": "Cold applicator depuffs in AM. Tap gently, don't drag or pull."
+      },
+      {
+        "id": "spf",
+        "text": "SPF 30+ — last skincare step",
+        "note": "Daily, year-round. Yorkshire overcast still delivers UV. After all serums."
+      },
+      {
+        "id": "teeth-am",
+        "text": "Brush teeth — 2 min, electric",
+        "note": "Don't rinse with water after — let fluoride sit on teeth."
+      },
+      {
+        "id": "floss",
+        "text": "Floss or interdental brushes",
+        "note": "Once daily. Morning or evening — just be consistent."
+      }
+    ]
+  },
+  {
+    "id": "work",
+    "label": "Work",
+    "time": "Morning block",
+    "items": [
+      {
+        "id": "deep-work",
+        "text": "90-min deep work block — no messages, no Slack",
+        "note": "Prefrontal cortex is freshest. Use it for the hardest thinking.",
+        "tag": "mind"
+      },
+      {
+        "id": "move-desk",
+        "text": "Move every 45–60 min — stand up, 2 min",
+        "note": "Set a repeating timer. Prolonged sitting is independently harmful even with exercise."
+      },
+      {
+        "id": "caffeine-cut",
+        "text": "Last coffee by 1–2pm",
+        "note": "6-hour half-life. Post-2pm coffee is still active at midnight.",
+        "tag": "mind"
+      }
+    ]
+  },
+  {
+    "id": "lunch",
+    "label": "Midday",
+    "time": "Lunch",
+    "items": [
+      {
+        "id": "real-lunch",
+        "text": "Real meal — not desk food",
+        "note": "Legumes, brassicas, protein, olive oil. Simple is fine."
+      },
+      {
+        "id": "walk-lunch",
+        "text": "10–15 min walk after lunch",
+        "note": "Reduces blood glucose spike. One of the best free cognitive interventions.",
+        "tag": "body"
+      },
+      {
+        "id": "collagen",
+        "text": "Collagen — with lunch (needs Vitamin C)",
+        "note": "Marine collagen 2331mg at 650 Dalton. Any fruit or veg provides the Vitamin C needed for synthesis.",
+        "tag": "supp"
+      }
+    ]
+  },
+  {
+    "id": "exercise",
+    "label": "Exercise",
+    "time": "3–4× per week",
+    "items": [
+      {
+        "id": "workout",
+        "text": "Structured session — 45 min",
+        "note": "Alternate strength / Zone 2 cardio. Zone 2 = conversational pace. Critical for cognitive function.",
+        "tag": "body"
+      }
+    ]
+  },
+  {
+    "id": "pureclarity",
+    "label": "PureClarity",
+    "time": "8pm – 9pm",
+    "items": [
+      {
+        "id": "pureclarity",
+        "text": "One improvement to PureClarity — ship something",
+        "note": "Fix, feature, copy, infra, docs. Size doesn't matter. Daily momentum compounds.",
+        "tag": "mind"
+      }
+    ]
+  },
+  {
+    "id": "evening",
+    "label": "Evening",
+    "time": "Wind-down",
+    "items": [
+      {
+        "id": "eating-cut",
+        "text": "Last food by 8pm (3hrs before bed)",
+        "note": "Single biggest sleep quality lever. Late eating raises resting heart rate significantly."
+      },
+      {
+        "id": "dim-lights",
+        "text": "Dim lights from 9pm",
+        "note": "Lamps only. Overhead lights off. Blue-spectrum light suppresses melatonin production."
+      },
+      {
+        "id": "screens",
+        "text": "Blue light filter on all screens from 9pm",
+        "note": "f.lux on Windows, Night Mode on Android. Or screens off by 10pm.",
+        "tag": "mind"
+      },
+      {
+        "id": "face-eve",
+        "text": "Cleanse — remove SPF and day grime",
+        "note": "Full cleanse essential at night. SPF left on overnight clogs pores and degrades skin."
+      },
+      {
+        "id": "sal-serum",
+        "text": "Salicylic Acid + Niacinamide Serum — 3 drops",
+        "note": "PM only. BHA exfoliant — clears pores and reduces redness. Let absorb 60 seconds before next step."
+      },
+      {
+        "id": "retinol-serum",
+        "text": "Bio-Retinol + Argireline Peptide Serum — 3 drops",
+        "note": "PM only — photosensitive. Anti-wrinkle, firms, reduces dark spots. Apply after salicylic."
+      },
+      {
+        "id": "firming-pm",
+        "text": "Face Firming Gel — PM moisturiser",
+        "note": "Seals serums in. Hyaluronic acid + peptides work during sleep."
+      },
+      {
+        "id": "teeth-pm",
+        "text": "Brush teeth — 2 min. No rinsing.",
+        "note": "Floss if not done in morning."
+      }
+    ]
+  },
+  {
+    "id": "bed",
+    "label": "Bed",
+    "time": "Before sleep",
+    "items": [
+      {
+        "id": "magnesium",
+        "text": "Magnesium Glycinate 400mg",
+        "note": "30–60 min before sleep. Most people notice improved sleep depth within the first week.",
+        "tag": "supp"
+      },
+      {
+        "id": "bedroom-temp",
+        "text": "Bedroom 18–20°C — crack window",
+        "note": "New builds run warm. Core temperature drop is the primary trigger for sleep onset."
+      },
+      {
+        "id": "phone-out",
+        "text": "Phone outside bedroom or face-down and silenced",
+        "note": "Charger in another room is the only reliably effective fix."
+      },
+      {
+        "id": "consistent-time",
+        "text": "Bed at consistent time",
+        "note": "Circadian rhythm runs on regularity more than total hours."
+      }
+    ]
+  }
+]
