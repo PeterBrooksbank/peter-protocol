@@ -12,6 +12,7 @@
     const setSyncStatus = options.setSyncStatus;
 
     let pushTimer = null;
+    let pendingSync = false;
 
     function migrateState(data) {
       if (!data) return defaultState(today);
@@ -86,6 +87,7 @@
           body: JSON.stringify(state),
           signal: AbortSignal.timeout(5000)
         });
+        pendingSync = false;
         setSyncStatus('synced', 'Synced');
       } catch {
         setSyncStatus('error', 'Offline — will sync when reconnected');
@@ -95,16 +97,22 @@
     function schedulePush(state, delayMs) {
       saveLocal(state);
       clearTimeout(pushTimer);
+      pendingSync = true;
       setSyncStatus('syncing', 'Saving...');
       pushTimer = setTimeout(() => {
         push(state);
       }, delayMs);
     }
 
+    function hasPendingSync() {
+      return pendingSync;
+    }
+
     return {
       load,
       schedulePush,
       push,
+      hasPendingSync,
       saveLocal,
       migrateState
     };
