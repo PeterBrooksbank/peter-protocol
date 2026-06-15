@@ -1,8 +1,14 @@
-const CACHE = 'protocol-v3';
+const CACHE = 'protocol-v8';
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/state.js',
+  '/meal-logic.js',
+  '/checklist-logic.js',
+  '/update-coordinator.js',
+  '/protocol.json',
+  '/meals.json',
   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap'
 ];
 
