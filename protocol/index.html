@@ -720,7 +720,7 @@
     align-items: baseline;
     gap: 10px;
     margin-bottom: 4px;
-    padding-right: 20px;
+    padding-right: 34px;
   }
   .meal-name {
     font-size: 0.78rem;
@@ -849,12 +849,14 @@
   .plan-toggle {
     display: flex;
     align-items: center;
-    gap: 0;
+    flex-wrap: wrap;
+    gap: 2px;
     background: var(--rule);
     border-radius: 3px;
     padding: 3px;
     margin-top: 14px;
     width: fit-content;
+    max-width: 100%;
   }
   .plan-toggle-btn {
     padding: 7px 16px;
@@ -922,6 +924,79 @@
   }
   .meal-plan-total-label { color: var(--stone); letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.55rem; }
   .meal-plan-total-value { color: var(--warm); }
+
+
+  /* ── Copy ingredients button ── */
+  .meal-copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    z-index: 2;
+  }
+  .meal-copy-btn:hover { border-color: var(--warm); }
+  .meal-copy-btn svg {
+    width: 13px; height: 13px;
+    stroke: var(--stone);
+    stroke-width: 1.8;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.15s;
+  }
+  .meal-copy-btn:hover svg { stroke: var(--warm); }
+  .meal-copy-btn.copied {
+    border-color: var(--moss);
+    background: var(--moss);
+  }
+  .meal-copy-btn.copied svg { stroke: white; }
+  /* Selected cards already show a tick top-right via ::before — shift copy button left when selected */
+  .meal-card.selected .meal-copy-btn { right: 34px; }
+
+  .copy-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 9px 18px;
+    border-radius: 3px;
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    white-space: nowrap;
+  }
+  .copy-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+
+  .meal-empty-state {
+    font-size: 0.65rem;
+    color: var(--stone);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    padding: 18px 12px;
+    text-align: center;
+    border: 1px dashed var(--rule);
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
 
 </style>
 </head>
@@ -1091,8 +1166,9 @@
       <div class="meals-title">Meal Plan</div>
       <div class="meals-sub" id="mealsSub">~1800–2000 kcal · High protein · Select one per meal</div>
       <div class="plan-toggle">
-        <button class="plan-toggle-btn active" onclick="setPlanMode('standard')">Standard</button>
-        <button class="plan-toggle-btn" onclick="setPlanMode('deficit')">1400 kcal plan</button>
+        <button class="plan-toggle-btn active" data-mode="standard" onclick="setPlanMode('standard')">Standard</button>
+        <button class="plan-toggle-btn" data-mode="deficit" onclick="setPlanMode('deficit')">1400 kcal plan</button>
+        <button class="plan-toggle-btn" data-mode="macro" onclick="setPlanMode('macro')">Macro</button>
       </div>
       <div class="plan-mode-note" id="planModeNote"></div>
     </div>
@@ -1689,7 +1765,7 @@ const MEALS = {
           {amount: '1 scoop', name: 'vanilla whey protein (30g)'},
           {amount: '50g', name: 'mixed berries'},
           {amount: '5g', name: 'creatine'},
-          {amount: '150ml', name: 'water'},
+          {amount: '100ml', name: 'water'},
         ]
       },
       {
@@ -1713,6 +1789,28 @@ const MEALS = {
         ]
       },
       {
+        id: 'b15',
+        name: 'Egg white and cottage cheese scramble with smoked salmon',
+        kcal: 260, protein: 38, carbs: 5, fat: 10,
+        notes: 'Designed for the macro plan — very high protein-to-calorie ratio. Scramble whites and whole egg together, fold in cottage cheese and smoked salmon off the heat so the cottage cheese stays creamy rather than splitting.',
+        tags: ['quick'],
+        plan: {
+          kcal: 260, protein: 38,
+          items: [
+            {name: 'egg whites', amount: '4', kcal: 68},
+            {name: 'whole egg', amount: '1', kcal: 70},
+            {name: 'cottage cheese', amount: '100g', kcal: 87},
+            {name: 'smoked salmon', amount: '30g', kcal: 35},
+          ]
+        },
+        ingredients: [
+          {amount: '4', name: 'egg whites'},
+          {amount: '1', name: 'whole egg'},
+          {amount: '100g', name: 'cottage cheese'},
+          {amount: '30g', name: 'smoked salmon'},
+        ]
+      },
+      {
         id: 'b11',
         name: 'Overnight oats — vanilla berry',
         kcal: 365, protein: 34, carbs: 37, fat: 11,
@@ -1726,7 +1824,7 @@ const MEALS = {
             {name: 'chia seeds', amount: '1 tbsp (12g)', kcal: 58},
             {name: 'ground flaxseed', amount: '1 tbsp (7g)', kcal: 37},
             {name: 'mixed berries', amount: '30g', kcal: 15},
-            {name: 'water', amount: '150ml', kcal: 0},
+            {name: 'water', amount: '100ml', kcal: 0},
           ]
         },
         ingredients: [
@@ -1735,7 +1833,7 @@ const MEALS = {
           {amount: '1 tbsp', name: 'chia seeds'},
           {amount: '1 tbsp', name: 'ground flaxseed'},
           {amount: '30g', name: 'mixed berries'},
-          {amount: '150ml', name: 'water'},
+          {amount: '100ml', name: 'water'},
         ]
       },
       {
@@ -1753,7 +1851,7 @@ const MEALS = {
             {name: 'ground flaxseed', amount: '1 tbsp (7g)', kcal: 37},
             {name: 'cocoa powder, unsweetened', amount: '1 tbsp (5g)', kcal: 12},
             {name: 'peanut butter', amount: '1 tsp (5g)', kcal: 30},
-            {name: 'water', amount: '150ml', kcal: 0},
+            {name: 'water', amount: '100ml', kcal: 0},
           ]
         },
         ingredients: [
@@ -1763,7 +1861,7 @@ const MEALS = {
           {amount: '1 tbsp', name: 'ground flaxseed'},
           {amount: '1 tbsp', name: 'cocoa powder, unsweetened'},
           {amount: '1 tsp', name: 'peanut butter'},
-          {amount: '150ml', name: 'water'},
+          {amount: '100ml', name: 'water'},
         ]
       },
       {
@@ -1781,7 +1879,7 @@ const MEALS = {
             {name: 'ground flaxseed', amount: '1 tbsp (7g)', kcal: 37},
             {name: 'apple, grated', amount: '½ medium', kcal: 42},
             {name: 'ground cinnamon', amount: '½ tsp', kcal: 0},
-            {name: 'water', amount: '150ml', kcal: 0},
+            {name: 'water', amount: '100ml', kcal: 0},
           ]
         },
         ingredients: [
@@ -1791,7 +1889,7 @@ const MEALS = {
           {amount: '1 tbsp', name: 'ground flaxseed'},
           {amount: '½', name: 'apple, grated (skin on)'},
           {amount: '½ tsp', name: 'ground cinnamon'},
-          {amount: '150ml', name: 'water'},
+          {amount: '100ml', name: 'water'},
         ]
       },
       {
@@ -1809,7 +1907,7 @@ const MEALS = {
             {name: 'ground flaxseed', amount: '1 tbsp (7g)', kcal: 37},
             {name: 'banana', amount: '½ medium', kcal: 53},
             {name: 'ground cinnamon', amount: '½ tsp (optional)', kcal: 0},
-            {name: 'water', amount: '150ml', kcal: 0},
+            {name: 'water', amount: '100ml', kcal: 0},
           ]
         },
         ingredients: [
@@ -1819,7 +1917,222 @@ const MEALS = {
           {amount: '1 tbsp', name: 'ground flaxseed'},
           {amount: '½', name: 'banana, mashed (other half sliced on top)'},
           {amount: '½ tsp', name: 'ground cinnamon (optional)'},
-          {amount: '150ml', name: 'water'},
+          {amount: '100ml', name: 'water'},
+        ]
+      },
+      {
+        id: 'b16',
+        name: 'Ham and egg white scramble with light cheddar',
+        kcal: 224, protein: 31, carbs: 1, fat: 8,
+        notes: 'Designed for the macro plan. Scramble whites with the whole egg, fold in diced ham and grated cheddar at the end so the cheese melts without overcooking the eggs.',
+        tags: ['quick'],
+        plan: {
+          kcal: 224, protein: 31,
+          items: [
+            {name: 'egg whites', amount: '3', kcal: 51},
+            {name: 'whole egg', amount: '1', kcal: 70},
+            {name: 'lean ham, diced', amount: '40g', kcal: 47},
+            {name: 'reduced-fat cheddar, grated', amount: '20g', kcal: 56},
+          ]
+        },
+        ingredients: [
+          {amount: '3', name: 'egg whites'},
+          {amount: '1', name: 'whole egg'},
+          {amount: '40g', name: 'lean ham, diced'},
+          {amount: '20g', name: 'reduced-fat cheddar, grated'},
+        ]
+      },
+      {
+        id: 'b17',
+        name: 'Protein pancakes',
+        kcal: 260, protein: 35, carbs: 20, fat: 4,
+        notes: 'Blend oats, egg whites, whey and a splash of water into a batter. Fry small pancakes in a dry non-stick pan, 1-2 minutes per side. A few berries on top if carb budget allows.',
+        tags: ['quick'],
+        plan: {
+          kcal: 260, protein: 35,
+          items: [
+            {name: 'rolled oats, blended', amount: '30g', kcal: 112},
+            {name: 'egg whites', amount: '2', kcal: 34},
+            {name: 'unflavoured whey protein', amount: '1 scoop (30g)', kcal: 113},
+          ]
+        },
+        ingredients: [
+          {amount: '30g', name: 'rolled oats'},
+          {amount: '2', name: 'egg whites'},
+          {amount: '1 scoop', name: 'unflavoured whey protein (30g)'},
+          {amount: 'to taste', name: 'water, for batter consistency'},
+        ]
+      },
+      {
+        id: 'b18',
+        name: 'Turkey bacon and eggs with cherry tomatoes',
+        kcal: 256, protein: 31, carbs: 2, fat: 13,
+        notes: 'Classic combination — grill the turkey bacon while scrambling the eggs and egg white together. Tomatoes halved and seared in the same pan for a minute.',
+        tags: ['quick'],
+        plan: {
+          kcal: 256, protein: 31,
+          items: [
+            {name: 'whole eggs', amount: '2', kcal: 140},
+            {name: 'egg white', amount: '1', kcal: 17},
+            {name: 'turkey bacon rashers', amount: '3', kcal: 90},
+            {name: 'cherry tomatoes', amount: '50g', kcal: 9},
+          ]
+        },
+        ingredients: [
+          {amount: '2', name: 'whole eggs'},
+          {amount: '1', name: 'egg white'},
+          {amount: '3', name: 'turkey bacon rashers'},
+          {amount: '50g', name: 'cherry tomatoes'},
+        ]
+      },
+      {
+        id: 'b19',
+        name: 'Greek yoghurt protein bowl with almonds',
+        kcal: 285, protein: 40, carbs: 9, fat: 12,
+        notes: 'No-cook, 2 minutes. Stir the whey into the yoghurt until fully dissolved before adding almonds — whisking briefly avoids any powdery texture.',
+        tags: ['quick'],
+        plan: {
+          kcal: 285, protein: 40,
+          items: [
+            {name: 'full-fat Greek yoghurt', amount: '150g', kcal: 142},
+            {name: 'unflavoured whey protein', amount: '1 scoop (30g)', kcal: 113},
+            {name: 'flaked almonds', amount: '5g', kcal: 30},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'full-fat Greek yoghurt'},
+          {amount: '1 scoop', name: 'unflavoured whey protein (30g)'},
+          {amount: '5g', name: 'flaked almonds'},
+        ]
+      },
+      {
+        id: 'b20',
+        name: 'Cottage cheese, turkey and boiled egg bowl',
+        kcal: 275, protein: 36, carbs: 6, fat: 11,
+        notes: 'No-cook if turkey and egg are prepped ahead. Boil the egg the night before for a genuinely 2-minute breakfast.',
+        tags: ['quick'],
+        plan: {
+          kcal: 275, protein: 36,
+          items: [
+            {name: 'cottage cheese', amount: '150g', kcal: 130},
+            {name: 'sliced turkey breast', amount: '60g', kcal: 66},
+            {name: 'boiled egg', amount: '1', kcal: 70},
+            {name: 'cherry tomatoes', amount: '50g', kcal: 9},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'cottage cheese'},
+          {amount: '60g', name: 'sliced turkey breast'},
+          {amount: '1', name: 'boiled egg'},
+          {amount: '50g', name: 'cherry tomatoes'},
+        ]
+      },
+      {
+        id: 'b21',
+        name: 'High-protein chia pudding',
+        kcal: 210, protein: 34, carbs: 6, fat: 6,
+        notes: 'Whisk whey into water until smooth before adding chia — prevents clumping. Stir again after 5 minutes, then fridge overnight or eat once thickened (20+ min).',
+        tags: ['quick'],
+        plan: {
+          kcal: 210, protein: 34,
+          items: [
+            {name: 'unflavoured whey protein', amount: '40g', kcal: 151},
+            {name: 'chia seeds', amount: '1 tbsp (12g)', kcal: 58},
+            {name: 'water', amount: '100ml', kcal: 0},
+          ]
+        },
+        ingredients: [
+          {amount: '40g', name: 'unflavoured whey protein'},
+          {amount: '1 tbsp', name: 'chia seeds'},
+          {amount: '100ml', name: 'water'},
+        ]
+      },
+      {
+        id: 'b22',
+        name: 'Smoked salmon and three-egg-white scramble with cucumber',
+        kcal: 246, protein: 35, carbs: 2, fat: 9,
+        notes: 'Scramble the egg whites and whole egg gently, fold in flaked smoked salmon off the heat so it just warms through. Cucumber slices on the side.',
+        tags: ['quick'],
+        plan: {
+          kcal: 246, protein: 35,
+          items: [
+            {name: 'smoked salmon', amount: '100g', kcal: 117},
+            {name: 'egg whites', amount: '3', kcal: 51},
+            {name: 'whole egg', amount: '1', kcal: 70},
+            {name: 'cucumber', amount: '50g', kcal: 8},
+          ]
+        },
+        ingredients: [
+          {amount: '100g', name: 'smoked salmon'},
+          {amount: '3', name: 'egg whites'},
+          {amount: '1', name: 'whole egg'},
+          {amount: '50g', name: 'cucumber'},
+        ]
+      },
+      {
+        id: 'b23',
+        name: 'Chicken sausage, egg white and spinach scramble with parmesan',
+        kcal: 278, protein: 34, carbs: 2, fat: 12,
+        notes: 'Slice and brown the chicken sausages first, add spinach to wilt, then pour in whisked egg whites and stir through. Grate parmesan over at the end.',
+        tags: ['quick'],
+        plan: {
+          kcal: 278, protein: 34,
+          items: [
+            {name: 'chicken sausages', amount: '2', kcal: 180},
+            {name: 'egg whites', amount: '3', kcal: 51},
+            {name: 'baby spinach', amount: '30g', kcal: 7},
+            {name: 'parmesan, grated', amount: '10g', kcal: 40},
+          ]
+        },
+        ingredients: [
+          {amount: '2', name: 'chicken sausages'},
+          {amount: '3', name: 'egg whites'},
+          {amount: '30g', name: 'baby spinach'},
+          {amount: '10g', name: 'parmesan, grated'},
+        ]
+      },
+      {
+        id: 'b24',
+        name: 'Tofu and turkey bacon scramble',
+        kcal: 238, protein: 34, carbs: 3, fat: 10,
+        notes: 'Crumble firm tofu into a hot pan with turmeric for colour, add diced turkey bacon, fold in whisked egg whites at the end. Good dairy-free option.',
+        tags: ['quick'],
+        plan: {
+          kcal: 238, protein: 34,
+          items: [
+            {name: 'firm tofu', amount: '150g', kcal: 114},
+            {name: 'turkey bacon rashers, diced', amount: '3', kcal: 90},
+            {name: 'egg whites', amount: '2', kcal: 34},
+            {name: 'turmeric', amount: '½ tsp', kcal: 0},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'firm tofu'},
+          {amount: '3', name: 'turkey bacon rashers'},
+          {amount: '2', name: 'egg whites'},
+          {amount: '½ tsp', name: 'turmeric'},
+        ]
+      },
+      {
+        id: 'b25',
+        name: 'Cottage cheese pancakes',
+        kcal: 290, protein: 32, carbs: 15, fat: 11,
+        notes: 'Blend cottage cheese, egg, egg whites and oats until mostly smooth. Fry small pancakes in a dry non-stick pan, 2 minutes per side. Texture is denser than regular pancakes.',
+        tags: ['quick'],
+        plan: {
+          kcal: 290, protein: 32,
+          items: [
+            {name: 'cottage cheese', amount: '150g', kcal: 130},
+            {name: 'whole egg', amount: '1', kcal: 70},
+            {name: 'egg whites', amount: '2', kcal: 34},
+            {name: 'rolled oats', amount: '15g', kcal: 56},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'cottage cheese'},
+          {amount: '1', name: 'whole egg'},
+          {amount: '2', name: 'egg whites'},
+          {amount: '15g', name: 'rolled oats'},
         ]
       },
     ]
@@ -2124,6 +2437,225 @@ const MEALS = {
           {amount: '100g', name: 'cherry tomatoes'},
           {amount: '80g', name: 'cucumber'},
           {amount: '½', name: 'lemon, juiced'},
+        ]
+      },
+      {
+        id: 'l16',
+        name: 'Chicken and cottage cheese bowl with cherry tomatoes',
+        kcal: 353, protein: 58, carbs: 7, fat: 9,
+        notes: 'Very high protein-to-calorie ratio. Slice cooked chicken over cottage cheese, halve the tomatoes on top. No-cook if chicken is pre-cooked.',
+        tags: ['quick'],
+        plan: {
+          kcal: 353, protein: 58,
+          items: [
+            {name: 'cooked chicken breast', amount: '150g', kcal: 248},
+            {name: 'cottage cheese', amount: '100g', kcal: 87},
+            {name: 'cherry tomatoes', amount: '100g', kcal: 18},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'cooked chicken breast'},
+          {amount: '100g', name: 'cottage cheese'},
+          {amount: '100g', name: 'cherry tomatoes'},
+        ]
+      },
+      {
+        id: 'l17',
+        name: 'Turkey breast and cottage cheese wrap',
+        kcal: 335, protein: 42, carbs: 22, fat: 6,
+        notes: 'Spread cottage cheese on the wrap instead of mayo or sauce — adds protein with almost no extra fat. Layer turkey and salad, roll tightly.',
+        tags: ['quick'],
+        plan: {
+          kcal: 335, protein: 42,
+          items: [
+            {name: 'wholegrain wrap', amount: '1', kcal: 120},
+            {name: 'sliced turkey breast', amount: '150g', kcal: 165},
+            {name: 'mixed salad leaves', amount: '40g', kcal: 7},
+            {name: 'cottage cheese', amount: '50g', kcal: 44},
+          ]
+        },
+        ingredients: [
+          {amount: '1', name: 'wholegrain wrap'},
+          {amount: '150g', name: 'sliced turkey breast'},
+          {amount: '40g', name: 'mixed salad leaves'},
+          {amount: '50g', name: 'cottage cheese'},
+        ]
+      },
+      {
+        id: 'l18',
+        name: 'Prawn and cottage cheese salad',
+        kcal: 317, protein: 54, carbs: 5, fat: 9,
+        notes: 'No-cook if using pre-cooked prawns. Toss everything together with lemon — the cottage cheese acts almost like a creamy dressing.',
+        tags: ['quick'],
+        plan: {
+          kcal: 317, protein: 54,
+          items: [
+            {name: 'cooked king prawns', amount: '200g', kcal: 180},
+            {name: 'cottage cheese', amount: '100g', kcal: 87},
+            {name: 'mixed salad leaves', amount: '60g', kcal: 10},
+            {name: 'olive oil', amount: '1 tsp', kcal: 40},
+          ]
+        },
+        ingredients: [
+          {amount: '200g', name: 'cooked king prawns'},
+          {amount: '100g', name: 'cottage cheese'},
+          {amount: '60g', name: 'mixed salad leaves'},
+          {amount: '1 tsp', name: 'olive oil'},
+        ]
+      },
+      {
+        id: 'l19',
+        name: 'Beef and bean salad bowl',
+        kcal: 343, protein: 45, carbs: 14, fat: 10,
+        notes: 'Brown the beef mince with cumin and paprika, cool slightly, toss through kidney beans and salad. Good warm or cold.',
+        tags: [],
+        plan: {
+          kcal: 343, protein: 45,
+          items: [
+            {name: 'lean beef mince (5% fat), cooked', amount: '150g', kcal: 255},
+            {name: 'kidney beans, drained', amount: '80g', kcal: 80},
+            {name: 'mixed salad leaves', amount: '50g', kcal: 8},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'lean beef mince (5% fat)'},
+          {amount: '80g', name: 'kidney beans, drained'},
+          {amount: '50g', name: 'mixed salad leaves'},
+          {amount: '1 tsp', name: 'cumin'},
+          {amount: '1 tsp', name: 'smoked paprika'},
+        ]
+      },
+      {
+        id: 'l20',
+        name: 'Egg and tuna salad',
+        kcal: 289, protein: 45, carbs: 1, fat: 11,
+        notes: 'No-cook if eggs are boiled ahead. Flake tuna over chopped boiled eggs and leaves, dress with lemon and black pepper.',
+        tags: ['quick'],
+        plan: {
+          kcal: 289, protein: 45,
+          items: [
+            {name: 'tuna in spring water, drained', amount: '150g', kcal: 141},
+            {name: 'boiled eggs', amount: '2', kcal: 140},
+            {name: 'mixed salad leaves', amount: '50g', kcal: 8},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'tuna in spring water, drained'},
+          {amount: '2', name: 'boiled eggs'},
+          {amount: '50g', name: 'mixed salad leaves'},
+          {amount: '½', name: 'lemon, juiced'},
+        ]
+      },
+      {
+        id: 'l21',
+        name: 'Chicken tikka skewers with raita',
+        kcal: 357, protein: 61, carbs: 5, fat: 10,
+        notes: 'Marinate chicken in tikka paste and yoghurt, grill or air-fry until charred. Raita: grated cucumber stirred into low-fat yoghurt with mint.',
+        tags: ['quick'],
+        plan: {
+          kcal: 357, protein: 61,
+          items: [
+            {name: 'chicken breast, marinated in tikka paste', amount: '180g', kcal: 297},
+            {name: 'low-fat yoghurt', amount: '80g', kcal: 44},
+            {name: 'cucumber, grated', amount: '50g', kcal: 8},
+            {name: 'mint', amount: 'to taste', kcal: 0},
+          ]
+        },
+        ingredients: [
+          {amount: '180g', name: 'chicken breast'},
+          {amount: '2 tbsp', name: 'tikka masala paste'},
+          {amount: '80g', name: 'low-fat yoghurt'},
+          {amount: '50g', name: 'cucumber, grated'},
+          {amount: 'few leaves', name: 'fresh mint'},
+        ]
+      },
+      {
+        id: 'l22',
+        name: 'Salmon and edamame salad',
+        kcal: 320, protein: 37, carbs: 7, fat: 16,
+        notes: 'Pan-fry or bake the salmon, flake over edamame and salad leaves. A small squeeze of lime and a few drops of soy sauce work well.',
+        tags: ['quick'],
+        plan: {
+          kcal: 320, protein: 37,
+          items: [
+            {name: 'salmon fillet, cooked', amount: '115g', kcal: 219},
+            {name: 'edamame, shelled', amount: '80g', kcal: 94},
+            {name: 'mixed salad leaves', amount: '40g', kcal: 7},
+          ]
+        },
+        ingredients: [
+          {amount: '115g', name: 'salmon fillet'},
+          {amount: '80g', name: 'edamame, shelled'},
+          {amount: '40g', name: 'mixed salad leaves'},
+          {amount: '½', name: 'lime, juiced'},
+        ]
+      },
+      {
+        id: 'l23',
+        name: 'Chicken and chickpea salad',
+        kcal: 381, protein: 53, carbs: 18, fat: 7,
+        notes: 'Toss warm or cold chicken with chickpeas, cucumber and tomato. Lemon, olive oil-free dressing keeps fat low — herbs and lemon do the work.',
+        tags: ['quick'],
+        plan: {
+          kcal: 381, protein: 53,
+          items: [
+            {name: 'cooked chicken breast', amount: '150g', kcal: 248},
+            {name: 'chickpeas, drained', amount: '80g', kcal: 123},
+            {name: 'cucumber and tomato, chopped', amount: '60g', kcal: 10},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'cooked chicken breast'},
+          {amount: '80g', name: 'chickpeas, drained'},
+          {amount: '60g', name: 'cucumber and tomato, chopped'},
+          {amount: '½', name: 'lemon, juiced'},
+          {amount: 'to taste', name: 'fresh herbs'},
+        ]
+      },
+      {
+        id: 'l24',
+        name: 'Tofu, edamame and egg white poke bowl',
+        kcal: 308, protein: 38, carbs: 14, fat: 12,
+        notes: 'Pan-fry tofu cubes until golden, scramble the egg whites separately, combine with edamame and cucumber. Soy and rice vinegar to dress.',
+        tags: ['japanese'],
+        plan: {
+          kcal: 308, protein: 38,
+          items: [
+            {name: 'firm tofu, cubed', amount: '150g', kcal: 114},
+            {name: 'edamame, shelled', amount: '100g', kcal: 118},
+            {name: 'egg whites', amount: '4', kcal: 68},
+            {name: 'cucumber', amount: '50g', kcal: 8},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'firm tofu'},
+          {amount: '100g', name: 'edamame, shelled'},
+          {amount: '4', name: 'egg whites'},
+          {amount: '50g', name: 'cucumber'},
+          {amount: '1 tbsp', name: 'soy sauce'},
+        ]
+      },
+      {
+        id: 'l25',
+        name: 'Turkey meatballs with tzatziki',
+        kcal: 285, protein: 48, carbs: 4, fat: 9,
+        notes: 'Form turkey mince into small balls with garlic and oregano, bake or pan-fry. Tzatziki: Greek yoghurt, grated cucumber, garlic, mint.',
+        tags: [],
+        plan: {
+          kcal: 285, protein: 48,
+          items: [
+            {name: 'turkey breast mince, formed into meatballs', amount: '180g', kcal: 198},
+            {name: 'Greek yoghurt with cucumber (tzatziki)', amount: '80g', kcal: 76},
+            {name: 'cherry tomatoes', amount: '60g', kcal: 11},
+          ]
+        },
+        ingredients: [
+          {amount: '180g', name: 'turkey breast mince'},
+          {amount: '80g', name: 'Greek yoghurt'},
+          {amount: '30g', name: 'cucumber, grated (for tzatziki)'},
+          {amount: '60g', name: 'cherry tomatoes'},
+          {amount: '1 clove', name: 'garlic'},
+          {amount: '1 tsp', name: 'dried oregano'},
         ]
       },
     ]
@@ -2588,6 +3120,223 @@ const MEALS = {
           {amount: '1', name: 'lemon, for serving'},
         ]
       },
+      {
+        id: 'd24',
+        name: 'Beef fillet with sweet potato mash and asparagus',
+        kcal: 466, protein: 57, carbs: 24, fat: 15,
+        notes: 'Fillet is the leanest premium steak cut — sear hard, rest well. Mash the sweet potato with nothing added to keep it simple.',
+        tags: [],
+        plan: {
+          kcal: 466, protein: 57,
+          items: [
+            {name: 'beef fillet, raw', amount: '240g', kcal: 360},
+            {name: 'sweet potato, mashed', amount: '100g', kcal: 86},
+            {name: 'asparagus', amount: '100g', kcal: 20},
+          ]
+        },
+        ingredients: [
+          {amount: '240g', name: 'beef fillet, raw'},
+          {amount: '100g', name: 'sweet potato'},
+          {amount: '100g', name: 'asparagus'},
+          {amount: '1 tsp', name: 'olive oil, for searing'},
+        ]
+      },
+      {
+        id: 'd25',
+        name: 'Chicken fajita bowl with rice',
+        kcal: 504, protein: 66, carbs: 38, fat: 8,
+        notes: 'Slice chicken and peppers, fry hard and fast with fajita spices. Serve over rice — no tortilla keeps the carbs in check.',
+        tags: ['quick'],
+        plan: {
+          kcal: 504, protein: 66,
+          items: [
+            {name: 'chicken breast, raw', amount: '200g', kcal: 330},
+            {name: 'peppers and onion, sliced', amount: '100g', kcal: 30},
+            {name: 'short grain rice, dry weight', amount: '40g', kcal: 144},
+          ]
+        },
+        ingredients: [
+          {amount: '200g', name: 'chicken breast, raw'},
+          {amount: '100g', name: 'peppers and onion'},
+          {amount: '40g', name: 'short grain rice, dry weight'},
+          {amount: '1 tbsp', name: 'fajita seasoning'},
+        ]
+      },
+      {
+        id: 'd26',
+        name: 'Cod and chickpea stew',
+        kcal: 429, protein: 53, carbs: 35, fat: 6,
+        notes: 'Simmer chickpeas in a light tomato sauce with garlic and paprika, nestle cod fillet in to poach for the last 8 minutes. One pot.',
+        tags: ['quick'],
+        plan: {
+          kcal: 429, protein: 53,
+          items: [
+            {name: 'cod fillet, raw', amount: '220g', kcal: 180},
+            {name: 'chickpeas, drained', amount: '150g', kcal: 231},
+            {name: 'tinned tomatoes', amount: '100g', kcal: 18},
+          ]
+        },
+        ingredients: [
+          {amount: '220g', name: 'cod fillet, raw'},
+          {amount: '150g', name: 'chickpeas, drained'},
+          {amount: '100g', name: 'tinned tomatoes'},
+          {amount: '2 cloves', name: 'garlic'},
+          {amount: '1 tsp', name: 'smoked paprika'},
+        ]
+      },
+      {
+        id: 'd27',
+        name: 'Turkey burgers with sweet potato wedges',
+        kcal: 412, protein: 58, carbs: 30, fat: 6,
+        notes: 'Form turkey mince into patties with a little garlic and herbs, grill or pan-fry. Sweet potato wedges roasted at 200°C for 25 minutes.',
+        tags: ['quick'],
+        plan: {
+          kcal: 412, protein: 58,
+          items: [
+            {name: 'turkey breast mince, formed into patties', amount: '250g', kcal: 275},
+            {name: 'sweet potato wedges', amount: '150g', kcal: 129},
+            {name: 'side salad', amount: '50g', kcal: 8},
+          ]
+        },
+        ingredients: [
+          {amount: '250g', name: 'turkey breast mince'},
+          {amount: '150g', name: 'sweet potato'},
+          {amount: '50g', name: 'side salad leaves'},
+          {amount: '1 clove', name: 'garlic'},
+          {amount: '1 tsp', name: 'dried herbs'},
+        ]
+      },
+      {
+        id: 'd28',
+        name: 'Prawn and chickpea curry with rice',
+        kcal: 494, protein: 57, carbs: 39, fat: 10,
+        notes: 'Light coconut curry — chickpeas and prawns in a tomato-coconut base with mild spices. Prawns go in last, 2-3 minutes only.',
+        tags: ['quick'],
+        plan: {
+          kcal: 494, protein: 57,
+          items: [
+            {name: 'raw king prawns', amount: '220g', kcal: 198},
+            {name: 'chickpeas, drained', amount: '100g', kcal: 154},
+            {name: 'light coconut milk', amount: '100ml', kcal: 70},
+            {name: 'short grain rice, dry weight', amount: '20g', kcal: 72},
+          ]
+        },
+        ingredients: [
+          {amount: '220g', name: 'raw king prawns'},
+          {amount: '100g', name: 'chickpeas, drained'},
+          {amount: '100ml', name: 'light coconut milk'},
+          {amount: '20g', name: 'short grain rice, dry weight'},
+          {amount: '1 tsp', name: 'mild curry powder'},
+          {amount: '2 cloves', name: 'garlic'},
+        ]
+      },
+      {
+        id: 'd29',
+        name: 'Pork tenderloin with roasted vegetables',
+        kcal: 428, protein: 64, carbs: 16, fat: 14,
+        notes: 'Pork tenderloin is very lean and high protein. Roast whole at 200°C for 20-25 minutes alongside the vegetables, rest before slicing.',
+        tags: [],
+        plan: {
+          kcal: 428, protein: 64,
+          items: [
+            {name: 'pork tenderloin, raw', amount: '220g', kcal: 308},
+            {name: 'mixed roasted vegetables (carrot, courgette, pepper)', amount: '200g', kcal: 80},
+            {name: 'olive oil', amount: '1 tsp', kcal: 40},
+          ]
+        },
+        ingredients: [
+          {amount: '220g', name: 'pork tenderloin, raw'},
+          {amount: '200g', name: 'mixed vegetables — carrot, courgette, pepper'},
+          {amount: '1 tsp', name: 'olive oil'},
+          {amount: '1 tsp', name: 'dried thyme'},
+        ]
+      },
+      {
+        id: 'd30',
+        name: 'Chicken and red lentil dal',
+        kcal: 364, protein: 56, carbs: 20, fat: 6,
+        notes: 'Cook red lentils with onion, garlic, cumin and turmeric until soft. Stir in diced cooked chicken at the end to warm through. Very high protein for the calorie count.',
+        tags: [],
+        plan: {
+          kcal: 364, protein: 56,
+          items: [
+            {name: 'chicken breast, cooked, diced', amount: '150g', kcal: 248},
+            {name: 'red lentils, cooked', amount: '100g', kcal: 116},
+          ]
+        },
+        ingredients: [
+          {amount: '150g', name: 'cooked chicken breast, diced'},
+          {amount: '100g', name: 'red lentils, cooked weight (about 40g dry)'},
+          {amount: '1', name: 'onion, diced'},
+          {amount: '2 cloves', name: 'garlic'},
+          {amount: '1 tsp', name: 'cumin'},
+          {amount: '1 tsp', name: 'turmeric'},
+        ]
+      },
+      {
+        id: 'd31',
+        name: 'Beef and broccoli rice bowl',
+        kcal: 511, protein: 62, carbs: 35, fat: 14,
+        notes: 'Simpler than a stir-fry — sear beef strips hard, steam broccoli separately, serve both over rice with a light soy drizzle.',
+        tags: ['quick'],
+        plan: {
+          kcal: 511, protein: 62,
+          items: [
+            {name: 'lean beef strips (5% fat), raw', amount: '200g', kcal: 340},
+            {name: 'broccoli', amount: '150g', kcal: 45},
+            {name: 'short grain rice, dry weight', amount: '35g', kcal: 126},
+          ]
+        },
+        ingredients: [
+          {amount: '200g', name: 'lean beef strips, raw'},
+          {amount: '150g', name: 'broccoli'},
+          {amount: '35g', name: 'short grain rice, dry weight'},
+          {amount: '1 tbsp', name: 'soy sauce'},
+        ]
+      },
+      {
+        id: 'd32',
+        name: 'Baked salmon with quinoa and green beans',
+        kcal: 519, protein: 53, carbs: 30, fat: 22,
+        notes: 'Bake salmon at 200°C for 12-15 minutes. Quinoa cooked in stock for extra flavour, green beans steamed or blanched.',
+        tags: ['quick'],
+        plan: {
+          kcal: 519, protein: 53,
+          items: [
+            {name: 'salmon fillet, raw', amount: '190g', kcal: 361},
+            {name: 'quinoa, dry weight', amount: '30g', kcal: 111},
+            {name: 'green beans', amount: '150g', kcal: 47},
+          ]
+        },
+        ingredients: [
+          {amount: '190g', name: 'salmon fillet, raw'},
+          {amount: '30g', name: 'quinoa, dry weight'},
+          {amount: '150g', name: 'green beans'},
+          {amount: '1', name: 'lemon, for serving'},
+        ]
+      },
+      {
+        id: 'd33',
+        name: 'Chicken and black bean burrito bowl',
+        kcal: 516, protein: 72, carbs: 36, fat: 8,
+        notes: 'Season and grill chicken, serve over black beans and a small portion of rice. Salsa and lime instead of cheese or soured cream keeps it lean.',
+        tags: ['quick'],
+        plan: {
+          kcal: 516, protein: 72,
+          items: [
+            {name: 'chicken breast, raw', amount: '200g', kcal: 330},
+            {name: 'black beans, drained', amount: '100g', kcal: 132},
+            {name: 'short grain rice, dry weight', amount: '15g', kcal: 54},
+          ]
+        },
+        ingredients: [
+          {amount: '200g', name: 'chicken breast, raw'},
+          {amount: '100g', name: 'black beans, drained'},
+          {amount: '15g', name: 'short grain rice, dry weight'},
+          {amount: '1', name: 'lime, juiced'},
+          {amount: 'to taste', name: 'salsa'},
+        ]
+      },
     ]
   }
 };
@@ -2612,18 +3361,28 @@ let planMode = localStorage.getItem('protocol-plan-mode') || 'standard';
 function setPlanMode(mode) {
   planMode = mode;
   localStorage.setItem('protocol-plan-mode', mode);
-  document.querySelectorAll('.plan-toggle-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  const note = document.getElementById('planModeNote');
-  const sub = document.getElementById('mealsSub');
-  if (mode === 'deficit') {
-    note.textContent = 'Showing exact portions for 1400 kcal — 150 kcal milk included. Portions are per meal targets.';
-    sub.textContent = '1400 kcal plan · High protein · Exact portions shown';
-  } else {
-    note.textContent = '';
-    sub.textContent = '~1800–2000 kcal · High protein · Select one per meal';
-  }
   renderMeals();
+}
+
+// ── Macro plan targets ──────────────────────────────────────────────────────
+// Daily target: 1400 kcal, P158 / F47 / C81 (incl. 150 kcal milk: ~7.5P/8F/11C)
+// Per-meal targets split proportionally to the 320/380/550 kcal breakdown.
+const MACRO_PLAN = {
+  daily: { kcal: 1400, protein: 158, fat: 47, carbs: 81 },
+  targets: {
+    breakfast: { kcal: 320, protein: 36, fat: 11, carbs: 19 },
+    lunch:     { kcal: 380, protein: 43, fat: 13, carbs: 22 },
+    dinner:    { kcal: 550, protein: 62, fat: 18, carbs: 32 }
+  }
+};
+
+function mealFitsMacro(meal, target) {
+  if (!meal.plan) return false;
+  if (meal.kcal > target.kcal + 10) return false;
+  if (meal.protein < target.protein * 0.85) return false;
+  if (meal.fat > target.fat * 1.25) return false;
+  if (meal.carbs > target.carbs * 1.25) return false;
+  return true;
 }
 
 function selectMeal(mealType, mealId) {
@@ -2642,23 +3401,76 @@ function resetMeals() {
   renderMeals();
 }
 
+
+function copyMealIngredients(meal, showPlan, btnEl) {
+  let lines = [meal.name + ':'];
+
+  if (showPlan && meal.plan) {
+    meal.plan.items.forEach(item => {
+      lines.push(`- ${item.amount} ${item.name}`);
+    });
+  } else if (meal.ingredients) {
+    meal.ingredients.forEach(item => {
+      lines.push(`- ${item.amount} ${item.name}`);
+    });
+  }
+
+  const text = lines.join('\n');
+
+  const showCopied = () => {
+    btnEl.classList.add('copied');
+    btnEl.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+    const toast = document.getElementById('copyToast');
+    toast.textContent = `Copied "${meal.name}" ingredients`;
+    toast.classList.add('visible');
+    clearTimeout(window._copyToastTimer);
+    clearTimeout(window._copyBtnTimer);
+    window._copyToastTimer = setTimeout(() => toast.classList.remove('visible'), 1800);
+    window._copyBtnTimer = setTimeout(() => {
+      btnEl.classList.remove('copied');
+      btnEl.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+    }, 1200);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text, showCopied));
+  } else {
+    fallbackCopy(text, showCopied);
+  }
+}
+
+function fallbackCopy(text, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); cb(); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
 function renderMeals() {
   const container = document.getElementById('mealSections');
   container.innerHTML = '';
   const isDeficit = planMode === 'deficit';
+  const isMacro = planMode === 'macro';
+  const showPlan = isDeficit || isMacro;
 
-  // Sync toggle button states
+  // Sync toggle button active states
   document.querySelectorAll('.plan-toggle-btn').forEach(b => {
-    b.classList.toggle('active', 
-      (b.textContent.includes('Standard') && !isDeficit) ||
-      (b.textContent.includes('1400') && isDeficit)
-    );
+    b.classList.toggle('active', b.dataset.mode === planMode);
   });
+
   const note = document.getElementById('planModeNote');
   const sub = document.getElementById('mealsSub');
   if (isDeficit) {
     note.textContent = 'Showing exact portions for 1400 kcal — 150 kcal milk included. Portions are per meal targets.';
     sub.textContent = '1400 kcal plan · High protein · Exact portions shown';
+  } else if (isMacro) {
+    const d = MACRO_PLAN.daily;
+    note.textContent = `Daily target: ${d.kcal} kcal · P${d.protein} F${d.fat} C${d.carbs} (incl. 150 kcal milk). Only meals fitting each meal's share of this target are shown.`;
+    sub.textContent = `Macro plan · P${d.protein} F${d.fat} C${d.carbs} · Filtered to fit`;
   } else {
     note.textContent = '';
     sub.textContent = '~1800–2000 kcal · High protein · Select one per meal';
@@ -2669,22 +3481,39 @@ function renderMeals() {
     sec.className = 'meal-section';
 
     const targetKcal = isDeficit ? (type === 'breakfast' ? 320 : type === 'lunch' ? 380 : 550) : null;
+    const macroTarget = isMacro ? MACRO_PLAN.targets[type] : null;
+
+    let metaText = section.meta;
+    if (isDeficit) metaText = targetKcal + ' kcal target';
+    if (isMacro) metaText = `${macroTarget.kcal} kcal · P${macroTarget.protein} F${macroTarget.fat} C${macroTarget.carbs}`;
 
     sec.innerHTML = `
       <div class="meal-section-header">
         <div class="meal-section-name">${section.label}</div>
         <div class="meal-section-line"></div>
-        <div class="meal-section-meta">${isDeficit ? (targetKcal + ' kcal target') : section.meta}</div>
+        <div class="meal-section-meta">${metaText}</div>
       </div>
     `;
 
-    section.options.forEach(meal => {
+    let options = section.options;
+    if (isMacro) {
+      options = options.filter(m => mealFitsMacro(m, macroTarget));
+    }
+
+    if (isMacro && options.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'meal-empty-state';
+      empty.textContent = `No meals currently fit this target for ${section.label.toLowerCase()}.`;
+      sec.appendChild(empty);
+    }
+
+    options.forEach(meal => {
       const isSelected = mealState.selected[type] === meal.id;
       const card = document.createElement('div');
       card.className = `meal-card ${isSelected ? 'selected' : ''}`;
 
       let planHtml = '';
-      if (isDeficit && meal.plan) {
+      if (showPlan && meal.plan) {
         const planItems = meal.plan.items.map(item => `
           <div class="meal-plan-row">
             <span class="meal-plan-item">${item.name}</span>
@@ -2704,7 +3533,7 @@ function renderMeals() {
           <div class="meal-divider"></div>`;
       }
 
-      const ingredientsHtml = (!isDeficit && meal.ingredients) ? `
+      const ingredientsHtml = (!showPlan && meal.ingredients) ? `
         <div class="meal-ingredients">
           ${meal.ingredients.map(i => `
             <div class="meal-ingredient">
@@ -2715,6 +3544,9 @@ function renderMeals() {
         <div class="meal-divider"></div>` : '';
 
       card.innerHTML = `
+        <button class="meal-copy-btn" title="Copy ingredients">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+        </button>
         <div class="meal-card-top">
           <div class="meal-name">${meal.name}${meal.plan ? '<span class="plan-badge">1400</span>' : ''}</div>
           <div class="meal-kcal">${meal.kcal} kcal</div>
@@ -2724,11 +3556,16 @@ function renderMeals() {
           <span>C ${meal.carbs}g</span>
           <span>F ${meal.fat}g</span>
         </div>
-        ${isDeficit ? planHtml : ingredientsHtml}
+        ${showPlan ? planHtml : ingredientsHtml}
         <div class="meal-notes">${meal.notes}</div>
         ${meal.tags.map(t => `<span class="meal-tag ${t}">${t}</span>`).join('')}
       `;
       card.addEventListener('click', () => selectMeal(type, meal.id));
+      const copyBtn = card.querySelector('.meal-copy-btn');
+      copyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyMealIngredients(meal, showPlan, copyBtn);
+      });
       sec.appendChild(card);
     });
 
@@ -2745,14 +3582,15 @@ function renderDayTotals() {
 
   if (count === 0) { totalsEl.innerHTML = ''; return; }
 
+  const showPlan = planMode === 'deficit' || planMode === 'macro';
   let totalKcal = 0, totalProtein = 0, totalCarbs = 0, totalFat = 0;
   const rows = [];
 
   Object.entries(selected).forEach(([type, id]) => {
     const meal = MEALS[type].options.find(m => m.id === id);
     if (!meal) return;
-    const kcal = planMode === 'deficit' && meal.plan ? meal.plan.kcal : meal.kcal;
-    const protein = planMode === 'deficit' && meal.plan ? meal.plan.protein : meal.protein;
+    const kcal = showPlan && meal.plan ? meal.plan.kcal : meal.kcal;
+    const protein = showPlan && meal.plan ? meal.plan.protein : meal.protein;
     totalKcal += kcal;
     totalProtein += protein;
     totalCarbs += meal.carbs;
@@ -2763,7 +3601,34 @@ function renderDayTotals() {
     </div>`);
   });
 
-  const milkNote = planMode === 'deficit' ? '<div style="font-size:0.58rem;color:var(--stone);margin-top:6px;font-style:italic;font-family:Cormorant Garamond,serif">+ 150 kcal milk (225ml full fat) not included above</div>' : '';
+  const milkNote = showPlan ? '<div style="font-size:0.58rem;color:var(--stone);margin-top:6px;font-style:italic;font-family:Cormorant Garamond,serif">+ 150 kcal milk (225ml full fat) not included above</div>' : '';
+
+  let macroComparisonHtml = '';
+  if (planMode === 'macro') {
+    const d = MACRO_PLAN.daily;
+    // Add milk's contribution since it's not in totals above
+    const withMilk = {
+      kcal: totalKcal + 150,
+      protein: totalProtein + 8,
+      fat: totalFat + 8,
+      carbs: totalCarbs + 11
+    };
+    const rem = {
+      kcal: d.kcal - withMilk.kcal,
+      protein: d.protein - withMilk.protein,
+      fat: d.fat - withMilk.fat,
+      carbs: d.carbs - withMilk.carbs
+    };
+    macroComparisonHtml = `
+      <div class="meal-day-total-row" style="margin-top:6px;">
+        <span>Target (incl. milk)</span>
+        <span>${d.kcal} kcal · P${d.protein}g · C${d.carbs}g · F${d.fat}g</span>
+      </div>
+      <div class="meal-day-total-row">
+        <span>Remaining</span>
+        <span>${rem.kcal} kcal · P${rem.protein}g · C${rem.carbs}g · F${rem.fat}g</span>
+      </div>`;
+  }
 
   totalsEl.innerHTML = `
     <div class="meal-day-total">
@@ -2773,6 +3638,7 @@ function renderDayTotals() {
         <span>Total</span>
         <span>${totalKcal} kcal · P${totalProtein}g · C${totalCarbs}g · F${totalFat}g</span>
       </div>
+      ${macroComparisonHtml}
       ${milkNote}
     </div>
   `;
@@ -2784,6 +3650,9 @@ renderMeals();
 // ── Boot ─────────────────────────────────────────────────────────────────────
 loadFromServer();
 </script>
+
+<!-- Copy toast -->
+<div class="copy-toast" id="copyToast">Copied to clipboard</div>
 
 <!-- Update banner -->
 <div id="updateBanner" class="update-banner">
