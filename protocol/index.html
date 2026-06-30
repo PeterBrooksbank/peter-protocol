@@ -1131,6 +1131,37 @@
   .inc-history { margin-top:8px; }
   .inc-hist-label { font-size:0.52rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--stone); margin-bottom:6px; }
   .inc-hist-row { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:0.62rem; color:var(--stone); padding:3px 0; }
+
+  .dsh-hero { text-align:center; padding:20px 0 26px; }
+  .dsh-hero-label { font-size:0.55rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--stone); margin-bottom:8px; }
+  .dsh-hero-value { font-family:'Cormorant Garamond',serif; font-size:3.2rem; font-weight:300; line-height:1; }
+  .dsh-hero-value.neg { color:#a8443a; }
+  .dsh-hero-split { display:flex; justify-content:center; gap:16px; margin-top:12px; font-size:0.6rem; color:var(--stone); font-family:'DM Mono',monospace; }
+  .dsh-liab { color:#a8443a; }
+
+  .dsh-grid { display:flex; gap:10px; margin-bottom:10px; }
+  .dsh-card { flex:1; background:#fff; border:1px solid var(--rule); border-radius:4px; padding:14px; cursor:pointer; }
+  .dsh-card-label { font-size:0.52rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--stone); margin-bottom:6px; }
+  .dsh-card-val { font-family:'DM Mono',monospace; font-size:1.05rem; }
+
+  .dsh-cashflow { border-radius:6px; padding:16px; margin-bottom:10px; cursor:pointer; color:#fff; }
+  .dsh-cashflow.pos { background:var(--warm); }
+  .dsh-cashflow.neg { background:#a8443a; }
+  .dsh-cf-label { font-size:0.54rem; letter-spacing:0.16em; text-transform:uppercase; opacity:0.85; }
+  .dsh-cf-val { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; line-height:1.1; margin:2px 0; }
+  .dsh-cf-sub { font-size:0.6rem; font-family:'DM Mono',monospace; opacity:0.85; }
+
+  .dsh-budget { background:#fff; border:1px solid var(--rule); border-radius:4px; padding:14px; margin-bottom:10px; cursor:pointer; }
+  .dsh-budget-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px; }
+  .dsh-budget-fig { font-family:'DM Mono',monospace; font-size:0.74rem; }
+  .dsh-budget-fig.neg { color:#a8443a; }
+  .dsh-budget-warn { font-size:0.58rem; color:#a8443a; margin-top:8px; }
+
+  .dsh-nudge { display:flex; justify-content:space-between; align-items:center; gap:12px; background:#fff; border:1px solid var(--rule); border-left:3px solid var(--warm); border-radius:4px; padding:13px 14px; margin-bottom:8px; cursor:pointer; font-size:0.7rem; }
+  .dsh-nudge.drift { border-left-color:var(--stone); }
+  .dsh-nudge-title { font-size:0.72rem; }
+  .dsh-nudge-sub { font-size:0.58rem; color:var(--stone); margin-top:3px; }
+  .dsh-arrow { color:var(--warm); font-family:'DM Mono',monospace; }
 </style>
 </head>
 <body>
@@ -1318,12 +1349,14 @@
 
 <div id="finance-root" style="display:none">
   <div class="fin-subnav">
-    <button class="fin-subtab active" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
+    <button class="fin-subtab active" data-view="dashboard" onclick="showFinanceView('dashboard')">Dashboard</button>
+    <button class="fin-subtab" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
     <button class="fin-subtab" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
     <button class="fin-subtab" data-view="transactions" onclick="showFinanceView('transactions')">Transactions</button>
     <button class="fin-subtab" data-view="income" onclick="showFinanceView('income')">Income</button>
   </div>
-  <div id="finance-accounts" class="fin-view"></div>
+  <div id="finance-dashboard" class="fin-view"></div>
+  <div id="finance-accounts" class="fin-view" style="display:none"></div>
   <div id="finance-budget" class="fin-view" style="display:none"></div>
   <div id="finance-transactions" class="fin-view" style="display:none"></div>
   <div id="finance-income" class="fin-view" style="display:none"></div>
@@ -1361,6 +1394,7 @@
 <script src="finance-transactions.js"></script>
 <script src="finance-income.js"></script>
 <script src="finance-budget.js"></script>
+<script src="finance-dashboard.js"></script>
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
 // Replace with your deployed Worker URL after deploying worker.js to Cloudflare
@@ -1818,7 +1852,8 @@ function showFinanceView(name) {
   document.querySelectorAll('.fin-subtab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
   document.querySelectorAll('.fin-view').forEach(v => v.style.display = 'none');
   document.getElementById('finance-' + name).style.display = '';
-  if (name === 'budget') loadBudget();
+  if (name === 'dashboard') loadDashboard();
+  else if (name === 'budget') loadBudget();
   else if (name === 'transactions') loadTransactions();
   else if (name === 'income') loadIncome();
   else loadAccounts();
@@ -1831,7 +1866,10 @@ function loadTransactions() { txnsView.mount(document.getElementById('finance-tr
 const incomeView = createFinanceIncome(finance, financeForms);
 function loadIncome() { incomeView.mount(document.getElementById('finance-income')); }
 
-const appMode = createAppMode({ onEnterFinance: first => { if (first) showFinanceView('accounts'); } });
+const dashboard = createFinanceDashboard(finance);
+function loadDashboard() { dashboard.mount(document.getElementById('finance-dashboard')); }
+
+const appMode = createAppMode({ onEnterFinance: first => { if (first) showFinanceView('dashboard'); } });
 function showMode(name) { appMode.show(name); }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
