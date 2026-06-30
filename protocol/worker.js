@@ -88,6 +88,24 @@ export default {
       return json({ ok: true });
     }
 
+    if (m === 'POST' && p === '/api/finance/accounts') {
+      const b = await request.json();
+      const id = crypto.randomUUID();
+      await db.prepare(`INSERT INTO accounts
+        (id, household_id, owner_person_id, type, is_liability, provider, nickname, meta, opened_date)
+        VALUES (?,?,?,?,?,?,?,?,?)`)
+        .bind(id, household_id, b.owner_person_id ?? null, b.type,
+              b.is_liability ? 1 : 0, b.provider ?? null, b.nickname,
+              b.meta ? JSON.stringify(b.meta) : null, b.opened_date ?? null).run();
+      // optional opening balance → first snapshot
+      if (b.balance != null) {
+        await db.prepare(`INSERT INTO snapshots (id, account_id, as_of_date, balance)
+                          VALUES (?,?,date('now'),?)`)
+                .bind(crypto.randomUUID(), id, b.balance).run();
+      }
+      return json({ id });
+    }
+
     if (m === 'POST' && p === '/api/finance/transactions/import') {
       const { account_id, statement_id, rows } = await request.json();
       const owns = await db.prepare('SELECT 1 FROM accounts WHERE id = ? AND household_id = ?')
