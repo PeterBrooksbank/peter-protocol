@@ -7,6 +7,6 @@ binding = "PROTOCOL_KV"
 id = "71e8aa9b342c49c481340f4967c96ee4"
  
 [[d1_databases]]
-binding = "family_finance"
+binding = "FINANCE_DB"
 database_name = "family-finance"
 database_id = "a4fee347-b818-4410-b5af-8ffaacd5feac"
