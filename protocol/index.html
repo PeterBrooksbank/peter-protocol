@@ -1055,6 +1055,33 @@
   .fin-btn-ghost { flex: 1; background: none; border: 1px solid var(--rule); border-radius: 4px; padding: 12px; font-family: 'DM Mono', monospace; font-size: 0.65rem; cursor: pointer; }
   .fin-modal-error { color: #a8443a; font-size: 0.7rem; font-family: 'DM Mono', monospace; margin-top: 4px; }
 
+
+.bdg-monthbar { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 20px; }
+  .bdg-nav { background: none; border: 1px solid var(--rule); border-radius: 4px; width: 32px; height: 32px; font-size: 1rem; color: var(--ink); cursor: pointer; }
+  .bdg-month { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; min-width: 150px; text-align: center; }
+
+  .bdg-summary { display: flex; gap: 10px; margin-bottom: 6px; }
+  .bdg-sum-cell { flex: 1; background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 12px 14px; }
+  .bdg-sum-label { font-size: 0.52rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--stone); margin-bottom: 5px; }
+  .bdg-sum-val { font-family: 'DM Mono', monospace; font-size: 1.05rem; }
+  .bdg-sum-val.neg { color: #a8443a; }
+  .bdg-annual { font-size: 0.58rem; color: var(--stone); letter-spacing: 0.04em; text-align: center; margin-bottom: 24px; }
+
+  .bdg-section-label { font-size: 0.54rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone); margin: 22px 0 10px; }
+  .bdg-cat { background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
+  .bdg-cat-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .bdg-cat-name { font-size: 0.82rem; }
+  .bdg-cat-fig { font-family: 'DM Mono', monospace; font-size: 0.78rem; }
+  .bdg-cat-planned { color: var(--stone); }
+  .bdg-bar { height: 5px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+  .bdg-bar-fill { height: 100%; background: var(--warm); border-radius: 3px; transition: width 0.3s; }
+  .bdg-bar-fill.over { background: #a8443a; }
+  .bdg-cat-foot { font-size: 0.58rem; color: var(--stone); margin-top: 6px; letter-spacing: 0.04em; }
+  .bdg-cat-foot.neg { color: #a8443a; }
+  .bdg-addcat { margin-top: 16px; }
+  .fin-check { display: flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; }
+  .fin-check input { width: auto; margin: 0; }
+  .fin-delete { width: 100%; background: none; border: 1px solid #a8443a; color: #a8443a; border-radius: 4px; padding: 10px; margin-top: 6px; font-family: 'DM Mono', monospace; font-size: 0.62rem; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -1242,10 +1269,11 @@
 
 <div id="finance-root" style="display:none">
   <div class="fin-subnav">
-    <button class="fin-subtab active">Accounts</button>
-    <!-- Dashboard / Budget / Income slot in here later -->
+    <button class="fin-subtab active" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
+    <button class="fin-subtab" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
   </div>
   <div id="finance-accounts" class="fin-view"></div>
+  <div id="finance-budget" class="fin-view" style="display:none"></div>
 </div>
 
 
@@ -1717,14 +1745,28 @@ function renderDayTotals() {
 }
 
 const finance = createFinance();
-const financeForms = createFinanceForms(finance, reloadFinance);
-function reloadFinance() {
-  finance.load(document.getElementById('finance-accounts'), {
-    onAdd: financeForms.addAccount,
-    onUpdate: financeForms.updateBalance,
-  });
+const budget = createFinanceBudget(finance);
+const financeForms = createFinanceForms(finance, refreshFinance);
+
+let currentFinanceView = 'accounts';
+function loadAccounts() {
+  finance.load(document.getElementById('finance-accounts'),
+    { onAdd: financeForms.addAccount, onUpdate: financeForms.updateBalance });
 }
-const appMode = createAppMode({ onEnterFinance: reloadFinance });
+function loadBudget() {
+  budget.mount(document.getElementById('finance-budget'),
+    { onAddCategory: financeForms.addCategory, onEditCategory: financeForms.editCategory });
+}
+function showFinanceView(name) {
+  currentFinanceView = name;
+  document.querySelectorAll('.fin-subtab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
+  document.querySelectorAll('.fin-view').forEach(v => v.style.display = 'none');
+  document.getElementById('finance-' + name).style.display = '';
+  name === 'budget' ? loadBudget() : loadAccounts();
+}
+function refreshFinance() { showFinanceView(currentFinanceView); }
+
+const appMode = createAppMode({ onEnterFinance: first => { if (first) showFinanceView('accounts'); } });
 function showMode(name) { appMode.show(name); }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────

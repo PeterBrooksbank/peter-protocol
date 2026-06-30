@@ -124,6 +124,72 @@ export default {
       return json({ imported: res.length });
     }
 
+    // GET /api/finance/budget?month=YYYY-MM — planned vs actual per category
+    if (m === 'GET' && p === '/api/finance/budget') {
+      const month = url.searchParams.get('month');
+      if (!month) return json({ error: 'month required' }, 400);
+      const { results } = await db.prepare(`
+        SELECT c.id, c.name, c.kind, c.planned_monthly, c.rollover_enabled,
+          CASE WHEN c.kind = 'expense'
+               THEN -COALESCE(SUM(t.amount), 0)
+               ELSE  COALESCE(SUM(t.amount), 0) END AS actual
+        FROM categories c
+        LEFT JOIN transactions t
+          ON t.category_id = c.id AND t.household_id = c.household_id
+         AND substr(t.date, 1, 7) = ?
+        WHERE c.household_id = ?
+        GROUP BY c.id
+        ORDER BY c.kind, c.name
+      `).bind(month, household_id).all();
+      return json(results);
+    }
+
+    if (m === 'GET' && p === '/api/finance/categories') {
+      const { results } = await db.prepare(
+        'SELECT * FROM categories WHERE household_id = ? ORDER BY kind, name'
+      ).bind(household_id).all();
+      return json(results);
+    }
+
+    if (m === 'POST' && p === '/api/finance/categories') {
+      const b = await request.json();
+      const id = crypto.randomUUID();
+      await db.prepare(`INSERT INTO categories (id, household_id, name, kind, planned_monthly, rollover_enabled)
+                        VALUES (?,?,?,?,?,?)`)
+        .bind(id, household_id, b.name, b.kind ?? 'expense',
+              b.planned_monthly ?? 0, b.rollover_enabled ? 1 : 0).run();
+      return json({ id });
+    }
+
+    // PATCH / DELETE /api/finance/categories/:id
+    const catMatch = p.match(/^\/api\/finance\/categories\/([^/]+)$/);
+    if (catMatch) {
+      const catId = catMatch[1];
+      const owns = await db.prepare('SELECT 1 FROM categories WHERE id = ? AND household_id = ?')
+                           .bind(catId, household_id).first();
+      if (!owns) return json({ error: 'not found' }, 404);
+
+      if (m === 'PATCH') {
+        const b = await request.json();
+        const fields = [], vals = [];
+        if (b.name != null)             { fields.push('name = ?');             vals.push(b.name); }
+        if (b.planned_monthly != null)  { fields.push('planned_monthly = ?');  vals.push(b.planned_monthly); }
+        if (b.rollover_enabled != null) { fields.push('rollover_enabled = ?'); vals.push(b.rollover_enabled ? 1 : 0); }
+        if (!fields.length) return json({ error: 'nothing to update' }, 400);
+        vals.push(catId, household_id);
+        await db.prepare(`UPDATE categories SET ${fields.join(', ')} WHERE id = ? AND household_id = ?`)
+                .bind(...vals).run();
+        return json({ ok: true });
+      }
+      if (m === 'DELETE') {
+        await db.prepare('UPDATE transactions SET category_id = NULL WHERE category_id = ? AND household_id = ?')
+                .bind(catId, household_id).run();
+        await db.prepare('DELETE FROM categories WHERE id = ? AND household_id = ?')
+                .bind(catId, household_id).run();
+        return json({ ok: true });
+      }
+    }
+
     return json({ error: 'not found' }, 404);
   }
 };

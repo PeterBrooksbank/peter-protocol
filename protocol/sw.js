@@ -1,4 +1,4 @@
-const CACHE = 'protocol-v10';
+const CACHE = 'protocol-v11';
 const ASSETS = [
   '/',
   '/index.html',
@@ -18,6 +18,7 @@ const ASSETS = [
   '/finance.js',
   '/finance-forms.js',
   '/app-mode.js',
+  '/finance-budget.js',
   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap'
 ];
 
