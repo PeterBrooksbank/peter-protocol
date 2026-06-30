@@ -29,23 +29,23 @@
 
   const sourceBlock = r => {
     if (r.net_monthly == null) return `
-      <div class="inc-source unset" data-source='${JSON.stringify({ id: r.source_id, name: r.source_name, kind: r.kind })}'>
-        <div class="inc-source-head"><span>${r.source_name}</span><span class="inc-unset">Not set — tap to add</span></div>
+      <div class="py-[9px] border-b border-ink/12 cursor-pointer opacity-70" data-source='${JSON.stringify({ id: r.source_id, name: r.source_name, kind: r.kind })}'>
+        <div class="flex justify-between items-baseline"><span>${r.source_name}</span><span class="text-[0.6rem] text-warm">Not set — tap to add</span></div>
       </div>`;
     const ded = [
       ['Income tax', r.income_tax], ['NI', r.national_insurance],
       ['Pension', r.pension_employee], ['Student loan', r.student_loan], ['Other', r.other_deductions],
     ].filter(([, v]) => v);
     return `
-      <div class="inc-source" data-source='${JSON.stringify({ id: r.source_id, name: r.source_name, kind: r.kind })}'>
-        <div class="inc-source-head">
+      <div class="py-[9px] border-b border-ink/12 cursor-pointer last:border-b-0" data-source='${JSON.stringify({ id: r.source_id, name: r.source_name, kind: r.kind })}'>
+        <div class="flex justify-between items-baseline">
           <span>${r.source_name}</span>
-          <span class="inc-net">${gbp(r.net_monthly)}<span class="inc-permo">/mo</span></span>
+          <span class="font-mono text-[0.82rem] tabular-nums">${gbp(r.net_monthly)}<span class="text-[0.62em] text-stone tracking-[0.04em] ml-0.5">/mo</span></span>
         </div>
-        <div class="inc-waterfall">
-          <span class="inc-w-gross">Gross ${gbp(r.gross_monthly)}</span>
-          ${ded.map(([k, v]) => `<span class="inc-w-ded">− ${k} ${gbp(v)}</span>`).join('')}
-          ${r.pension_employer ? `<span class="inc-w-er">+ Employer pension ${gbp(r.pension_employer)}</span>` : ''}
+        <div class="flex flex-wrap gap-x-2.5 gap-y-1 mt-1.5">
+          <span class="text-[0.56rem] text-ink">Gross ${gbp(r.gross_monthly)}</span>
+          ${ded.map(([k, v]) => `<span class="text-[0.56rem] text-stone">− ${k} ${gbp(v)}</span>`).join('')}
+          ${r.pension_employer ? `<span class="text-[0.56rem] text-warm">+ Employer pension ${gbp(r.pension_employer)}</span>` : ''}
         </div>
       </div>`;
   };
@@ -58,30 +58,34 @@
     }), { net: 0, gross: 0, tax: 0, pension: 0 });
 
     el.innerHTML = `
-      <div class="bdg-monthbar">
-        <button class="bdg-nav" data-nav="prev">‹</button>
-        <span class="bdg-month">${label(month)}</span>
-        <button class="bdg-nav" data-nav="next">›</button>
+      <div class="flex items-center justify-center gap-[18px] mb-5">
+        <button class="bg-transparent border border-ink/12 rounded-[4px] size-8 text-base text-ink cursor-pointer" data-nav="prev">‹</button>
+        <span class="font-display text-[1.3rem] font-light min-w-[150px] text-center">${label(month)}</span>
+        <button class="bg-transparent border border-ink/12 rounded-[4px] size-8 text-base text-ink cursor-pointer" data-nav="next">›</button>
       </div>
-      <div class="bdg-summary">
-        <div class="bdg-sum-cell"><div class="bdg-sum-label">Household net</div>
-          <div class="bdg-sum-val">${gbp(tot.net)}<span class="inc-permo">/mo</span></div></div>
-        <div class="bdg-sum-cell"><div class="bdg-sum-label">Gross</div>
-          <div class="bdg-sum-val">${gbp(tot.gross)}<span class="inc-permo">/mo</span></div></div>
+      <div class="flex gap-2.5 mb-1.5">
+        <div class="flex-1 bg-white border border-ink/12 rounded-[4px] px-[14px] py-3">
+          <div class="text-[0.52rem] tracking-[0.18em] uppercase text-stone mb-[5px]">Household net</div>
+          <div class="font-mono text-[1.05rem] tabular-nums">${gbp(tot.net)}<span class="text-[0.62em] text-stone tracking-[0.04em] ml-0.5">/mo</span></div>
+        </div>
+        <div class="flex-1 bg-white border border-ink/12 rounded-[4px] px-[14px] py-3">
+          <div class="text-[0.52rem] tracking-[0.18em] uppercase text-stone mb-[5px]">Gross</div>
+          <div class="font-mono text-[1.05rem] tabular-nums">${gbp(tot.gross)}<span class="text-[0.62em] text-stone tracking-[0.04em] ml-0.5">/mo</span></div>
+        </div>
       </div>
-      <div class="bdg-annual">Annualised · ${gbp(tot.net * 12)} net · ${gbp(tot.gross * 12)} gross · ${gbp(tot.tax * 12)} tax & NI · ${gbp(tot.pension * 12)} into pensions</div>
+      <div class="text-[0.58rem] text-stone tracking-[0.04em] text-center mb-6 tabular-nums">Annualised · ${gbp(tot.net * 12)} net · ${gbp(tot.gross * 12)} gross · ${gbp(tot.tax * 12)} tax & NI · ${gbp(tot.pension * 12)} into pensions</div>
 
       ${people.map(p => `
-        <div class="inc-person">
-          <div class="inc-person-head">
-            <span class="inc-person-name">${p.name}</span>
-            <span class="inc-person-net">${gbp(p.net)}<span class="inc-permo">/mo net</span></span>
+        <div class="bg-white border border-ink/12 rounded-[6px] p-[14px] mb-3">
+          <div class="flex justify-between items-baseline pb-2.5 border-b border-ink/12 mb-2.5">
+            <span class="font-display text-[1.25rem] font-light">${p.name}</span>
+            <span class="font-mono text-[0.9rem] tabular-nums">${gbp(p.net)}<span class="text-[0.62em] text-stone tracking-[0.04em] ml-0.5">/mo net</span></span>
           </div>
-          ${p.sources.length ? p.sources.map(sourceBlock).join('') : '<div class="inc-empty">No income sources</div>'}
-          <button class="inc-addsrc" data-add-source="${p.id}" data-add-name="${p.name}">+ Income source</button>
+          ${p.sources.length ? p.sources.map(sourceBlock).join('') : '<div class="text-[0.62rem] text-stone italic py-1.5">No income sources</div>'}
+          <button class="mt-2.5 bg-transparent border border-dashed border-ink/12 rounded-[4px] py-2 w-full font-mono text-[0.58rem] text-stone cursor-pointer" data-add-source="${p.id}" data-add-name="${p.name}">+ Income source</button>
         </div>`).join('')}
 
-      <button class="fin-add inc-addperson" data-act="add-person">+ Person</button>`;
+      <button class="mt-2 bg-warm text-white border-0 rounded-[4px] px-[14px] py-2 font-mono text-[0.6rem] tracking-[0.1em] cursor-pointer" data-act="add-person">+ Person</button>`;
 
     el.querySelector('[data-nav="prev"]').onclick = () => h.setMonth(shift(month, -1));
     el.querySelector('[data-nav="next"]').onclick = () => h.setMonth(shift(month, 1));

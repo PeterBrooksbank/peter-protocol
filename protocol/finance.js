@@ -58,26 +58,26 @@
         const groups = groupByType(accounts);
 
         container.innerHTML = `
-      <div class="fin-networth">
+      <div class="flex items-start justify-between mb-7">
         <div>
-          <div class="fin-networth-label">Net worth</div>
-          <div class="fin-networth-value">${gbp(net)}</div>
+          <div class="text-[0.55rem] tracking-[0.2em] uppercase text-stone mb-1.5">Net worth</div>
+          <div class="font-display text-[2.6rem] font-light leading-none tabular-nums">${gbp(net)}</div>
         </div>
-        <button class="fin-add" data-fin="add">+ Add</button>
+        <button class="bg-warm text-white border-0 rounded-[4px] px-[14px] py-2 font-mono text-[0.6rem] tracking-[0.1em] cursor-pointer" data-fin="add">+ Add</button>
       </div>
-      <div class="fin-groups">
+      <div>
         ${groups.map(g => `
-          <div class="fin-group">
-            <div class="fin-group-head">
-              <span class="fin-group-label">${g.label}</span>
-              <span class="fin-group-subtotal ${g.subtotal < 0 ? 'neg' : ''}">${gbp(g.subtotal)}</span>
+          <div class="mb-[22px]">
+            <div class="flex justify-between items-baseline mb-2">
+              <span class="text-[0.56rem] tracking-[0.18em] uppercase text-stone">${g.label}</span>
+              <span class="font-mono text-[0.72rem] tabular-nums ${g.subtotal < 0 ? 'text-signal-light' : 'text-ink'}">${gbp(g.subtotal)}</span>
             </div>
             ${g.items.map(a => `
-              <div class="fin-account" data-account-id="${a.id}">
-                <div class="fin-account-name">
-                  ${a.nickname}${a.provider ? `<span class="fin-account-provider">${a.provider}</span>` : ''}
+              <div class="flex justify-between items-center bg-white border border-ink/12 rounded-[4px] px-[14px] py-3 mb-1.5 cursor-pointer" data-account-id="${a.id}">
+                <div class="text-[0.8rem]">
+                  ${a.nickname}${a.provider ? `<span class="block text-[0.58rem] text-stone mt-0.5">${a.provider}</span>` : ''}
                 </div>
-                <div class="fin-account-balance ${a.is_liability ? 'neg' : ''}">
+                <div class="font-mono text-[0.85rem] tabular-nums ${a.is_liability ? 'text-signal-light' : ''}">
                   ${a.is_liability ? '−' : ''}${gbp(a.balance ?? 0)}
                 </div>
               </div>`).join('')}
