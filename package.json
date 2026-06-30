@@ -1,5 +1,12 @@
 {
+  "scripts": {
+    "build": "tailwindcss -i ./src/app.css -o ./protocol/app.css --minify",
+    "dev":   "tailwindcss -i ./src/app.css -o ./protocol/app.css --watch"
+  },
   "dependencies": {
     "jose": "^6.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.2"
   }
 }
