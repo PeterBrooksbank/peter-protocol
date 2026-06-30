@@ -1082,6 +1082,32 @@
   .fin-check { display: flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; }
   .fin-check input { width: auto; margin: 0; }
   .fin-delete { width: 100%; background: none; border: 1px solid #a8443a; color: #a8443a; border-radius: 4px; padding: 10px; margin-top: 6px; font-family: 'DM Mono', monospace; font-size: 0.62rem; cursor: pointer; }
+
+  .fin-hint { font-size: 0.66rem; color: var(--stone); line-height: 1.5; margin-bottom: 12px; }
+  .txn-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .txn-count { font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); }
+  .txn-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px; margin-bottom: 6px; cursor: pointer; }
+  .txn-row.uncat { border-left: 3px solid var(--warm); }
+  .txn-desc { font-size: 0.78rem; }
+  .txn-meta { font-size: 0.56rem; color: var(--stone); margin-top: 3px; }
+  .txn-chip { color: var(--ink); }
+  .txn-chip.none { color: var(--warm); }
+  .txn-amt { font-family: 'DM Mono', monospace; font-size: 0.8rem; white-space: nowrap; }
+  .txn-amt.neg { color: #a8443a; }
+
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .cat-pick { background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 12px 8px; font-size: 0.72rem; cursor: pointer; font-family: inherit; }
+  .cat-pick:active { border-color: var(--warm); }
+  .cat-pick.none { grid-column: 1 / -1; color: var(--stone); }
+
+  .imp-preview { border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+  .imp-prow { display: flex; gap: 10px; padding: 7px 10px; font-family: 'DM Mono', monospace; font-size: 0.62rem; border-bottom: 1px solid var(--rule); }
+  .imp-prow:last-child { border-bottom: none; }
+  .imp-pdesc { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .imp-prow .neg { color: #a8443a; }
+  .imp-more { padding: 7px 10px; font-size: 0.6rem; color: var(--stone); text-align: center; }
+  .imp-result { text-align: center; padding: 10px 0 4px; }
+  .imp-result-big { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: var(--warm); }
 </style>
 </head>
 <body>
@@ -1271,11 +1297,12 @@
   <div class="fin-subnav">
     <button class="fin-subtab active" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
     <button class="fin-subtab" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
+    <button class="fin-subtab" data-view="transactions" onclick="showFinanceView('transactions')">Transactions</button>
   </div>
   <div id="finance-accounts" class="fin-view"></div>
   <div id="finance-budget" class="fin-view" style="display:none"></div>
+  <div id="finance-transactions" class="fin-view" style="display:none"></div>
 </div>
-
 
 
 <!-- Day complete overlay -->
@@ -1305,6 +1332,8 @@
 <script src="finance.js"></script>
 <script src="finance-forms.js"></script>
 <script src="app-mode.js"></script>
+<script src="csv-import.js"></script>
+<script src="finance-transactions.js"></script>
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
 // Replace with your deployed Worker URL after deploying worker.js to Cloudflare
@@ -1762,9 +1791,14 @@ function showFinanceView(name) {
   document.querySelectorAll('.fin-subtab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
   document.querySelectorAll('.fin-view').forEach(v => v.style.display = 'none');
   document.getElementById('finance-' + name).style.display = '';
-  name === 'budget' ? loadBudget() : loadAccounts();
+  if (name === 'budget') loadBudget();
+  else if (name === 'transactions') loadTransactions();
+  else loadAccounts();
 }
 function refreshFinance() { showFinanceView(currentFinanceView); }
+
+const txnsView = createFinanceTransactions(finance);
+function loadTransactions() { txnsView.mount(document.getElementById('finance-transactions')); }
 
 const appMode = createAppMode({ onEnterFinance: first => { if (first) showFinanceView('accounts'); } });
 function showMode(name) { appMode.show(name); }
