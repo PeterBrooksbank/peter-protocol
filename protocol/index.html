@@ -9,196 +9,196 @@
 <title>Daily Protocol</title>
 <link rel="stylesheet" href="app.css">
 </head>
-<body>
+<body class="bg-paper text-ink font-mono min-h-dvh antialiased">
 
-  <div class="mode-switch">
-  <button class="mode-tab active" data-mode="health"  onclick="showMode('health')">Health</button>
-  <button class="mode-tab"        data-mode="finance" onclick="showMode('finance')">Finance</button>
+  <div class="flex gap-1 px-4 pt-2.5">
+  <button class="mode-tab flex-1 bg-transparent border-0 border-b-2 border-transparent p-2.5 font-mono text-[0.62rem] tracking-[0.18em] uppercase text-stone cursor-pointer active" data-mode="health" onclick="showMode('health')">Health</button>
+  <button class="mode-tab flex-1 bg-transparent border-0 border-b-2 border-transparent p-2.5 font-mono text-[0.62rem] tracking-[0.18em] uppercase text-stone cursor-pointer" data-mode="finance" onclick="showMode('finance')">Finance</button>
 </div>
 
 <!-- Navigation -->
-<nav class="nav">
-  <button class="nav-tab active" data-tab="checklist" onclick="showTab('checklist')">Checklist</button>
-  <button class="nav-tab" data-tab="supplements" onclick="showTab('supplements')">Supplements</button>
-  <button class="nav-tab" data-tab="meals" onclick="showTab('meals')">Meals</button>
+<nav class="sticky top-0 z-50 bg-paper border-b border-ink/12 flex justify-center">
+  <button class="nav-tab flex-1 max-w-40 px-2 py-3.5 font-mono text-[0.58rem] tracking-[0.18em] uppercase text-stone bg-transparent border-0 border-b-2 border-transparent cursor-pointer -mb-px active" data-tab="checklist" onclick="showTab('checklist')">Checklist</button>
+  <button class="nav-tab flex-1 max-w-40 px-2 py-3.5 font-mono text-[0.58rem] tracking-[0.18em] uppercase text-stone bg-transparent border-0 border-b-2 border-transparent cursor-pointer -mb-px" data-tab="supplements" onclick="showTab('supplements')">Supplements</button>
+  <button class="nav-tab flex-1 max-w-40 px-2 py-3.5 font-mono text-[0.58rem] tracking-[0.18em] uppercase text-stone bg-transparent border-0 border-b-2 border-transparent cursor-pointer -mb-px" data-tab="meals" onclick="showTab('meals')">Meals</button>
 </nav>
 
 <!-- Sync status bar -->
-<div class="sync-bar">
+<div class="flex items-center gap-1.5 px-6 py-1.5 text-[0.55rem] tracking-[0.1em] text-stone border-b border-ink/12">
   <div class="sync-dot" id="syncDot"></div>
   <span id="syncStatus">Loading…</span>
 </div>
 
-<div class="app">
+<div class="relative z-[1] isolate max-w-[640px] mx-auto px-6 pt-8 pb-20">
 
   <!-- ── Checklist tab ── -->
   <div class="tab-content active" id="tab-checklist">
-    <div class="header">
-      <div class="header-top">
-        <h1 class="title">Daily Protocol</h1>
-        <div class="date" id="dateDisplay"></div>
+    <div class="mb-10 pb-5 border-b border-ink/12">
+      <div class="flex items-baseline justify-between mb-1.5">
+        <h1 class="font-display text-[2.2rem] font-light tracking-[0.02em]">Daily Protocol</h1>
+        <div class="text-[0.62rem] tracking-[0.15em] text-stone uppercase" id="dateDisplay"></div>
       </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="progressBar"></div>
+      <div class="mt-4 h-[2px] bg-ink/12 rounded-[2px] overflow-hidden">
+        <div class="h-full bg-warm rounded-[2px] [transition:width_0.5s_cubic-bezier(0.4,0,0.2,1)] w-0" id="progressBar"></div>
       </div>
-      <div class="progress-label" id="progressLabel">Loading…</div>
-      <button class="reset-btn" onclick="resetDay()">↺ Reset today</button>
+      <div class="mt-2 text-[0.6rem] tracking-[0.12em] text-stone uppercase" id="progressLabel">Loading…</div>
+      <button class="block w-full mt-3 p-2 bg-transparent border border-ink/12 rounded-[2px] font-mono text-[0.6rem] tracking-[0.15em] uppercase text-stone cursor-pointer hover:border-warm hover:text-warm" onclick="resetDay()">↺ Reset today</button>
     </div>
 
     <div id="sections"></div>
 
-    <div class="weekly">
-      <div class="weekly-title">This week</div>
-      <div class="weekly-grid" id="weeklyGrid"></div>
-      <div class="streak" id="streakDisplay"></div>
+    <div class="mt-12 pt-6 border-t border-ink/12">
+      <div class="text-[0.58rem] tracking-[0.2em] uppercase text-stone mb-3.5">This week</div>
+      <div class="grid grid-cols-7 gap-1.5" id="weeklyGrid"></div>
+      <div class="streak mt-3.5 text-[0.62rem] text-stone tracking-[0.06em]" id="streakDisplay"></div>
     </div>
   </div>
 
   <!-- ── Supplements tab ── -->
   <div class="tab-content" id="tab-supplements">
-    <div class="supps-header">
-      <div class="supps-title">Supplements</div>
-      <div class="supps-sub">Daily stack — timing & rationale</div>
+    <div class="mb-8 pb-5 border-b border-ink/12">
+      <div class="font-display text-[2rem] font-light mb-1">Supplements</div>
+      <div class="text-[0.6rem] tracking-[0.12em] text-stone uppercase">Daily stack — timing & rationale</div>
     </div>
 
-    <div class="supp-timing">
-      <div class="supp-timing-label">
-        <div class="supp-timing-name">Morning</div>
-        <div class="supp-timing-line"></div>
-        <div class="supp-timing-time">With breakfast</div>
+    <div class="mb-9">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="text-[0.58rem] tracking-[0.2em] uppercase text-stone whitespace-nowrap">Morning</div>
+        <div class="flex-1 h-px bg-ink/12"></div>
+        <div class="text-[0.58rem] text-warm tracking-[0.08em]">With breakfast</div>
       </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">Vitamin D3 + K2</div>
-          <div class="supp-dose">4000 IU + 100mcg MK-7</div>
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Vitamin D3 + K2</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">4000 IU + 100mcg MK-7</div>
         </div>
-        <div class="supp-detail">D3 corrects near-certain deficiency in North Yorkshire — directly linked to brain fog, fatigue, low mood. K2 MK-7 directs calcium to bones not arteries. Fat-soluble — must take with food.</div>
-        <span class="supp-food-flag">With food</span>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">D3 corrects near-certain deficiency in North Yorkshire — directly linked to brain fog, fatigue, low mood. K2 MK-7 directs calcium to bones not arteries. Fat-soluble — must take with food.</div>
+        <span class="inline-block mt-[5px] text-[0.5rem] tracking-[0.1em] uppercase text-moss border border-moss px-[5px] py-px rounded-[2px] not-italic font-mono">With food</span>
       </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">Omega-3 (EPA/DHA)</div>
-          <div class="supp-dose">2g combined</div>
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Omega-3 (EPA/DHA)</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">2g combined</div>
         </div>
-        <div class="supp-detail">Brain function, inflammation, cardiovascular, mood. Triglyceride form (Bare Biology) — 70% more bioavailable than ethyl ester. Takes 8–12 weeks to see full cognitive effect.</div>
-        <span class="supp-food-flag">With food</span>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">Brain function, inflammation, cardiovascular, mood. Triglyceride form (Bare Biology) — 70% more bioavailable than ethyl ester. Takes 8–12 weeks to see full cognitive effect.</div>
+        <span class="inline-block mt-[5px] text-[0.5rem] tracking-[0.1em] uppercase text-moss border border-moss px-[5px] py-px rounded-[2px] not-italic font-mono">With food</span>
       </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">B Complex (methylated)</div>
-          <div class="supp-dose">1 capsule</div>
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">B Complex (methylated)</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">1 capsule</div>
         </div>
-        <div class="supp-detail">Methylcobalamin B12 + methylfolate B9 — active forms only. Stress depletes B vitamins heavily. Cofactors for energy production and neurotransmitter synthesis. Can be stimulating — morning only.</div>
-        <span class="supp-food-flag">Morning only</span>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">Methylcobalamin B12 + methylfolate B9 — active forms only. Stress depletes B vitamins heavily. Cofactors for energy production and neurotransmitter synthesis. Can be stimulating — morning only.</div>
+        <span class="inline-block mt-[5px] text-[0.5rem] tracking-[0.1em] uppercase text-moss border border-moss px-[5px] py-px rounded-[2px] not-italic font-mono">Morning only</span>
       </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">Zinc Bisglycinate</div>
-          <div class="supp-dose">15–25mg</div>
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Zinc Bisglycinate</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">15–25mg</div>
         </div>
-        <div class="supp-detail">Mild deficiency common in active, stressed men. Supports testosterone production, immune function, skin. Bisglycinate form — best absorbed, gentlest on digestion.</div>
-        <span class="supp-food-flag">With food</span>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">Mild deficiency common in active, stressed men. Supports testosterone production, immune function, skin. Bisglycinate form — best absorbed, gentlest on digestion.</div>
+        <span class="inline-block mt-[5px] text-[0.5rem] tracking-[0.1em] uppercase text-moss border border-moss px-[5px] py-px rounded-[2px] not-italic font-mono">With food</span>
       </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">Ashwagandha KSM-66</div>
-          <div class="supp-dose">300–600mg</div>
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Ashwagandha KSM-66</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">300–600mg</div>
         </div>
-        <div class="supp-detail">Cortisol reduction, stress resilience, cognitive function under load. KSM-66 is the most clinically studied extract. Cycle 8–12 weeks on, 4 weeks off. Also supports testosterone in stressed men.</div>
-        <span class="supp-food-flag">Morning</span>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">Cortisol reduction, stress resilience, cognitive function under load. KSM-66 is the most clinically studied extract. Cycle 8–12 weeks on, 4 weeks off. Also supports testosterone in stressed men.</div>
+        <span class="inline-block mt-[5px] text-[0.5rem] tracking-[0.1em] uppercase text-moss border border-moss px-[5px] py-px rounded-[2px] not-italic font-mono">Morning</span>
       </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">Creatine Monohydrate</div>
-          <div class="supp-dose">5g</div>
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Creatine Monohydrate</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">5g</div>
         </div>
-        <div class="supp-detail">Cognitive benefits well-established — improves processing speed and working memory, especially effective when sleep-deprived. Also critical for muscle retention. Any pure monohydrate brand. Anytime.</div>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">Cognitive benefits well-established — improves processing speed and working memory, especially effective when sleep-deprived. Also critical for muscle retention. Any pure monohydrate brand. Anytime.</div>
       </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">Lion's Mane</div>
-          <div class="supp-dose">500–1000mg</div>
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Lion's Mane</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">500–1000mg</div>
         </div>
-        <div class="supp-detail">Stimulates nerve growth factor (NGF) — supports cognitive function, focus, and memory. Emerging evidence for neuroplasticity. Fruiting body extract only (not mycelium on grain). Directly relevant to your brain fog target.</div>
-        <span class="supp-food-flag">Morning</span>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">Stimulates nerve growth factor (NGF) — supports cognitive function, focus, and memory. Emerging evidence for neuroplasticity. Fruiting body extract only (not mycelium on grain). Directly relevant to your brain fog target.</div>
+        <span class="inline-block mt-[5px] text-[0.5rem] tracking-[0.1em] uppercase text-moss border border-moss px-[5px] py-px rounded-[2px] not-italic font-mono">Morning</span>
       </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">Ginkgo Biloba</div>
-          <div class="supp-dose">120mg</div>
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Ginkgo Biloba</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">120mg</div>
         </div>
-        <div class="supp-detail">Improves cerebral blood flow and oxygen delivery to the brain. Good evidence for processing speed, memory, and mental clarity. Mild anticoagulant — avoid if taking blood thinners or aspirin regularly.</div>
-        <span class="supp-food-flag">Morning</span>
-      </div>
-    </div>
-
-    <div class="supp-timing">
-      <div class="supp-timing-label">
-        <div class="supp-timing-name">Midday</div>
-        <div class="supp-timing-line"></div>
-        <div class="supp-timing-time">With lunch</div>
-      </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">Marine Collagen</div>
-          <div class="supp-dose">2331mg — 650 Dalton</div>
-        </div>
-        <div class="supp-detail">650 Da peptides absorb largely intact as bioactive di/tripeptides — stimulates fibroblasts directly. Take with food containing Vitamin C (any fruit or veg) which is essential for collagen synthesis. Skin, joints, connective tissue.</div>
-        <span class="supp-food-flag">With Vitamin C</span>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">Improves cerebral blood flow and oxygen delivery to the brain. Good evidence for processing speed, memory, and mental clarity. Mild anticoagulant — avoid if taking blood thinners or aspirin regularly.</div>
+        <span class="inline-block mt-[5px] text-[0.5rem] tracking-[0.1em] uppercase text-moss border border-moss px-[5px] py-px rounded-[2px] not-italic font-mono">Morning</span>
       </div>
     </div>
 
-    <div class="supp-timing">
-      <div class="supp-timing-label">
-        <div class="supp-timing-name">Evening</div>
-        <div class="supp-timing-line"></div>
-        <div class="supp-timing-time">30–60 min before bed</div>
+    <div class="mb-9">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="text-[0.58rem] tracking-[0.2em] uppercase text-stone whitespace-nowrap">Midday</div>
+        <div class="flex-1 h-px bg-ink/12"></div>
+        <div class="text-[0.58rem] text-warm tracking-[0.08em]">With lunch</div>
       </div>
-      <div class="supp-card">
-        <div class="supp-card-top">
-          <div class="supp-name">Magnesium Glycinate</div>
-          <div class="supp-dose">300–400mg</div>
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Marine Collagen</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">2331mg — 650 Dalton</div>
         </div>
-        <div class="supp-detail">The supplement most people feel fastest. Improves sleep quality, reduces stress response, supports muscle recovery. Glycinate form only — won't cause digestive issues. Most people notice better sleep depth within a week.</div>
-        <span class="supp-food-flag">Before bed</span>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">650 Da peptides absorb largely intact as bioactive di/tripeptides — stimulates fibroblasts directly. Take with food containing Vitamin C (any fruit or veg) which is essential for collagen synthesis. Skin, joints, connective tissue.</div>
+        <span class="inline-block mt-[5px] text-[0.5rem] tracking-[0.1em] uppercase text-moss border border-moss px-[5px] py-px rounded-[2px] not-italic font-mono">With Vitamin C</span>
       </div>
     </div>
 
-    <div class="supp-timing">
-      <div class="supp-timing-label">
-        <div class="supp-timing-name">Note</div>
-        <div class="supp-timing-line"></div>
+    <div class="mb-9">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="text-[0.58rem] tracking-[0.2em] uppercase text-stone whitespace-nowrap">Evening</div>
+        <div class="flex-1 h-px bg-ink/12"></div>
+        <div class="text-[0.58rem] text-warm tracking-[0.08em]">30–60 min before bed</div>
       </div>
-      <div style="font-size:0.65rem; color:var(--stone); font-style:italic; font-family:'Cormorant Garamond',serif; line-height:1.7; letter-spacing:0.02em;">
+      <div class="supp-card bg-white border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 relative overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 mb-1">
+          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Magnesium Glycinate</div>
+          <div class="text-[0.62rem] text-warm tracking-[0.06em] whitespace-nowrap">300–400mg</div>
+        </div>
+        <div class="text-[0.6rem] text-stone tracking-[0.02em] italic font-display leading-[1.5]">The supplement most people feel fastest. Improves sleep quality, reduces stress response, supports muscle recovery. Glycinate form only — won't cause digestive issues. Most people notice better sleep depth within a week.</div>
+        <span class="inline-block mt-[5px] text-[0.5rem] tracking-[0.1em] uppercase text-moss border border-moss px-[5px] py-px rounded-[2px] not-italic font-mono">Before bed</span>
+      </div>
+    </div>
+
+    <div class="mb-9">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="text-[0.58rem] tracking-[0.2em] uppercase text-stone whitespace-nowrap">Note</div>
+        <div class="flex-1 h-px bg-ink/12"></div>
+      </div>
+      <div class="text-[0.65rem] text-stone italic font-display leading-[1.7] tracking-[0.02em]">
         Get a Medichecks Advanced Well Man blood panel (~£150) when time permits. Will confirm Vitamin D loading dose needed, B12 status, thyroid, testosterone, HbA1c. Until then, the above stack is calibrated for likely deficiencies at your age, latitude, and stress load.
       </div>
     </div>
   </div>
   <!-- ── Meals tab ── -->
   <div class="tab-content" id="tab-meals">
-    <div class="meals-header">
-      <div class="meals-title">Meal Plan</div>
-      <div class="meals-sub" id="mealsSub">~1800–2000 kcal · High protein · Select one per meal</div>
-      <div class="plan-toggle">
-        <button class="plan-toggle-btn active" data-mode="standard" onclick="setPlanMode('standard')">Standard</button>
-        <button class="plan-toggle-btn" data-mode="deficit" onclick="setPlanMode('deficit')">1400 kcal plan</button>
-        <button class="plan-toggle-btn" data-mode="macro" onclick="setPlanMode('macro')">Macro</button>
+    <div class="mb-8 pb-5 border-b border-ink/12">
+      <div class="font-display text-[2rem] font-light mb-1">Meal Plan</div>
+      <div class="text-[0.6rem] tracking-[0.12em] text-stone uppercase" id="mealsSub">~1800–2000 kcal · High protein · Select one per meal</div>
+      <div class="flex items-center flex-wrap gap-0.5 bg-ink/12 rounded-[3px] p-[3px] mt-3.5 w-fit max-w-full">
+        <button class="plan-toggle-btn py-[7px] px-4 font-mono text-[0.58rem] tracking-[0.12em] uppercase text-stone bg-transparent border-0 rounded-[2px] cursor-pointer whitespace-nowrap active" data-mode="standard" onclick="setPlanMode('standard')">Standard</button>
+        <button class="plan-toggle-btn py-[7px] px-4 font-mono text-[0.58rem] tracking-[0.12em] uppercase text-stone bg-transparent border-0 rounded-[2px] cursor-pointer whitespace-nowrap" data-mode="deficit" onclick="setPlanMode('deficit')">1400 kcal plan</button>
+        <button class="plan-toggle-btn py-[7px] px-4 font-mono text-[0.58rem] tracking-[0.12em] uppercase text-stone bg-transparent border-0 rounded-[2px] cursor-pointer whitespace-nowrap" data-mode="macro" onclick="setPlanMode('macro')">Macro</button>
       </div>
-      <div class="plan-mode-note" id="planModeNote"></div>
+      <div class="mt-2.5 text-[0.6rem] text-stone tracking-[0.06em] italic font-display" id="planModeNote"></div>
     </div>
     <div id="mealSections"></div>
     <div id="dayTotals"></div>
-    <button class="meal-reset-btn" onclick="resetMeals()">↺ Reset selections</button>
+    <button class="block w-full mt-4 p-2 bg-transparent border border-ink/12 rounded-[2px] font-mono text-[0.6rem] tracking-[0.15em] uppercase text-stone cursor-pointer hover:border-warm hover:text-warm" onclick="resetMeals()">↺ Reset selections</button>
   </div>
 </div>
 
-<div id="finance-root" style="display:none">
-  <div class="fin-subnav">
-    <button class="fin-subtab active" data-view="dashboard" onclick="showFinanceView('dashboard')">Dashboard</button>
-    <button class="fin-subtab" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
-    <button class="fin-subtab" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
-    <button class="fin-subtab" data-view="transactions" onclick="showFinanceView('transactions')">Transactions</button>
-    <button class="fin-subtab" data-view="income" onclick="showFinanceView('income')">Income</button>
+<div id="finance-root" class="px-4 pb-[60px]" style="display:none">
+  <div class="flex gap-4 pt-[18px] pb-3 border-b border-ink/12 mb-5">
+    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm active" data-view="dashboard" onclick="showFinanceView('dashboard')">Dashboard</button>
+    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
+    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
+    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="transactions" onclick="showFinanceView('transactions')">Transactions</button>
+    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="income" onclick="showFinanceView('income')">Income</button>
   </div>
   <div id="finance-dashboard" class="fin-view"></div>
   <div id="finance-accounts" class="fin-view" style="display:none"></div>
@@ -209,18 +209,18 @@
 
 
 <!-- Day complete overlay -->
-<div class="day-complete" id="dayComplete">
-  <div class="day-complete-ring">
-    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+<div class="day-complete hidden fixed inset-0 bg-paper/[0.97] z-[200] flex-col items-center justify-center gap-3 text-center p-10" id="dayComplete">
+  <div class="size-[72px] rounded-full border-2 border-warm flex items-center justify-center mb-2 [animation:ringIn_0.5s_cubic-bezier(0.34,1.56,0.64,1)_0.1s_both]">
+    <svg viewBox="0 0 24 24" class="size-7 fill-none [stroke:var(--color-warm)] [stroke-width:1.5] [stroke-linecap:round] [stroke-linejoin:round]"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
-  <div class="day-complete-title">Protocol Complete</div>
-  <div class="day-complete-sub">Well done. Rest now.</div>
-  <div class="day-complete-stats" id="dayCompleteStats"></div>
-  <button class="day-complete-btn" onclick="closeDayComplete()">Continue</button>
+  <div class="font-display text-[2.4rem] font-light text-ink">Protocol Complete</div>
+  <div class="text-[0.62rem] tracking-[0.2em] uppercase text-stone">Well done. Rest now.</div>
+  <div class="day-complete-stats mt-2 text-[0.65rem] text-stone leading-[1.8] tracking-[0.05em]" id="dayCompleteStats"></div>
+  <button class="mt-5 px-8 py-[11px] bg-ink text-paper border-0 font-mono text-[0.62rem] tracking-[0.15em] uppercase cursor-pointer rounded-[2px] hover:opacity-80" onclick="closeDayComplete()">Continue</button>
 </div>
 
 <!-- Toast -->
-<div class="loading-overlay" id="toast"></div>
+<div class="loading-overlay hidden fixed bottom-6 right-6 bg-ink text-paper text-[0.58rem] tracking-[0.12em] uppercase px-[14px] py-2 rounded-[2px] z-[100] [animation:slideUp_0.2s_ease]" id="toast"></div>
 
 <script src="state.js"></script>
 <script src="device-identity.js"></script>
@@ -786,12 +786,12 @@ function showMode(name) { appMode.show(name); }
 </script>
 
 <!-- Copy toast -->
-<div class="copy-toast" id="copyToast">Copied to clipboard</div>
+<div class="copy-toast fixed bottom-6 left-1/2 -translate-x-1/2 translate-y-2 bg-ink text-paper text-[0.6rem] tracking-[0.12em] uppercase px-[18px] py-[9px] rounded-[3px] z-[300] opacity-0 pointer-events-none [transition:opacity_0.25s,transform_0.25s] whitespace-nowrap" id="copyToast">Copied to clipboard</div>
 
 <!-- Update banner -->
-<div id="updateBanner" class="update-banner">
+<div id="updateBanner" class="update-banner hidden fixed bottom-5 left-1/2 -translate-x-1/2 bg-ink text-paper text-[0.6rem] tracking-[0.1em] uppercase px-4 py-2.5 rounded-[3px] z-[300] items-center gap-4 [animation:slideUp_0.3s_ease] whitespace-nowrap">
   <span>Update available</span>
-  <button id="updateBtn" class="update-banner-btn">Refresh</button>
+  <button id="updateBtn" class="bg-warm text-white border-0 font-mono text-[0.58rem] tracking-[0.1em] uppercase px-2.5 py-[5px] rounded-[2px] cursor-pointer">Refresh</button>
 </div>
 </body>
 </html>
