@@ -75,16 +75,108 @@ export default {
       return json({ ok: true });
     }
 
+    // REPLACES the old income-entries route — now ownership-checked
     if (m === 'POST' && p === '/api/finance/income-entries') {
       const b = await request.json();
+      const owns = await db.prepare(
+        `SELECT 1 FROM income_sources s JOIN people pp ON pp.id = s.person_id
+         WHERE s.id = ? AND pp.household_id = ?`).bind(b.income_source_id, household_id).first();
+      if (!owns) return json({ error: 'not found' }, 404);
       await db.prepare(`INSERT INTO income_entries (id, income_source_id, effective_from,
           gross_monthly, income_tax, national_insurance, pension_employee, pension_employer,
           student_loan, other_deductions, net_monthly, note)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
         .bind(crypto.randomUUID(), b.income_source_id, b.effective_from, b.gross_monthly,
-          b.income_tax ?? 0, b.national_insurance ?? 0, b.pension_employee ?? 0,
-          b.pension_employer ?? 0, b.student_loan ?? 0, b.other_deductions ?? 0,
-          b.net_monthly, b.note ?? null).run();
+              b.income_tax ?? 0, b.national_insurance ?? 0, b.pension_employee ?? 0,
+              b.pension_employer ?? 0, b.student_loan ?? 0, b.other_deductions ?? 0,
+              b.net_monthly, b.note ?? null).run();
+      return json({ ok: true });
+    }
+
+    if (m === 'GET' && p === '/api/finance/people') {
+      const { results } = await db.prepare('SELECT * FROM people WHERE household_id = ? ORDER BY display_name')
+        .bind(household_id).all();
+      return json(results);
+    }
+
+    if (m === 'POST' && p === '/api/finance/people') {
+      const b = await request.json();
+      if (!b.display_name) return json({ error: 'name required' }, 400);
+      const id = crypto.randomUUID();
+      await db.prepare('INSERT INTO people (id, household_id, display_name, is_earner) VALUES (?,?,?,?)')
+        .bind(id, household_id, b.display_name, b.is_earner === false ? 0 : 1).run();
+      return json({ id });
+    }
+
+    if (m === 'POST' && p === '/api/finance/income-sources') {
+      const b = await request.json();
+      const okp = await db.prepare('SELECT 1 FROM people WHERE id = ? AND household_id = ?')
+        .bind(b.person_id, household_id).first();
+      if (!okp) return json({ error: 'person not found' }, 404);
+      const id = crypto.randomUUID();
+      await db.prepare('INSERT INTO income_sources (id, person_id, name, kind, is_active) VALUES (?,?,?,?,1)')
+        .bind(id, b.person_id, b.name, b.kind ?? 'employment').run();
+      if (b.entry) {
+        const e = b.entry;
+        await db.prepare(`INSERT INTO income_entries (id, income_source_id, effective_from,
+            gross_monthly, income_tax, national_insurance, pension_employee, pension_employer,
+            student_loan, other_deductions, net_monthly, note)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
+          .bind(crypto.randomUUID(), id, e.effective_from, e.gross_monthly, e.income_tax ?? 0,
+                e.national_insurance ?? 0, e.pension_employee ?? 0, e.pension_employer ?? 0,
+                e.student_loan ?? 0, e.other_deductions ?? 0, e.net_monthly, e.note ?? null).run();
+      }
+      return json({ id });
+    }
+
+    // Effective-dated read: each source's latest entry effective on/before the month
+    if (m === 'GET' && p === '/api/finance/income') {
+      const month = url.searchParams.get('month');
+      if (!month) return json({ error: 'month required' }, 400);
+      const { results } = await db.prepare(`
+        SELECT p.id AS person_id, p.display_name, p.is_earner,
+               s.id AS source_id, s.name AS source_name, s.kind,
+               e.effective_from, e.gross_monthly, e.income_tax, e.national_insurance,
+               e.pension_employee, e.pension_employer, e.student_loan, e.other_deductions, e.net_monthly
+        FROM people p
+        LEFT JOIN income_sources s ON s.person_id = p.id AND s.is_active = 1
+        LEFT JOIN income_entries e ON e.id = (
+          SELECT e2.id FROM income_entries e2
+          WHERE e2.income_source_id = s.id AND substr(e2.effective_from,1,7) <= ?
+          ORDER BY e2.effective_from DESC LIMIT 1
+        )
+        WHERE p.household_id = ?
+        ORDER BY p.display_name, s.name
+      `).bind(month, household_id).all();
+      return json(results);
+    }
+
+    // History of a source's effective values (the raise log)
+    const histMatch = p.match(/^\/api\/finance\/income-sources\/([^/]+)\/history$/);
+    if (histMatch && m === 'GET') {
+      const sid = histMatch[1];
+      const owns = await db.prepare(`SELECT 1 FROM income_sources s JOIN people pp ON pp.id = s.person_id
+                                     WHERE s.id = ? AND pp.household_id = ?`).bind(sid, household_id).first();
+      if (!owns) return json({ error: 'not found' }, 404);
+      const { results } = await db.prepare(
+        'SELECT * FROM income_entries WHERE income_source_id = ? ORDER BY effective_from DESC').bind(sid).all();
+      return json(results);
+    }
+
+    // Rename / deactivate a source
+    const srcMatch = p.match(/^\/api\/finance\/income-sources\/([^/]+)$/);
+    if (srcMatch && m === 'PATCH') {
+      const sid = srcMatch[1];
+      const owns = await db.prepare(`SELECT 1 FROM income_sources s JOIN people pp ON pp.id = s.person_id
+                                     WHERE s.id = ? AND pp.household_id = ?`).bind(sid, household_id).first();
+      if (!owns) return json({ error: 'not found' }, 404);
+      const b = await request.json();
+      const fields = [], vals = [];
+      if (b.name != null)      { fields.push('name = ?');      vals.push(b.name); }
+      if (b.is_active != null) { fields.push('is_active = ?'); vals.push(b.is_active ? 1 : 0); }
+      if (!fields.length) return json({ error: 'nothing to update' }, 400);
+      vals.push(sid);
+      await db.prepare(`UPDATE income_sources SET ${fields.join(', ')} WHERE id = ?`).bind(...vals).run();
       return json({ ok: true });
     }
 

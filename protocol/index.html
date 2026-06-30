@@ -1108,6 +1108,29 @@
   .imp-more { padding: 7px 10px; font-size: 0.6rem; color: var(--stone); text-align: center; }
   .imp-result { text-align: center; padding: 10px 0 4px; }
   .imp-result-big { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: var(--warm); }
+
+  .inc-person { background:#fff; border:1px solid var(--rule); border-radius:6px; padding:14px; margin-bottom:12px; }
+  .inc-person-head { display:flex; justify-content:space-between; align-items:baseline; padding-bottom:10px; border-bottom:1px solid var(--rule); margin-bottom:10px; }
+  .inc-person-name { font-family:'Cormorant Garamond',serif; font-size:1.25rem; font-weight:300; }
+  .inc-person-net { font-family:'DM Mono',monospace; font-size:0.9rem; }
+  .inc-permo { font-size:0.62em; color:var(--stone); letter-spacing:0.04em; margin-left:2px; }
+  .inc-source { padding:9px 0; border-bottom:1px solid var(--rule); cursor:pointer; }
+  .inc-source:last-of-type { border-bottom:none; }
+  .inc-source.unset { opacity:0.7; }
+  .inc-source-head { display:flex; justify-content:space-between; align-items:baseline; }
+  .inc-net { font-family:'DM Mono',monospace; font-size:0.82rem; }
+  .inc-unset { font-size:0.6rem; color:var(--warm); }
+  .inc-waterfall { display:flex; flex-wrap:wrap; gap:4px 10px; margin-top:6px; }
+  .inc-waterfall span { font-size:0.56rem; color:var(--stone); }
+  .inc-w-gross { color:var(--ink) !important; }
+  .inc-w-er { color:var(--warm) !important; }
+  .inc-addsrc { margin-top:10px; background:none; border:1px dashed var(--rule); border-radius:4px; padding:8px; width:100%; font-family:'DM Mono',monospace; font-size:0.58rem; color:var(--stone); cursor:pointer; }
+  .inc-addperson { margin-top:8px; }
+  .inc-empty { font-size:0.62rem; color:var(--stone); font-style:italic; padding:6px 0; }
+  .inc-ded-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 10px; }
+  .inc-history { margin-top:8px; }
+  .inc-hist-label { font-size:0.52rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--stone); margin-bottom:6px; }
+  .inc-hist-row { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:0.62rem; color:var(--stone); padding:3px 0; }
 </style>
 </head>
 <body>
@@ -1298,10 +1321,12 @@
     <button class="fin-subtab active" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
     <button class="fin-subtab" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
     <button class="fin-subtab" data-view="transactions" onclick="showFinanceView('transactions')">Transactions</button>
+    <button class="fin-subtab" data-view="income" onclick="showFinanceView('income')">Income</button>
   </div>
   <div id="finance-accounts" class="fin-view"></div>
   <div id="finance-budget" class="fin-view" style="display:none"></div>
   <div id="finance-transactions" class="fin-view" style="display:none"></div>
+  <div id="finance-income" class="fin-view" style="display:none"></div>
 </div>
 
 
@@ -1334,6 +1359,7 @@
 <script src="app-mode.js"></script>
 <script src="csv-import.js"></script>
 <script src="finance-transactions.js"></script>
+<script src="finance-income.js"></script>
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
 // Replace with your deployed Worker URL after deploying worker.js to Cloudflare
@@ -1793,12 +1819,16 @@ function showFinanceView(name) {
   document.getElementById('finance-' + name).style.display = '';
   if (name === 'budget') loadBudget();
   else if (name === 'transactions') loadTransactions();
+  else if (name === 'income') loadIncome();
   else loadAccounts();
 }
 function refreshFinance() { showFinanceView(currentFinanceView); }
 
 const txnsView = createFinanceTransactions(finance);
 function loadTransactions() { txnsView.mount(document.getElementById('finance-transactions')); }
+
+const incomeView = createFinanceIncome(finance, financeForms);
+function loadIncome() { incomeView.mount(document.getElementById('finance-income')); }
 
 const appMode = createAppMode({ onEnterFinance: first => { if (first) showFinanceView('accounts'); } });
 function showMode(name) { appMode.show(name); }

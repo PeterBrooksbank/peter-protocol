@@ -143,7 +143,112 @@
         });
     }
 
-    return { addAccount, updateBalance, addCategory, editCategory };
+    const curMonth = () => new Date().toISOString().slice(0, 7);
+
+    function entryFields(pre = {}) {
+      const v = x => x ?? '';
+      return `
+        <label class="fin-field">Effective from
+          <input name="effective_from" type="month" value="${(pre.effective_from || '').slice(0,7) || curMonth()}" /></label>
+        <label class="fin-field">Gross monthly
+          <input name="gross_monthly" type="number" inputmode="decimal" value="${v(pre.gross_monthly)}" /></label>
+        <div class="inc-ded-grid">
+          <label class="fin-field">Income tax <input name="income_tax" type="number" inputmode="decimal" value="${v(pre.income_tax)}" /></label>
+          <label class="fin-field">NI <input name="national_insurance" type="number" inputmode="decimal" value="${v(pre.national_insurance)}" /></label>
+          <label class="fin-field">Pension (you) <input name="pension_employee" type="number" inputmode="decimal" value="${v(pre.pension_employee)}" /></label>
+          <label class="fin-field">Student loan <input name="student_loan" type="number" inputmode="decimal" value="${v(pre.student_loan)}" /></label>
+          <label class="fin-field">Other <input name="other_deductions" type="number" inputmode="decimal" value="${v(pre.other_deductions)}" /></label>
+          <label class="fin-field">Pension (employer) <input name="pension_employer" type="number" inputmode="decimal" value="${v(pre.pension_employer)}" /></label>
+        </div>
+        <label class="fin-field">Net monthly <span class="fin-opt">auto from above, editable</span>
+          <input name="net_monthly" type="number" inputmode="decimal" value="${v(pre.net_monthly)}" /></label>`;
+    }
+
+    function wireAutoNet(root) {
+      const get = n => Number(root.querySelector(`[name="${n}"]`).value || 0);
+      const net = root.querySelector('[name="net_monthly"]');
+      let touched = false;
+      net.addEventListener('input', () => { touched = true; });
+      const recalc = () => {
+        if (touched) return;
+        net.value = (get('gross_monthly') - get('income_tax') - get('national_insurance')
+          - get('pension_employee') - get('student_loan') - get('other_deductions')).toFixed(2);
+      };
+      ['gross_monthly','income_tax','national_insurance','pension_employee','student_loan','other_deductions']
+        .forEach(n => root.querySelector(`[name="${n}"]`).addEventListener('input', recalc));
+    }
+
+    function readEntry(root) {
+      const num = n => { const x = root.querySelector(`[name="${n}"]`).value.trim(); return x === '' ? 0 : Number(x); };
+      const ef = root.querySelector('[name="effective_from"]').value;
+      if (!ef) throw new Error('Effective month required');
+      const gross = num('gross_monthly'), net = num('net_monthly');
+      if (!gross && !net) throw new Error('Enter gross or net');
+      return {
+        effective_from: ef + '-01', gross_monthly: gross, net_monthly: net,
+        income_tax: num('income_tax'), national_insurance: num('national_insurance'),
+        pension_employee: num('pension_employee'), pension_employer: num('pension_employer'),
+        student_loan: num('student_loan'), other_deductions: num('other_deductions'),
+      };
+    }
+
+    function addPerson() {
+      modal('Add person', `
+        <label class="fin-field">Name <input name="name" placeholder="e.g. Partner's name" /></label>
+        <label class="fin-field fin-check"><input name="earner" type="checkbox" checked /> Earns income</label>`,
+        async (root) => {
+          const name = root.querySelector('[name="name"]').value.trim();
+          if (!name) throw new Error('Name is required');
+          await finance.api('/people', { method: 'POST', body: JSON.stringify({
+            display_name: name, is_earner: root.querySelector('[name="earner"]').checked })});
+        });
+    }
+
+    function addIncomeSource(person) {
+      modal(`Income for ${person.name}`, `
+        <label class="fin-field">Source name <input name="name" placeholder="e.g. Acme Ltd salary" /></label>
+        <label class="fin-field">Type
+          <select name="kind">
+            <option value="employment">Employment</option>
+            <option value="self_employment">Self-employment</option>
+            <option value="rental">Rental</option>
+            <option value="benefits">Benefits</option>
+            <option value="other">Other</option>
+          </select></label>
+        ${entryFields()}`,
+        async (root) => {
+          const name = root.querySelector('[name="name"]').value.trim();
+          if (!name) throw new Error('Source name is required');
+          await finance.api('/income-sources', { method: 'POST', body: JSON.stringify({
+            person_id: person.id, name, kind: root.querySelector('[name="kind"]').value,
+            entry: readEntry(root) })});
+        },
+        (overlay) => wireAutoNet(overlay));
+    }
+
+    function setIncomeValue(source) {
+      modal(`Update — ${source.name}`, `
+        <p class="fin-hint">Enter the new figures. They apply from the chosen month onward — past months keep their old values.</p>
+        ${entryFields()}
+        <div class="inc-history" id="inc-history">Loading history…</div>`,
+        async (root) => {
+          await finance.api('/income-entries', { method: 'POST', body: JSON.stringify({
+            income_source_id: source.id, ...readEntry(root) })});
+        },
+        async (overlay) => {
+          wireAutoNet(overlay);
+          try {
+            const hist = await finance.api(`/income-sources/${source.id}/history`);
+            const box = overlay.querySelector('#inc-history');
+            box.innerHTML = hist.length
+              ? `<div class="inc-hist-label">Previous values</div>` + hist.map(e =>
+                  `<div class="inc-hist-row"><span>${e.effective_from.slice(0,7)}</span><span>${new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(e.net_monthly)}/mo net</span></div>`).join('')
+              : '';
+          } catch { overlay.querySelector('#inc-history').innerHTML = ''; }
+        });
+    }
+
+    return { addAccount, updateBalance, addCategory, editCategory, addPerson, addIncomeSource, setIncomeValue };
   }
   global.createFinanceForms = createFinanceForms;
 })(window);
