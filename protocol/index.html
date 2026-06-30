@@ -444,33 +444,33 @@ function renderSections() {
     const allDone = doneCount === section.items.length;
 
     const sec = document.createElement('div');
-    sec.className = 'section';
+    sec.className = 'mb-10';
     sec.innerHTML = `
-      <div class="section-header">
-        <div class="section-label">${section.label}</div>
-        <div class="section-time">${section.time}</div>
-        <div class="section-line"></div>
-        <div class="section-count ${allDone ? 'all-done' : ''}" id="scount-${section.id}">${doneCount}/${section.items.length}</div>
+      <div class="flex items-center gap-3 mb-1">
+        <div class="text-[0.58rem] tracking-[0.2em] uppercase text-stone whitespace-nowrap">${section.label}</div>
+        <div class="text-[0.58rem] tracking-[0.1em] text-warm">${section.time}</div>
+        <div class="flex-1 h-px bg-ink/12"></div>
+        <div class="section-count text-[0.58rem] text-stone tracking-[0.05em] ${allDone ? 'all-done' : ''}" id="scount-${section.id}">${doneCount}/${section.items.length}</div>
       </div>
-      <div class="items" id="items-${section.id}"></div>
-      <div class="section-done ${allDone ? 'visible' : ''}" id="sdone-${section.id}">✓ Complete</div>
+      <div class="mt-2.5" id="items-${section.id}"></div>
+      <div class="section-done text-[0.58rem] tracking-[0.15em] uppercase text-warm mt-1.5 max-h-0 overflow-hidden opacity-0 [transition:max-height_0.4s_ease,opacity_0.3s] ${allDone ? 'visible' : ''}" id="sdone-${section.id}">✓ Complete</div>
     `;
     container.appendChild(sec);
 
     const itemsEl = sec.querySelector(`#items-${section.id}`);
     section.items.forEach(item => {
       const el = document.createElement('div');
-      el.className = `item ${state.checked[item.id] ? 'done' : ''}`;
+      el.className = `item flex items-start gap-[14px] py-3 border-b border-ink/12 last:border-b-0 cursor-pointer select-none relative overflow-hidden [-webkit-tap-highlight-color:transparent] ${state.checked[item.id] ? 'done' : ''}`;
       el.dataset.id = item.id;
       el.innerHTML = `
-        <div class="item-check">
-          <svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>
+        <div class="item-check shrink-0 size-[18px] border-[1.5px] border-stone rounded-[3px] mt-px flex items-center justify-center [transition:all_0.2s_cubic-bezier(0.34,1.56,0.64,1)]">
+          <svg viewBox="0 0 12 12" class="size-[10px] fill-none [stroke:white] [stroke-width:2.5] [stroke-linecap:round] [stroke-linejoin:round] opacity-0 scale-50 [transition:all_0.2s_cubic-bezier(0.34,1.56,0.64,1)]"><polyline points="2 6 5 9 10 3"/></svg>
         </div>
-        <div class="item-content">
-          <div class="item-text">${item.text}</div>
-          ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
+        <div class="item-content flex-1 min-w-0">
+          <div class="item-text text-[0.78rem] leading-[1.4] tracking-[0.02em] text-ink">${item.text}</div>
+          ${item.note ? `<div class="item-note text-[0.62rem] text-stone mt-[3px] tracking-[0.02em] italic font-display leading-[1.45] max-h-0 overflow-hidden opacity-0 [transition:max-height_0.3s_ease,opacity_0.3s]">${item.note}</div>` : ''}
         </div>
-        ${item.tag ? `<div class="item-tag ${item.tag}">${item.tag}</div>` : ''}
+        ${item.tag ? `<div class="${item.tag === 'supp' ? 'bg-warm' : item.tag === 'body' ? 'bg-moss' : 'bg-[#5a6b7a]'} shrink-0 text-[0.5rem] tracking-[0.1em] uppercase text-white px-1.5 py-[2px] rounded-[2px] mt-[3px] self-start">${item.tag}</div>` : ''}
       `;
 
       // Tap: toggle. Long press: expand note
@@ -511,8 +511,8 @@ function renderWeekly() {
     const isToday = dStr === todayStr;
     const isDone = state.history.includes(dStr) || (isToday && state.allDone);
     const dot = document.createElement('div');
-    dot.className = `day-dot${isToday ? ' active' : ''}${isDone ? ' complete' : ''}`;
-    dot.innerHTML = `<span class="day-label">${days[d.getDay()]}</span><span class="day-num">${d.getDate()}</span>`;
+    dot.className = `day-dot aspect-square rounded-full border border-ink/12 flex flex-col items-center justify-center gap-0.5 py-1 px-0.5${isToday ? ' active' : ''}${isDone ? ' complete' : ''}`;
+    dot.innerHTML = `<span class="day-label text-[0.48rem] tracking-[0.05em] uppercase text-stone">${days[d.getDay()]}</span><span class="day-num text-[0.55rem] text-ink">${d.getDate()}</span>`;
     grid.appendChild(dot);
   }
 
@@ -595,15 +595,15 @@ function renderMeals() {
 
   Object.entries(MEALS).forEach(([type, section]) => {
     const sec = document.createElement('div');
-    sec.className = 'meal-section';
+    sec.className = 'mb-9';
 
     const metaText = mealLogic.getSectionMeta(type, section.meta, planMode);
 
     sec.innerHTML = `
-      <div class="meal-section-header">
-        <div class="meal-section-name">${section.label}</div>
-        <div class="meal-section-line"></div>
-        <div class="meal-section-meta">${metaText}</div>
+      <div class="flex items-center gap-3 mb-3.5">
+        <div class="text-[0.58rem] tracking-[0.2em] uppercase text-stone whitespace-nowrap">${section.label}</div>
+        <div class="flex-1 h-px bg-ink/12"></div>
+        <div class="text-[0.58rem] text-warm tracking-[0.08em] whitespace-nowrap">${metaText}</div>
       </div>
     `;
 
@@ -611,7 +611,7 @@ function renderMeals() {
 
     if (isMacro && options.length === 0) {
       const empty = document.createElement('div');
-      empty.className = 'meal-empty-state';
+      empty.className = 'text-[0.65rem] text-stone italic font-display py-[18px] px-3 text-center border border-dashed border-ink/12 rounded-[4px] mb-2';
       empty.textContent = `No meals currently fit this target for ${section.label.toLowerCase()}.`;
       sec.appendChild(empty);
     }
@@ -619,7 +619,7 @@ function renderMeals() {
     options.forEach(meal => {
       const isSelected = mealState.selected[type] === meal.id;
       const card = document.createElement('div');
-      card.className = `meal-card ${isSelected ? 'selected' : ''}`;
+      card.className = `meal-card border border-ink/12 rounded-[4px] px-4 py-3.5 mb-2 bg-white cursor-pointer relative [-webkit-tap-highlight-color:transparent] ${isSelected ? 'selected' : ''}`;
       card.innerHTML = mealDisplay.buildCardHtml(meal, isSelected, showPlan);
       card.addEventListener('click', () => selectMeal(type, meal.id));
       const copyBtn = card.querySelector('.meal-copy-btn');
@@ -643,35 +643,36 @@ function renderDayTotals() {
   const totals = mealLogic.getDayTotals(mealState.selected, planMode);
   if (!totals) { totalsEl.innerHTML = ''; return; }
 
-  const rows = totals.rows.map(row => `<div class="meal-day-total-row">
+  const rows = totals.rows.map(row => `
+    <div class="flex justify-between text-[0.68rem] text-ink mb-1.5">
       <span>${row.label}</span>
-      <span>${row.kcal} kcal · P${row.protein}g</span>
+      <span class="text-warm">${row.kcal} kcal · P${row.protein}g</span>
     </div>`).join('');
 
-  const milkNote = totals.showPlan ? '<div style="font-size:0.58rem;color:var(--stone);margin-top:6px;font-style:italic;font-family:Cormorant Garamond,serif">+ 150 kcal milk (225ml full fat) not included above</div>' : '';
+  const milkNote = totals.showPlan ? '<div class="text-[0.58rem] text-stone mt-1.5 italic font-display">+ 150 kcal milk (225ml full fat) not included above</div>' : '';
 
   let macroComparisonHtml = '';
   if (totals.macroComparison) {
     const target = totals.macroComparison.target;
     const remaining = totals.macroComparison.remaining;
     macroComparisonHtml = `
-      <div class="meal-day-total-row" style="margin-top:6px;">
+      <div class="flex justify-between text-[0.68rem] text-ink mb-1.5 mt-1.5">
         <span>Target (incl. milk)</span>
-        <span>${target.kcal} kcal · P${target.protein}g · C${target.carbs}g · F${target.fat}g</span>
+        <span class="text-warm">${target.kcal} kcal · P${target.protein}g · C${target.carbs}g · F${target.fat}g</span>
       </div>
-      <div class="meal-day-total-row">
+      <div class="flex justify-between text-[0.68rem] text-ink mb-1.5">
         <span>Remaining</span>
-        <span>${remaining.kcal} kcal · P${remaining.protein}g · C${remaining.carbs}g · F${remaining.fat}g</span>
+        <span class="text-warm">${remaining.kcal} kcal · P${remaining.protein}g · C${remaining.carbs}g · F${remaining.fat}g</span>
       </div>`;
   }
 
   totalsEl.innerHTML = `
-    <div class="meal-day-total">
-      <div class="meal-day-total-label">Day total — ${totals.count} of 3 meals selected</div>
+    <div class="mt-8 p-4 border border-warm-light rounded-[4px] bg-[#fffdf8]">
+      <div class="text-[0.58rem] tracking-[0.15em] uppercase text-stone mb-2.5">Day total — ${totals.count} of 3 meals selected</div>
       ${rows}
-      <div class="meal-day-total-row total">
+      <div class="flex justify-between border-t border-ink/12 pt-2 mt-1 text-[0.72rem] text-ink">
         <span>Total</span>
-        <span>${totals.totals.kcal} kcal · P${totals.totals.protein}g · C${totals.totals.carbs}g · F${totals.totals.fat}g</span>
+        <span class="text-warm">${totals.totals.kcal} kcal · P${totals.totals.protein}g · C${totals.totals.carbs}g · F${totals.totals.fat}g</span>
       </div>
       ${macroComparisonHtml}
       ${milkNote}

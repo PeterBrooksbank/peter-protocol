@@ -47,30 +47,30 @@
     const hasDrift = pensionDrift > 0 || loanDrift > 0;
 
     el.innerHTML = `
-      <div class="dsh-hero">
-        <div class="dsh-hero-label">Net worth</div>
-        <div class="dsh-hero-value ${nw < 0 ? 'neg' : ''}">${gbp(nw)}</div>
-        <div class="dsh-hero-split"><span>Assets ${gbp(assets)}</span><span class="dsh-liab">Liabilities ${gbp(liabilities)}</span></div>
+      <div class="text-center py-5 pb-[26px]">
+        <div class="text-[0.55rem] tracking-[0.22em] uppercase text-stone mb-2">Net worth</div>
+        <div class="font-display text-[3.2rem] font-light leading-none tabular-nums ${nw < 0 ? 'text-signal-light' : 'text-ink'}">${gbp(nw)}</div>
+        <div class="flex justify-center gap-4 mt-3 text-[0.6rem] text-stone font-mono tabular-nums"><span>Assets ${gbp(assets)}</span><span class="text-signal-light">Liabilities ${gbp(liabilities)}</span></div>
       </div>
-      <div class="dsh-grid">
-        <div class="dsh-card" data-go="income"><div class="dsh-card-label">Income this month</div><div class="dsh-card-val">${gbp(incomeNet)}</div></div>
-        <div class="dsh-card" data-go="budget"><div class="dsh-card-label">Spent this month</div><div class="dsh-card-val">${gbp(spend)}</div></div>
+      <div class="flex gap-2.5 mb-2.5">
+        <div class="flex-1 bg-white border border-ink/12 rounded-[4px] p-[14px] cursor-pointer" data-go="income"><div class="text-[0.52rem] tracking-[0.16em] uppercase text-stone mb-1.5">Income this month</div><div class="font-mono text-[1.05rem] tabular-nums">${gbp(incomeNet)}</div></div>
+        <div class="flex-1 bg-white border border-ink/12 rounded-[4px] p-[14px] cursor-pointer" data-go="budget"><div class="text-[0.52rem] tracking-[0.16em] uppercase text-stone mb-1.5">Spent this month</div><div class="font-mono text-[1.05rem] tabular-nums">${gbp(spend)}</div></div>
       </div>
-      <div class="dsh-cashflow ${cashflow < 0 ? 'neg' : 'pos'}" data-go="budget">
-        <div class="dsh-cf-label">${cashflow >= 0 ? 'Net saved this month' : 'Overspent this month'}</div>
-        <div class="dsh-cf-val">${cashflow >= 0 ? '+' : '−'}${gbp(Math.abs(cashflow))}</div>
-        <div class="dsh-cf-sub">${gbp(incomeNet)} in · ${gbp(spend)} out</div>
+      <div class="rounded-[6px] p-4 mb-2.5 cursor-pointer text-white ${cashflow < 0 ? 'bg-signal-light' : 'bg-warm'}" data-go="budget">
+        <div class="text-[0.54rem] tracking-[0.16em] uppercase opacity-85">${cashflow >= 0 ? 'Net saved this month' : 'Overspent this month'}</div>
+        <div class="font-display text-[2rem] font-light leading-[1.1] my-[2px] tabular-nums">${cashflow >= 0 ? '+' : '−'}${gbp(Math.abs(cashflow))}</div>
+        <div class="text-[0.6rem] font-mono opacity-85 tabular-nums">${gbp(incomeNet)} in · ${gbp(spend)} out</div>
       </div>
-      <div class="dsh-budget" data-go="budget">
-        <div class="dsh-budget-head"><span class="dsh-card-label">Budget · ${monthLabel(month)}</span><span class="dsh-budget-fig ${spend > plannedSpend ? 'neg' : ''}">${gbp(spend)} / ${gbp(plannedSpend)}</span></div>
-        <div class="bdg-bar"><div class="bdg-bar-fill ${spend > plannedSpend ? 'over' : ''}" style="width:${spendPct}%"></div></div>
-        ${overCats ? `<div class="dsh-budget-warn">${overCats} categor${overCats === 1 ? 'y' : 'ies'} over budget</div>` : ''}
+      <div class="bg-white border border-ink/12 rounded-[4px] p-[14px] mb-2.5 cursor-pointer" data-go="budget">
+        <div class="flex justify-between items-baseline mb-[9px]"><span class="text-[0.52rem] tracking-[0.16em] uppercase text-stone">Budget · ${monthLabel(month)}</span><span class="font-mono text-[0.74rem] tabular-nums ${spend > plannedSpend ? 'text-signal-light' : ''}">${gbp(spend)} / ${gbp(plannedSpend)}</span></div>
+        <div class="h-[5px] bg-ink/12 rounded-[3px] overflow-hidden"><div class="${spend > plannedSpend ? 'bg-signal-light' : 'bg-warm'} h-full rounded-[3px] [transition:width_0.3s]" style="width:${spendPct}%"></div></div>
+        ${overCats ? `<div class="text-[0.58rem] text-signal-light mt-2">${overCats} categor${overCats === 1 ? 'y' : 'ies'} over budget</div>` : ''}
       </div>
-      ${uncategorised ? `<div class="dsh-nudge" data-go="transactions"><span>${uncategorised} transaction${uncategorised === 1 ? '' : 's'} need categorising</span><span class="dsh-arrow">→</span></div>` : ''}
-      ${hasDrift ? `<div class="dsh-nudge drift" data-go="accounts">
-        <div><div class="dsh-nudge-title">Balances likely moved since your last update</div>
-        <div class="dsh-nudge-sub">${pensionDrift > 0 ? `Pensions ~+${gbp(pensionDrift)}` : ''}${pensionDrift > 0 && loanDrift > 0 ? ' · ' : ''}${loanDrift > 0 ? `Student loan ~−${gbp(loanDrift)}` : ''} — log fresh balances</div></div>
-        <span class="dsh-arrow">→</span></div>` : ''}`;
+      ${uncategorised ? `<div class="flex justify-between items-center gap-3 bg-white border border-ink/12 border-l-[3px] border-l-warm rounded-[4px] py-[13px] px-[14px] mb-2 cursor-pointer text-[0.7rem]" data-go="transactions"><span>${uncategorised} transaction${uncategorised === 1 ? '' : 's'} need categorising</span><span class="text-warm font-mono">→</span></div>` : ''}
+      ${hasDrift ? `<div class="flex justify-between items-center gap-3 bg-white border border-ink/12 border-l-[3px] border-l-stone rounded-[4px] py-[13px] px-[14px] mb-2 cursor-pointer text-[0.7rem]" data-go="accounts">
+        <div><div class="text-[0.72rem]">Balances likely moved since your last update</div>
+        <div class="text-[0.58rem] text-stone mt-[3px]">${pensionDrift > 0 ? `Pensions ~+${gbp(pensionDrift)}` : ''}${pensionDrift > 0 && loanDrift > 0 ? ' · ' : ''}${loanDrift > 0 ? `Student loan ~−${gbp(loanDrift)}` : ''} — log fresh balances</div></div>
+        <span class="text-warm font-mono">→</span></div>` : ''}`;
 
     el.querySelectorAll('[data-go]').forEach(c => c.onclick = () => h.goTo(c.dataset.go));
   }

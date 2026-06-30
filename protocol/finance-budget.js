@@ -30,23 +30,23 @@
     const over = c.planned_monthly > 0 && c.actual > c.planned_monthly;
     const remaining = c.planned_monthly - c.actual;
     return `
-      <div class="bdg-cat" data-cat-id="${c.id}">
-        <div class="bdg-cat-top">
-          <span class="bdg-cat-name">${c.name}</span>
-          <span class="bdg-cat-fig">${gbp(c.actual)} <span class="bdg-cat-planned">/ ${gbp(c.planned_monthly)}</span></span>
+      <div class="bg-white border border-ink/12 rounded-[4px] px-[14px] py-3 mb-2 cursor-pointer" data-cat-id="${c.id}">
+        <div class="flex justify-between items-baseline mb-2">
+          <span class="text-[0.82rem]">${c.name}</span>
+          <span class="font-mono text-[0.78rem] tabular-nums">${gbp(c.actual)} <span class="text-stone">/ ${gbp(c.planned_monthly)}</span></span>
         </div>
-        <div class="bdg-bar"><div class="bdg-bar-fill ${over ? 'over' : ''}" style="width:${Math.min(pct, 1) * 100}%"></div></div>
-        <div class="bdg-cat-foot ${remaining < 0 ? 'neg' : ''}">
+        <div class="h-[5px] bg-ink/12 rounded-[3px] overflow-hidden"><div class="${over ? 'bg-signal-light' : 'bg-warm'} h-full rounded-[3px] [transition:width_0.3s]" style="width:${Math.min(pct, 1) * 100}%"></div></div>
+        <div class="text-[0.58rem] mt-1.5 tracking-[0.04em] ${remaining < 0 ? 'text-signal-light' : 'text-stone'}">
           ${remaining >= 0 ? `${gbp(remaining)} left` : `${gbp(-remaining)} over`}
         </div>
       </div>`;
   };
 
   const incomeRow = c => `
-      <div class="bdg-cat" data-cat-id="${c.id}">
-        <div class="bdg-cat-top">
-          <span class="bdg-cat-name">${c.name}</span>
-          <span class="bdg-cat-fig">${gbp(c.actual)} <span class="bdg-cat-planned">/ ${gbp(c.planned_monthly)}</span></span>
+      <div class="bg-white border border-ink/12 rounded-[4px] px-[14px] py-3 mb-2 cursor-pointer" data-cat-id="${c.id}">
+        <div class="flex justify-between items-baseline">
+          <span class="text-[0.82rem]">${c.name}</span>
+          <span class="font-mono text-[0.78rem] tabular-nums">${gbp(c.actual)} <span class="text-stone">/ ${gbp(c.planned_monthly)}</span></span>
         </div>
       </div>`;
 
@@ -56,26 +56,26 @@
     const income = cats.filter(c => c.kind === 'income');
 
     container.innerHTML = `
-      <div class="bdg-monthbar">
-        <button class="bdg-nav" data-nav="prev">‹</button>
-        <span class="bdg-month">${monthLabel(month)}</span>
-        <button class="bdg-nav" data-nav="next">›</button>
+      <div class="flex items-center justify-center gap-[18px] mb-5">
+        <button class="bg-transparent border border-ink/12 rounded-[4px] size-8 text-base text-ink cursor-pointer" data-nav="prev">‹</button>
+        <span class="font-display text-[1.3rem] font-light min-w-[150px] text-center">${monthLabel(month)}</span>
+        <button class="bg-transparent border border-ink/12 rounded-[4px] size-8 text-base text-ink cursor-pointer" data-nav="next">›</button>
       </div>
-      <div class="bdg-summary">
-        <div class="bdg-sum-cell">
-          <div class="bdg-sum-label">Planned net</div>
-          <div class="bdg-sum-val ${t.plannedNet < 0 ? 'neg' : ''}">${gbp(t.plannedNet)}</div>
+      <div class="flex gap-2.5 mb-1.5">
+        <div class="flex-1 bg-white border border-ink/12 rounded-[4px] px-[14px] py-3">
+          <div class="text-[0.52rem] tracking-[0.18em] uppercase text-stone mb-[5px]">Planned net</div>
+          <div class="font-mono text-[1.05rem] tabular-nums ${t.plannedNet < 0 ? 'text-signal-light' : ''}">${gbp(t.plannedNet)}</div>
         </div>
-        <div class="bdg-sum-cell">
-          <div class="bdg-sum-label">Actual net</div>
-          <div class="bdg-sum-val ${t.actualNet < 0 ? 'neg' : ''}">${gbp(t.actualNet)}</div>
+        <div class="flex-1 bg-white border border-ink/12 rounded-[4px] px-[14px] py-3">
+          <div class="text-[0.52rem] tracking-[0.18em] uppercase text-stone mb-[5px]">Actual net</div>
+          <div class="font-mono text-[1.05rem] tabular-nums ${t.actualNet < 0 ? 'text-signal-light' : ''}">${gbp(t.actualNet)}</div>
         </div>
       </div>
-      <div class="bdg-annual">Annualised · ${gbp(t.plannedIncome * 12)}/yr income planned · net ${gbp(t.plannedNet * 12)}/yr</div>
-      ${income.length ? `<div class="bdg-section-label">Income</div>${income.map(incomeRow).join('')}` : ''}
-      <div class="bdg-section-label">Expenses</div>
-      ${expenses.length ? expenses.map(expenseRow).join('') : '<div class="fin-empty">No categories yet — add one to start your budget.</div>'}
-      <button class="fin-add bdg-addcat" data-act="add-cat">+ Category</button>`;
+      <div class="text-[0.58rem] text-stone tracking-[0.04em] text-center mb-6 tabular-nums">Annualised · ${gbp(t.plannedIncome * 12)}/yr income planned · net ${gbp(t.plannedNet * 12)}/yr</div>
+      ${income.length ? `<div class="text-[0.54rem] tracking-[0.2em] uppercase text-stone mt-[22px] mb-2.5">Income</div>${income.map(incomeRow).join('')}` : ''}
+      <div class="text-[0.54rem] tracking-[0.2em] uppercase text-stone mt-[22px] mb-2.5">Expenses</div>
+      ${expenses.length ? expenses.map(expenseRow).join('') : '<div class="py-6 text-center font-display italic text-stone text-[0.9rem]">No categories yet — add one to start your budget.</div>'}
+      <button class="mt-4 bg-warm text-white border-0 rounded-[4px] px-[14px] py-2 font-mono text-[0.6rem] tracking-[0.1em] cursor-pointer" data-act="add-cat">+ Category</button>`;
 
     container.querySelector('[data-nav="prev"]').onclick = () => handlers.setMonth(shiftMonth(month, -1));
     container.querySelector('[data-nav="next"]').onclick = () => handlers.setMonth(shiftMonth(month, 1));
