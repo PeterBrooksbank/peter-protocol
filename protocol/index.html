@@ -998,9 +998,71 @@
     margin-bottom: 8px;
   }
 
+  .mode-switch { display: flex; gap: 4px; padding: 10px 16px 0; }
+  .mode-tab {
+    flex: 1; background: none; border: none; padding: 10px;
+    font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--stone); border-bottom: 2px solid transparent;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .mode-tab.active { color: var(--ink); border-bottom-color: var(--warm); }
+
+  #finance-root { padding: 0 16px 60px; }
+  .fin-subnav { display: flex; gap: 16px; padding: 18px 0 12px; border-bottom: 1px solid var(--rule); margin-bottom: 20px; }
+  .fin-subtab {
+    background: none; border: none; padding: 0; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--warm);
+  }
+
+  .fin-networth { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
+  .fin-networth-label { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone); margin-bottom: 6px; }
+  .fin-networth-value { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 300; line-height: 1; }
+  .fin-add {
+    background: var(--warm); color: #fff; border: none; border-radius: 4px;
+    padding: 8px 14px; font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.1em; cursor: pointer;
+  }
+
+  .fin-group { margin-bottom: 22px; }
+  .fin-group-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .fin-group-label { font-size: 0.56rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--stone); }
+  .fin-group-subtotal { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--ink); }
+  .fin-group-subtotal.neg { color: #a8443a; }
+
+  .fin-account {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #fff; border: 1px solid var(--rule); border-radius: 4px;
+    padding: 12px 14px; margin-bottom: 6px; cursor: pointer; transition: border-color 0.15s;
+  }
+  .fin-account:active { border-color: var(--warm); }
+  .fin-account-name { font-size: 0.8rem; }
+  .fin-account-provider { display: block; font-size: 0.58rem; color: var(--stone); margin-top: 2px; }
+  .fin-account-balance { font-family: 'DM Mono', monospace; font-size: 0.85rem; }
+  .fin-account-balance.neg { color: #a8443a; }
+
+  .fin-empty, .fin-loading, .fin-error { padding: 24px; text-align: center; font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--stone); }
+  .fin-error { color: #a8443a; font-style: normal; font-family: 'DM Mono', monospace; font-size: 0.7rem; }
+
+  .fin-modal-overlay { position: fixed; inset: 0; background: rgba(40,35,30,0.4); display: flex; align-items: flex-end; justify-content: center; z-index: 1000; }
+  .fin-modal { background: var(--bg, #f5f0e8); width: 100%; max-width: 440px; border-radius: 12px 12px 0 0; padding: 24px 20px 28px; }
+  .fin-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; margin-bottom: 18px; }
+  .fin-field { display: block; font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--stone); margin-bottom: 14px; }
+  .fin-field input, .fin-field select { display: block; width: 100%; margin-top: 5px; padding: 10px; border: 1px solid var(--rule); border-radius: 4px; background: #fff; font-size: 0.9rem; font-family: inherit; box-sizing: border-box; }
+  .fin-opt { text-transform: none; letter-spacing: 0; color: var(--stone); opacity: 0.7; }
+  .fin-modal-actions { display: flex; gap: 8px; margin-top: 6px; }
+  .fin-btn { flex: 1; background: var(--warm); color: #fff; border: none; border-radius: 4px; padding: 12px; font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; cursor: pointer; }
+  .fin-btn-ghost { flex: 1; background: none; border: 1px solid var(--rule); border-radius: 4px; padding: 12px; font-family: 'DM Mono', monospace; font-size: 0.65rem; cursor: pointer; }
+  .fin-modal-error { color: #a8443a; font-size: 0.7rem; font-family: 'DM Mono', monospace; margin-top: 4px; }
+
 </style>
 </head>
 <body>
+
+  <div class="mode-switch">
+  <button class="mode-tab active" data-mode="health"  onclick="showMode('health')">Health</button>
+  <button class="mode-tab"        data-mode="finance" onclick="showMode('finance')">Finance</button>
+</div>
 
 <!-- Navigation -->
 <nav class="nav">
@@ -1178,7 +1240,13 @@
   </div>
 </div>
 
-
+<div id="finance-root" style="display:none">
+  <div class="fin-subnav">
+    <button class="fin-subtab active">Accounts</button>
+    <!-- Dashboard / Budget / Income slot in here later -->
+  </div>
+  <div id="finance-accounts" class="fin-view"></div>
+</div>
 
 
 
@@ -1206,6 +1274,9 @@
 <script src="render-coordinator.js"></script>
 <script src="day-completion.js"></script>
 <script src="update-coordinator.js"></script>
+<script src="finance.js"></script>
+<script src="finance-forms.js"></script>
+<script src="app-mode.js"></script>
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
 // Replace with your deployed Worker URL after deploying worker.js to Cloudflare
@@ -1644,6 +1715,17 @@ function renderDayTotals() {
     </div>
   `;
 }
+
+const finance = createFinance();
+const financeForms = createFinanceForms(finance, reloadFinance);
+function reloadFinance() {
+  finance.load(document.getElementById('finance-accounts'), {
+    onAdd: financeForms.addAccount,
+    onUpdate: financeForms.updateBalance,
+  });
+}
+const appMode = createAppMode({ onEnterFinance: reloadFinance });
+function showMode(name) { appMode.show(name); }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 (async function boot() {
