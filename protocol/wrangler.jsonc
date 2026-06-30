@@ -2,13 +2,19 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "icy-grass-d37e",
   "compatibility_date": "2026-06-09",
-  "observability": {
-    "enabled": true
-  },
+  "main": "worker.js",
+  "observability": { "enabled": true },
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
   },
-  "compatibility_flags": [
-    "nodejs_compat"
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "FINANCE_DB",
+      "database_name": "family-finance",
+      "database_id": "a4fee347-b818-4410-b5af-8ffaacd5feac"
+    }
   ]
 }
