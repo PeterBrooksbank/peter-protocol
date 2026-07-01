@@ -14,8 +14,14 @@ export const monthInput  = (name, val = '', attrs = '') =>
   `<input name="${name}" type="month" value="${esc(val)}" ${attrs} class="${cls}">`;
 
 export const checkbox = (name, checked, label) =>
-  `<label class="flex cursor-pointer items-center gap-2 text-sm">
-     <input name="${name}" type="checkbox" ${checked ? 'checked' : ''} class="accent-warm">
+  `<label class="flex h-lh cursor-pointer items-center gap-2 text-base sm:text-sm">
+     <span class="group inline-grid size-5 shrink-0 grid-cols-1 sm:size-4">
+       <input name="${name}" type="checkbox" ${checked ? 'checked' : ''}
+         class="checked:border-warm checked:bg-warm focus-visible:outline-warm col-start-1 row-start-1 appearance-none rounded-sm border border-ink/25 bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 disabled:border-ink/12 disabled:bg-ink/5 disabled:checked:bg-ink/5 forced-colors:appearance-auto">
+       <svg viewBox="0 0 14 14" fill="none" class="pointer-events-none col-start-1 row-start-1 size-7/8 self-center justify-self-center stroke-white group-has-disabled:stroke-ink/25">
+         <path d="M3 8L6 11L11 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-not-has-checked:opacity-0"/>
+       </svg>
+     </span>
      ${label}
    </label>`;
 
@@ -23,15 +29,31 @@ export const select = (name, options, val = '', attrs = '') => {
   const opts = options.map(([v, l]) =>
     `<option value="${esc(v)}" ${v === String(val) ? 'selected' : ''}>${l}</option>`
   ).join('');
-  return `<select name="${name}" ${attrs} class="${cls}">${opts}</select>`;
+  return `
+    <span class="grid grid-cols-[1fr_--spacing(8)] items-center">
+      <select name="${name}" ${attrs} class="${cls} col-span-full row-start-1 appearance-none pr-8">${opts}</select>
+      <svg viewBox="0 0 8 5" width="8" height="5" fill="none" class="pointer-events-none col-start-2 row-start-1 mr-3 place-self-center stroke-stone">
+        <path d="M.5.5 4 4 7.5.5" stroke="currentcolor"/>
+      </svg>
+    </span>`;
 };
 
-export const field = (label, inputHtml, hint = '') =>
-  `<div class="mb-4">
-     <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">${label}</label>
-     ${inputHtml}
-     ${hint ? `<p class="mt-1 text-xs text-stone">${hint}</p>` : ''}
+/** Auto-associate a <label> with its input/select via the `name` attribute
+ *  already present in `inputHtml` — avoids threading an explicit id through
+ *  every call site. */
+export const field = (label, inputHtml, hint = '') => {
+  const m = inputHtml.match(/name="([^"]+)"/);
+  const id = m ? m[1] : null;
+  const hasId = id && new RegExp(`id="${id}"`).test(inputHtml);
+  const withId = id && !hasId
+    ? inputHtml.replace(/(<(?:input|select|textarea)\b)/, `$1 id="${id}"`)
+    : inputHtml;
+  return `<div class="mb-4">
+     <label ${id ? `for="${id}"` : ''} class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">${label}</label>
+     ${withId}
+     ${hint ? `<p class="mt-1 text-sm text-stone">${hint}</p>` : ''}
    </div>`;
+};
 
 export const twoCol = (a, b) =>
   `<div class="grid grid-cols-2 gap-3">${a}${b}</div>`;
@@ -40,8 +62,8 @@ export const twoCol = (a, b) =>
 export function modal({ title, bodyHtml, onMount, onSubmit, submitLabel = 'Save' }) {
   const footerHtml = `
       <div class="flex justify-end gap-3 border-t border-ink/12 px-6 py-4">
-        <button data-act="cancel" class="cursor-pointer px-4 py-2 font-mono text-[0.6rem] tracking-[0.15em] text-stone uppercase hover:text-ink">Cancel</button>
-        <button data-act="submit" class="cursor-pointer rounded-[2px] bg-ink px-5 py-2.5 font-mono text-[0.62rem] tracking-[0.15em] text-paper uppercase hover:opacity-80">
+        <button type="button" data-act="cancel" class="cursor-pointer px-4 py-2 font-mono text-sm tracking-[0.1em] text-stone uppercase hover:text-ink">Cancel</button>
+        <button type="button" data-act="submit" class="cursor-pointer rounded-[3px] bg-ink px-4 py-2 font-mono text-sm tracking-[0.1em] text-paper uppercase hover:opacity-80">
           ${submitLabel}
         </button>
       </div>`;
@@ -64,7 +86,7 @@ export function modal({ title, bodyHtml, onMount, onSubmit, submitLabel = 'Save'
         let errEl = overlay.querySelector('[data-error]');
         if (!errEl) {
           errEl = Object.assign(document.createElement('p'), { dataset: { error: '' } });
-          errEl.className = 'mt-3 font-mono text-xs text-signal';
+          errEl.className = 'mt-3 font-mono text-sm text-signal';
           body.appendChild(errEl);
         }
         errEl.textContent = err.message;

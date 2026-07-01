@@ -47,7 +47,7 @@ export function groupedBarChart({ data, width = 560, height = 200 }) {
             stroke="var(--color-stone)" stroke-opacity="0.2"/>
       ${bars}
     </svg>
-    <div class="mt-2 flex justify-center gap-4 text-xs text-stone">
+    <div class="mt-2 flex justify-center gap-4 text-sm text-stone">
       <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm" style="background:var(--color-warm);opacity:0.5"></span>Planned</span>
       <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm" style="background:var(--color-moss)"></span>Actual</span>
     </div>`;

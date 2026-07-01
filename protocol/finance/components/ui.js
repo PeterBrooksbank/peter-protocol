@@ -13,7 +13,7 @@ export function loadingState(label = '') {
 
 /** Standard error placeholder shown when a view's load/action fails. */
 export function errorState(err) {
-  return `<div class="p-6 text-center font-mono text-xs text-signal">${esc(err?.message ?? err)}</div>`;
+  return `<div class="p-6 text-center font-mono text-sm text-signal">${esc(err?.message ?? err)}</div>`;
 }
 
 /**
@@ -38,7 +38,7 @@ export function overlay({ title, maxWidth = 'max-w-lg', headerExtra = '', bodyHt
         <h2 class="font-display text-xl font-light text-ink" data-title>${title ?? ''}</h2>
         <div class="flex items-center gap-3">
           ${headerExtra}
-          <button data-act="close" class="text-xl leading-none text-stone hover:text-ink">&times;</button>
+          <button type="button" data-act="close" class="text-xl leading-none text-stone hover:text-ink">&times;</button>
         </div>
       </div>
       <div class="${bodyClass}" data-body>${bodyHtml}</div>
@@ -63,15 +63,13 @@ export function overlay({ title, maxWidth = 'max-w-lg', headerExtra = '', bodyHt
  * @param {string} label
  * @param {object} [opts]
  * @param {object} [opts.data={}]      e.g. { act: 'edit', id: row.id }
- * @param {'xs'|'sm'} [opts.size='xs']
  * @param {'stone'|'warm'} [opts.tone='stone']
  * @param {string} [opts.class='']     Extra classes merged onto the button (call-site spacing/overrides)
  */
-export function actionLink(label, { data = {}, size = 'xs', tone = 'stone', class: extra = '' } = {}) {
+export function actionLink(label, { data = {}, tone = 'stone', class: extra = '' } = {}) {
   const attrs = Object.entries(data)
     .map(([k, v]) => `data-${k}="${esc(v)}"`)
     .join(' ');
-  const sizeCls = size === 'sm' ? 'text-[0.62rem]' : 'text-[0.58rem]';
   const toneCls = tone === 'warm' ? 'text-warm' : 'text-stone';
-  return `<button ${attrs} class="cursor-pointer font-mono ${sizeCls} tracking-[0.1em] ${toneCls} uppercase hover:text-ink ${extra}">${label}</button>`;
+  return `<button type="button" ${attrs} class="cursor-pointer font-mono text-sm tracking-[0.1em] ${toneCls} uppercase hover:text-ink ${extra}">${label}</button>`;
 }

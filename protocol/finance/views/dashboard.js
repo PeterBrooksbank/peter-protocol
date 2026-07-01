@@ -78,12 +78,15 @@ async function load(el) {
     }));
 
     el.innerHTML = `
-      <div class="mx-auto max-w-2xl space-y-5 px-4 py-6">
-        ${renderCashflowHero(totalNetIncome, plannedExpense, actualExpense)}
-        ${renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, savings)}
-        ${renderBudgetChart(chartData)}
-        ${renderCliffs(allCliffs)}
-        ${renderNudges(uncategorised, staleAccounts)}
+      <div class="mx-auto max-w-2xl @container @4xl:max-w-4xl px-4 py-6">
+        <div class="space-y-5">
+          <div class="grid grid-cols-1 gap-5 @2xl:grid-cols-2">
+            ${renderCashflowHero(totalNetIncome, plannedExpense, actualExpense)}
+            ${renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, savings)}
+          </div>
+          ${renderBudgetChart(chartData)}
+          ${renderAlerts(renderCliffs(allCliffs), renderNudges(uncategorised, staleAccounts))}
+        </div>
       </div>`;
 
     el.querySelectorAll('[data-goto]').forEach(btn => {
@@ -103,19 +106,19 @@ function renderCashflowHero(netIncome, plannedExpense, actualExpense) {
   const surplus = netIncome - plannedExpense;
   return `
     <div class="cursor-pointer rounded-[4px] border border-ink/12 bg-white px-6 py-5 transition-colors hover:border-warm" data-goto="income">
-      <div class="mb-3 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">This month</div>
+      <div class="mb-3 font-mono text-sm tracking-[0.16em] text-stone uppercase">This month</div>
       <div class="grid grid-cols-3 gap-4 text-center">
         <div>
-          <div class="mb-1 font-mono text-[0.6rem] tracking-[0.06em] text-stone uppercase">Net income</div>
+          <div class="mb-1 font-mono text-sm tracking-[0.06em] text-stone uppercase">Net income</div>
           <div class="font-display text-xl font-light text-ink tabular-nums">${penceToCompact(netIncome)}</div>
         </div>
         <div>
-          <div class="mb-1 font-mono text-[0.6rem] tracking-[0.06em] text-stone uppercase">Planned spend</div>
+          <div class="mb-1 font-mono text-sm tracking-[0.06em] text-stone uppercase">Planned spend</div>
           <div class="font-display text-xl font-light text-ink tabular-nums">${penceToCompact(plannedExpense)}</div>
-          ${actualExpense > 0 ? `<div class="text-[0.62rem] text-stone tabular-nums">actual ${penceToCompact(actualExpense)}</div>` : ''}
+          ${actualExpense > 0 ? `<div class="text-sm text-stone tabular-nums">actual ${penceToCompact(actualExpense)}</div>` : ''}
         </div>
         <div>
-          <div class="mb-1 font-mono text-[0.6rem] tracking-[0.06em] text-stone uppercase">Surplus</div>
+          <div class="mb-1 font-mono text-sm tracking-[0.06em] text-stone uppercase">Surplus</div>
           <div class="font-display text-xl font-light tabular-nums ${surplus >= 0 ? 'text-moss' : 'text-signal'}">${penceToCompact(surplus)}</div>
         </div>
       </div>
@@ -126,21 +129,21 @@ function renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, s
   return `
     <div class="cursor-pointer rounded-[4px] border border-ink/12 bg-white px-6 py-5 transition-colors hover:border-warm" data-goto="accounts">
       <div class="mb-3 flex items-baseline justify-between">
-        <span class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Net worth</span>
-        <span class="font-display text-2xl font-light tabular-nums ${netWorth >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(netWorth)}</span>
+        <span class="font-mono text-sm tracking-[0.16em] text-stone uppercase">Net worth</span>
+        <span class="font-display text-2xl font-light tracking-tight tabular-nums ${netWorth >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(netWorth)}</span>
       </div>
       <div class="grid grid-cols-3 divide-x divide-ink/12 border-t border-ink/12 pt-3 text-center">
         <div class="pr-2">
-          <div class="mb-0.5 truncate font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Mortgage</div>
-          <div class="text-xs font-medium text-ink tabular-nums">${penceToCompact(mortgage)}</div>
+          <div class="mb-0.5 truncate font-mono text-sm tracking-[0.1em] text-stone uppercase">Mortgage</div>
+          <div class="text-sm font-medium text-ink tabular-nums">${penceToCompact(mortgage)}</div>
         </div>
         <div class="px-2">
-          <div class="mb-0.5 truncate font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Pensions</div>
-          <div class="text-xs font-medium text-ink tabular-nums">${penceToCompact(pension)}</div>
+          <div class="mb-0.5 truncate font-mono text-sm tracking-[0.1em] text-stone uppercase">Pensions</div>
+          <div class="text-sm font-medium text-ink tabular-nums">${penceToCompact(pension)}</div>
         </div>
         <div class="pl-2">
-          <div class="mb-0.5 truncate font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Savings</div>
-          <div class="text-xs font-medium text-ink tabular-nums">${penceToCompact(savings)}</div>
+          <div class="mb-0.5 truncate font-mono text-sm tracking-[0.1em] text-stone uppercase">Savings</div>
+          <div class="text-sm font-medium text-ink tabular-nums">${penceToCompact(savings)}</div>
         </div>
       </div>
     </div>`;
@@ -149,7 +152,7 @@ function renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, s
 function renderBudgetChart(chartData) {
   return `
     <div class="cursor-pointer rounded-[4px] border border-ink/12 bg-white px-6 py-5 transition-colors hover:border-warm" data-goto="budget">
-      <div class="mb-3 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Budget vs actual</div>
+      <div class="mb-3 font-mono text-sm tracking-[0.16em] text-stone uppercase">Budget vs actual</div>
       ${groupedBarChart({ data: chartData })}
     </div>`;
 }
@@ -158,10 +161,10 @@ function renderCliffs(cliffs) {
   if (!cliffs.length) return '';
   return `
     <div class="cursor-pointer rounded-[4px] border border-warm bg-warm/5 px-6 py-5 transition-colors hover:border-warm" data-goto="income">
-      <div class="mb-2 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Cliff-edge alerts</div>
+      <div class="mb-2 font-mono text-sm tracking-[0.16em] text-stone uppercase">Cliff-edge alerts</div>
       <div class="space-y-1">
         ${cliffs.map(c => `
-          <div class="text-xs text-ink">
+          <div class="text-sm text-ink">
             <strong class="font-medium">${esc(c.person)}</strong> — ${c.label}
             (${c.direction === 'approaching' ? penceToCompact(Math.abs(c.distance_pence)) + ' below' : penceToCompact(Math.abs(c.distance_pence)) + ' above'})
           </div>`).join('')}
@@ -175,15 +178,25 @@ function renderNudges(uncategorised, staleAccounts) {
     <div class="space-y-2">
       ${uncategorised ? `
         <div class="flex cursor-pointer items-center justify-between rounded-[4px] border border-ink/12 bg-white px-6 py-4 transition-colors hover:border-warm" data-goto="budget">
-          <span class="text-xs text-ink">${uncategorised} uncategorised transaction${uncategorised > 1 ? 's' : ''}</span>
-          <span class="font-mono text-[0.58rem] tracking-[0.1em] text-warm uppercase">Review →</span>
+          <span class="text-sm text-ink">${uncategorised} uncategorised transaction${uncategorised > 1 ? 's' : ''}</span>
+          <span class="font-mono text-sm tracking-[0.1em] text-warm uppercase">Review →</span>
         </div>` : ''}
       ${staleAccounts.length ? `
         <div class="flex cursor-pointer items-center justify-between rounded-[4px] border border-ink/12 bg-white px-6 py-4 transition-colors hover:border-warm" data-goto="accounts">
-          <span class="text-xs text-ink">${staleAccounts.length} balance${staleAccounts.length > 1 ? 's' : ''} need updating</span>
-          <span class="font-mono text-[0.58rem] tracking-[0.1em] text-warm uppercase">Log fresh balances →</span>
+          <span class="text-sm text-ink">${staleAccounts.length} balance${staleAccounts.length > 1 ? 's' : ''} need updating</span>
+          <span class="font-mono text-sm tracking-[0.1em] text-warm uppercase">Log fresh balances →</span>
         </div>` : ''}
     </div>`;
+}
+
+// Places the cliffs alert and nudges stack side-by-side once the dashboard's
+// container is wide enough for two columns; stacks them on narrow containers.
+function renderAlerts(cliffsHtml, nudgesHtml) {
+  if (!cliffsHtml && !nudgesHtml) return '';
+  if (cliffsHtml && nudgesHtml) {
+    return `<div class="grid grid-cols-1 gap-5 @2xl:grid-cols-2">${cliffsHtml}${nudgesHtml}</div>`;
+  }
+  return cliffsHtml || nudgesHtml;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

@@ -12,19 +12,19 @@
 <body class="min-h-dvh bg-paper font-mono text-ink antialiased">
 
   <div class="flex gap-1 px-4 pt-2.5">
-  <button class="active mode-tab flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent p-2.5 font-mono text-[0.62rem] tracking-[0.18em] text-stone uppercase" data-mode="health" onclick="showMode('health')">Health</button>
-  <button class="mode-tab flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent p-2.5 font-mono text-[0.62rem] tracking-[0.18em] text-stone uppercase" data-mode="finance" onclick="showMode('finance')">Finance</button>
+  <button type="button" class="active mode-tab flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2.5 py-2 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-mode="health" onclick="showMode('health')">Health</button>
+  <button type="button" class="mode-tab flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2.5 py-2 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-mode="finance" onclick="showMode('finance')">Finance</button>
 </div>
 
 <!-- Navigation -->
 <nav class="nav sticky top-0 z-50 flex justify-center border-b border-ink/12 bg-paper">
-  <button class="active nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3.5 font-mono text-[0.58rem] tracking-[0.18em] text-stone uppercase" data-tab="checklist" onclick="showTab('checklist')">Checklist</button>
-  <button class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3.5 font-mono text-[0.58rem] tracking-[0.18em] text-stone uppercase" data-tab="supplements" onclick="showTab('supplements')">Supplements</button>
-  <button class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3.5 font-mono text-[0.58rem] tracking-[0.18em] text-stone uppercase" data-tab="meals" onclick="showTab('meals')">Meals</button>
+  <button type="button" class="active nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-tab="checklist" onclick="showTab('checklist')">Checklist</button>
+  <button type="button" class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-tab="supplements" onclick="showTab('supplements')">Supplements</button>
+  <button type="button" class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-tab="meals" onclick="showTab('meals')">Meals</button>
 </nav>
 
 <!-- Sync status bar -->
-<div class="sync-bar flex items-center gap-1.5 border-b border-ink/12 px-6 py-1.5 text-[0.55rem] tracking-widest text-stone">
+<div class="sync-bar flex items-center gap-1.5 border-b border-ink/12 px-6 py-1.5 text-sm tracking-widest text-stone">
   <div class="sync-dot" id="syncDot"></div>
   <span id="syncStatus">Loading…</span>
 </div>
@@ -35,141 +35,141 @@
   <div class="active tab-content" id="tab-checklist">
     <div class="mb-10 border-b border-ink/12 pb-5">
       <div class="mb-1.5 flex items-baseline justify-between">
-        <h1 class="font-display text-[2.2rem] font-light tracking-[0.02em]">Daily Protocol</h1>
-        <div class="text-[0.62rem] tracking-[0.15em] text-stone uppercase" id="dateDisplay"></div>
+        <h1 class="font-display text-[2.2rem] font-light tracking-tight">Daily Protocol</h1>
+        <div class="text-sm tracking-[0.15em] text-stone uppercase" id="dateDisplay"></div>
       </div>
       <div class="mt-4 h-[2px] overflow-hidden rounded-[2px] bg-ink/12">
         <div class="h-full w-0 rounded-[2px] bg-warm [transition:width_0.5s_cubic-bezier(0.4,0,0.2,1)]" id="progressBar"></div>
       </div>
-      <div class="mt-2 text-[0.6rem] tracking-[0.12em] text-stone uppercase" id="progressLabel">Loading…</div>
-      <button class="mt-3 block w-full cursor-pointer rounded-[2px] border border-ink/12 bg-transparent p-2 font-mono text-[0.6rem] tracking-[0.15em] text-stone uppercase hover:border-warm hover:text-warm" onclick="resetDay()">↺ Reset today</button>
+      <div class="mt-2 text-sm tracking-[0.12em] text-stone uppercase" id="progressLabel">Loading…</div>
+      <button type="button" class="mt-3 block w-full cursor-pointer rounded-[2px] border border-ink/12 bg-transparent px-3 py-2 font-mono text-sm tracking-[0.1em] text-stone uppercase hover:border-warm hover:text-warm" onclick="resetDay()">↺ Reset today</button>
     </div>
 
     <div id="sections"></div>
 
     <div class="mt-12 border-t border-ink/12 pt-6">
-      <div class="mb-3.5 text-[0.58rem] tracking-[0.2em] text-stone uppercase">This week</div>
+      <div class="mb-3.5 text-sm tracking-[0.16em] text-stone uppercase">This week</div>
       <div class="grid grid-cols-7 gap-1.5" id="weeklyGrid"></div>
-      <div class="streak mt-3.5 text-[0.62rem] tracking-[0.06em] text-stone" id="streakDisplay"></div>
+      <div class="streak mt-3.5 text-sm tracking-[0.06em] text-stone" id="streakDisplay"></div>
     </div>
   </div>
 
   <!-- ── Supplements tab ── -->
   <div class="tab-content" id="tab-supplements">
     <div class="mb-8 border-b border-ink/12 pb-5">
-      <div class="mb-1 font-display text-[2rem] font-light">Supplements</div>
-      <div class="text-[0.6rem] tracking-[0.12em] text-stone uppercase">Daily stack — timing & rationale</div>
+      <div class="mb-1 font-display text-[2rem] font-light tracking-tight">Supplements</div>
+      <div class="text-sm tracking-[0.12em] text-stone uppercase">Daily stack — timing & rationale</div>
     </div>
 
     <div class="mb-9">
       <div class="mb-3 flex items-center gap-3">
-        <div class="text-[0.58rem] tracking-[0.2em] whitespace-nowrap text-stone uppercase">Morning</div>
+        <div class="text-sm tracking-[0.16em] whitespace-nowrap text-stone uppercase">Morning</div>
         <div class="h-px flex-1 bg-ink/12"></div>
-        <div class="text-[0.58rem] tracking-[0.08em] text-warm">With breakfast</div>
+        <div class="text-sm tracking-[0.08em] text-warm">With breakfast</div>
       </div>
       <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
         <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Vitamin D3 + K2</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">4000 IU + 100mcg MK-7</div>
+          <div class="text-base tracking-[0.01em] text-ink">Vitamin D3 + K2</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">4000 IU + 100mcg MK-7</div>
         </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">D3 corrects near-certain deficiency in North Yorkshire — directly linked to brain fog, fatigue, low mood. K2 MK-7 directs calcium to bones not arteries. Fat-soluble — must take with food.</div>
-        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-[0.5rem] tracking-widest text-moss uppercase not-italic">With food</span>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">D3 corrects near-certain deficiency in North Yorkshire — directly linked to brain fog, fatigue, low mood. K2 MK-7 directs calcium to bones not arteries. Fat-soluble — must take with food.</div>
+        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-xs tracking-widest text-moss uppercase not-italic">With food</span>
       </div>
       <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
         <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Omega-3 (EPA/DHA)</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">2g combined</div>
+          <div class="text-base tracking-[0.01em] text-ink">Omega-3 (EPA/DHA)</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">2g combined</div>
         </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">Brain function, inflammation, cardiovascular, mood. Triglyceride form (Bare Biology) — 70% more bioavailable than ethyl ester. Takes 8–12 weeks to see full cognitive effect.</div>
-        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-[0.5rem] tracking-widest text-moss uppercase not-italic">With food</span>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">Brain function, inflammation, cardiovascular, mood. Triglyceride form (Bare Biology) — 70% more bioavailable than ethyl ester. Takes 8–12 weeks to see full cognitive effect.</div>
+        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-xs tracking-widest text-moss uppercase not-italic">With food</span>
       </div>
       <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
         <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">B Complex (methylated)</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">1 capsule</div>
+          <div class="text-base tracking-[0.01em] text-ink">B Complex (methylated)</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">1 capsule</div>
         </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">Methylcobalamin B12 + methylfolate B9 — active forms only. Stress depletes B vitamins heavily. Cofactors for energy production and neurotransmitter synthesis. Can be stimulating — morning only.</div>
-        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-[0.5rem] tracking-widest text-moss uppercase not-italic">Morning only</span>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">Methylcobalamin B12 + methylfolate B9 — active forms only. Stress depletes B vitamins heavily. Cofactors for energy production and neurotransmitter synthesis. Can be stimulating — morning only.</div>
+        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-xs tracking-widest text-moss uppercase not-italic">Morning only</span>
       </div>
       <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
         <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Zinc Bisglycinate</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">15–25mg</div>
+          <div class="text-base tracking-[0.01em] text-ink">Zinc Bisglycinate</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">15–25mg</div>
         </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">Mild deficiency common in active, stressed men. Supports testosterone production, immune function, skin. Bisglycinate form — best absorbed, gentlest on digestion.</div>
-        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-[0.5rem] tracking-widest text-moss uppercase not-italic">With food</span>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">Mild deficiency common in active, stressed men. Supports testosterone production, immune function, skin. Bisglycinate form — best absorbed, gentlest on digestion.</div>
+        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-xs tracking-widest text-moss uppercase not-italic">With food</span>
       </div>
       <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
         <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Ashwagandha KSM-66</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">300–600mg</div>
+          <div class="text-base tracking-[0.01em] text-ink">Ashwagandha KSM-66</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">300–600mg</div>
         </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">Cortisol reduction, stress resilience, cognitive function under load. KSM-66 is the most clinically studied extract. Cycle 8–12 weeks on, 4 weeks off. Also supports testosterone in stressed men.</div>
-        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-[0.5rem] tracking-widest text-moss uppercase not-italic">Morning</span>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">Cortisol reduction, stress resilience, cognitive function under load. KSM-66 is the most clinically studied extract. Cycle 8–12 weeks on, 4 weeks off. Also supports testosterone in stressed men.</div>
+        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-xs tracking-widest text-moss uppercase not-italic">Morning</span>
       </div>
       <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
         <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Creatine Monohydrate</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">5g</div>
+          <div class="text-base tracking-[0.01em] text-ink">Creatine Monohydrate</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">5g</div>
         </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">Cognitive benefits well-established — improves processing speed and working memory, especially effective when sleep-deprived. Also critical for muscle retention. Any pure monohydrate brand. Anytime.</div>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">Cognitive benefits well-established — improves processing speed and working memory, especially effective when sleep-deprived. Also critical for muscle retention. Any pure monohydrate brand. Anytime.</div>
       </div>
       <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
         <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Lion's Mane</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">500–1000mg</div>
+          <div class="text-base tracking-[0.01em] text-ink">Lion's Mane</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">500–1000mg</div>
         </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">Stimulates nerve growth factor (NGF) — supports cognitive function, focus, and memory. Emerging evidence for neuroplasticity. Fruiting body extract only (not mycelium on grain). Directly relevant to your brain fog target.</div>
-        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-[0.5rem] tracking-widest text-moss uppercase not-italic">Morning</span>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">Stimulates nerve growth factor (NGF) — supports cognitive function, focus, and memory. Emerging evidence for neuroplasticity. Fruiting body extract only (not mycelium on grain). Directly relevant to your brain fog target.</div>
+        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-xs tracking-widest text-moss uppercase not-italic">Morning</span>
       </div>
       <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
         <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Ginkgo Biloba</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">120mg</div>
+          <div class="text-base tracking-[0.01em] text-ink">Ginkgo Biloba</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">120mg</div>
         </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">Improves cerebral blood flow and oxygen delivery to the brain. Good evidence for processing speed, memory, and mental clarity. Mild anticoagulant — avoid if taking blood thinners or aspirin regularly.</div>
-        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-[0.5rem] tracking-widest text-moss uppercase not-italic">Morning</span>
-      </div>
-    </div>
-
-    <div class="mb-9">
-      <div class="mb-3 flex items-center gap-3">
-        <div class="text-[0.58rem] tracking-[0.2em] whitespace-nowrap text-stone uppercase">Midday</div>
-        <div class="h-px flex-1 bg-ink/12"></div>
-        <div class="text-[0.58rem] tracking-[0.08em] text-warm">With lunch</div>
-      </div>
-      <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
-        <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Marine Collagen</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">2331mg — 650 Dalton</div>
-        </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">650 Da peptides absorb largely intact as bioactive di/tripeptides — stimulates fibroblasts directly. Take with food containing Vitamin C (any fruit or veg) which is essential for collagen synthesis. Skin, joints, connective tissue.</div>
-        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-[0.5rem] tracking-widest text-moss uppercase not-italic">With Vitamin C</span>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">Improves cerebral blood flow and oxygen delivery to the brain. Good evidence for processing speed, memory, and mental clarity. Mild anticoagulant — avoid if taking blood thinners or aspirin regularly.</div>
+        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-xs tracking-widest text-moss uppercase not-italic">Morning</span>
       </div>
     </div>
 
     <div class="mb-9">
       <div class="mb-3 flex items-center gap-3">
-        <div class="text-[0.58rem] tracking-[0.2em] whitespace-nowrap text-stone uppercase">Evening</div>
+        <div class="text-sm tracking-[0.16em] whitespace-nowrap text-stone uppercase">Midday</div>
         <div class="h-px flex-1 bg-ink/12"></div>
-        <div class="text-[0.58rem] tracking-[0.08em] text-warm">30–60 min before bed</div>
+        <div class="text-sm tracking-[0.08em] text-warm">With lunch</div>
       </div>
       <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
         <div class="mb-1 flex items-baseline justify-between gap-2">
-          <div class="text-[0.75rem] tracking-[0.04em] text-ink">Magnesium Glycinate</div>
-          <div class="text-[0.62rem] tracking-[0.06em] whitespace-nowrap text-warm">300–400mg</div>
+          <div class="text-base tracking-[0.01em] text-ink">Marine Collagen</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">2331mg — 650 Dalton</div>
         </div>
-        <div class="font-display text-[0.6rem] leading-normal tracking-[0.02em] text-stone italic">The supplement most people feel fastest. Improves sleep quality, reduces stress response, supports muscle recovery. Glycinate form only — won't cause digestive issues. Most people notice better sleep depth within a week.</div>
-        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-[0.5rem] tracking-widest text-moss uppercase not-italic">Before bed</span>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">650 Da peptides absorb largely intact as bioactive di/tripeptides — stimulates fibroblasts directly. Take with food containing Vitamin C (any fruit or veg) which is essential for collagen synthesis. Skin, joints, connective tissue.</div>
+        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-xs tracking-widest text-moss uppercase not-italic">With Vitamin C</span>
       </div>
     </div>
 
     <div class="mb-9">
       <div class="mb-3 flex items-center gap-3">
-        <div class="text-[0.58rem] tracking-[0.2em] whitespace-nowrap text-stone uppercase">Note</div>
+        <div class="text-sm tracking-[0.16em] whitespace-nowrap text-stone uppercase">Evening</div>
+        <div class="h-px flex-1 bg-ink/12"></div>
+        <div class="text-sm tracking-[0.08em] text-warm">30–60 min before bed</div>
+      </div>
+      <div class="supp-card relative mb-2 overflow-hidden rounded-[4px] border border-ink/12 bg-white px-4 py-3.5">
+        <div class="mb-1 flex items-baseline justify-between gap-2">
+          <div class="text-base tracking-[0.01em] text-ink">Magnesium Glycinate</div>
+          <div class="text-sm tracking-[0.06em] whitespace-nowrap text-warm">300–400mg</div>
+        </div>
+        <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">The supplement most people feel fastest. Improves sleep quality, reduces stress response, supports muscle recovery. Glycinate form only — won't cause digestive issues. Most people notice better sleep depth within a week.</div>
+        <span class="mt-[5px] inline-block rounded-[2px] border border-moss px-[5px] py-px font-mono text-xs tracking-widest text-moss uppercase not-italic">Before bed</span>
+      </div>
+    </div>
+
+    <div class="mb-9">
+      <div class="mb-3 flex items-center gap-3">
+        <div class="text-sm tracking-[0.16em] whitespace-nowrap text-stone uppercase">Note</div>
         <div class="h-px flex-1 bg-ink/12"></div>
       </div>
-      <div class="font-display text-[0.65rem] leading-[1.7] tracking-[0.02em] text-stone italic">
+      <div class="font-display text-base leading-relaxed tracking-[0.01em] text-stone italic">
         Get a Medichecks Advanced Well Man blood panel (~£150) when time permits. Will confirm Vitamin D loading dose needed, B12 status, thyroid, testosterone, HbA1c. Until then, the above stack is calibrated for likely deficiencies at your age, latitude, and stress load.
       </div>
     </div>
@@ -177,30 +177,30 @@
   <!-- ── Meals tab ── -->
   <div class="tab-content" id="tab-meals">
     <div class="mb-8 border-b border-ink/12 pb-5">
-      <div class="mb-1 font-display text-[2rem] font-light">Meal Plan</div>
-      <div class="text-[0.6rem] tracking-[0.12em] text-stone uppercase" id="mealsSub">~1800–2000 kcal · High protein · Select one per meal</div>
+      <div class="mb-1 font-display text-[2rem] font-light tracking-tight">Meal Plan</div>
+      <div class="text-sm tracking-[0.12em] text-stone uppercase" id="mealsSub">~1800–2000 kcal · High protein · Select one per meal</div>
       <div class="mt-3.5 flex w-fit max-w-full flex-wrap items-center gap-0.5 rounded-[3px] bg-ink/12 p-[3px]">
-        <button class="active plan-toggle-btn cursor-pointer rounded-[2px] border-0 bg-transparent px-4 py-[7px] font-mono text-[0.58rem] tracking-[0.12em] whitespace-nowrap text-stone uppercase" data-mode="standard" onclick="setPlanMode('standard')">Standard</button>
-        <button class="plan-toggle-btn cursor-pointer rounded-[2px] border-0 bg-transparent px-4 py-[7px] font-mono text-[0.58rem] tracking-[0.12em] whitespace-nowrap text-stone uppercase" data-mode="deficit" onclick="setPlanMode('deficit')">1400 kcal plan</button>
-        <button class="plan-toggle-btn cursor-pointer rounded-[2px] border-0 bg-transparent px-4 py-[7px] font-mono text-[0.58rem] tracking-[0.12em] whitespace-nowrap text-stone uppercase" data-mode="macro" onclick="setPlanMode('macro')">Macro</button>
+        <button type="button" class="active plan-toggle-btn cursor-pointer rounded-[2px] border-0 bg-transparent px-3 py-1.5 font-mono text-sm tracking-[0.1em] whitespace-nowrap text-stone uppercase" data-mode="standard" onclick="setPlanMode('standard')">Standard</button>
+        <button type="button" class="plan-toggle-btn cursor-pointer rounded-[2px] border-0 bg-transparent px-3 py-1.5 font-mono text-sm tracking-[0.1em] whitespace-nowrap text-stone uppercase" data-mode="deficit" onclick="setPlanMode('deficit')">1400 kcal plan</button>
+        <button type="button" class="plan-toggle-btn cursor-pointer rounded-[2px] border-0 bg-transparent px-3 py-1.5 font-mono text-sm tracking-[0.1em] whitespace-nowrap text-stone uppercase" data-mode="macro" onclick="setPlanMode('macro')">Macro</button>
       </div>
-      <div class="mt-2.5 font-display text-[0.6rem] tracking-[0.06em] text-stone italic" id="planModeNote"></div>
+      <div class="mt-2.5 font-display text-sm tracking-[0.06em] text-stone italic" id="planModeNote"></div>
     </div>
     <div id="mealSections"></div>
     <div id="dayTotals"></div>
-    <button class="mt-4 block w-full cursor-pointer rounded-[2px] border border-ink/12 bg-transparent p-2 font-mono text-[0.6rem] tracking-[0.15em] text-stone uppercase hover:border-warm hover:text-warm" onclick="resetMeals()">↺ Reset selections</button>
+    <button type="button" class="mt-4 block w-full cursor-pointer rounded-[2px] border border-ink/12 bg-transparent px-3 py-2 font-mono text-sm tracking-[0.1em] text-stone uppercase hover:border-warm hover:text-warm" onclick="resetMeals()">↺ Reset selections</button>
   </div>
 </div>
 
 <div id="finance-root" class="pb-[60px]" style="display:none">
   <div class="mb-5 flex items-center justify-between gap-4 border-b border-ink/12 px-4 pt-[18px] pb-3">
     <div class="flex gap-4">
-      <button class="fin-subtab fin-subtab--active cursor-pointer border-0 bg-transparent p-0 font-mono text-[0.6rem] tracking-[0.16em] text-warm uppercase" data-view="dashboard" onclick="showFinanceView('dashboard')">Dashboard</button>
-      <button class="fin-subtab cursor-pointer border-0 bg-transparent p-0 font-mono text-[0.6rem] tracking-[0.16em] text-warm uppercase" data-view="income" onclick="showFinanceView('income')">Income</button>
-      <button class="fin-subtab cursor-pointer border-0 bg-transparent p-0 font-mono text-[0.6rem] tracking-[0.16em] text-warm uppercase" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
-      <button class="fin-subtab cursor-pointer border-0 bg-transparent p-0 font-mono text-[0.6rem] tracking-[0.16em] text-warm uppercase" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
+      <button type="button" class="fin-subtab fin-subtab--active cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="dashboard" onclick="showFinanceView('dashboard')">Dashboard</button>
+      <button type="button" class="fin-subtab cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="income" onclick="showFinanceView('income')">Income</button>
+      <button type="button" class="fin-subtab cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
+      <button type="button" class="fin-subtab cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
     </div>
-    <button id="finance-settings-btn" class="cursor-pointer border-0 bg-transparent p-1 text-stone hover:text-ink" aria-label="Settings">
+    <button type="button" id="finance-settings-btn" class="cursor-pointer border-0 bg-transparent p-1 text-stone hover:text-ink" aria-label="Settings">
       <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-[1.5]"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
@@ -216,14 +216,14 @@
   <div class="mb-2 flex size-[72px] animate-[ringIn_0.5s_cubic-bezier(0.34,1.56,0.64,1)_0.1s_both] items-center justify-center rounded-full border-2 border-warm">
     <svg viewBox="0 0 24 24" class="size-7 fill-none stroke-warm stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
-  <div class="font-display text-[2.4rem] font-light text-ink">Protocol Complete</div>
-  <div class="text-[0.62rem] tracking-[0.2em] text-stone uppercase">Well done. Rest now.</div>
-  <div class="day-complete-stats mt-2 text-[0.65rem] leading-[1.8] tracking-wider text-stone" id="dayCompleteStats"></div>
-  <button class="mt-5 cursor-pointer rounded-[2px] border-0 bg-ink px-8 py-[11px] font-mono text-[0.62rem] tracking-[0.15em] text-paper uppercase hover:opacity-80" onclick="closeDayComplete()">Continue</button>
+  <div class="font-display text-[2.4rem] font-light tracking-tight text-ink">Protocol Complete</div>
+  <div class="text-sm tracking-[0.16em] text-stone uppercase">Well done. Rest now.</div>
+  <div class="day-complete-stats mt-2 text-base leading-relaxed tracking-wider text-stone" id="dayCompleteStats"></div>
+  <button type="button" class="mt-5 cursor-pointer rounded-[2px] border-0 bg-ink px-6 py-2.5 font-mono text-sm tracking-[0.1em] text-paper uppercase hover:opacity-80" onclick="closeDayComplete()">Continue</button>
 </div>
 
 <!-- Toast -->
-<div class="loading-overlay fixed right-6 bottom-6 z-100 hidden animate-[slideUp_0.2s_ease] rounded-[2px] bg-ink px-[14px] py-2 text-[0.58rem] tracking-[0.12em] text-paper uppercase" id="toast"></div>
+<div class="loading-overlay fixed right-6 bottom-6 z-100 hidden animate-[slideUp_0.2s_ease] rounded-[2px] bg-ink px-[14px] py-2 text-sm tracking-[0.12em] text-paper uppercase" id="toast"></div>
 
 <script src="state.js"></script>
 <script src="device-identity.js"></script>
@@ -444,13 +444,13 @@ function renderSections() {
     sec.className = 'mb-10';
     sec.innerHTML = `
       <div class="mb-1 flex items-center gap-3">
-        <div class="text-[0.58rem] tracking-[0.2em] whitespace-nowrap text-stone uppercase">${section.label}</div>
-        <div class="text-[0.58rem] tracking-widest text-warm">${section.time}</div>
+        <div class="text-sm tracking-[0.16em] whitespace-nowrap text-stone uppercase">${section.label}</div>
+        <div class="text-sm tracking-widest text-warm">${section.time}</div>
         <div class="h-px flex-1 bg-ink/12"></div>
-        <div class="section-count text-[0.58rem] tracking-wider text-stone ${allDone ? 'all-done' : ''}" id="scount-${section.id}">${doneCount}/${section.items.length}</div>
+        <div class="section-count text-sm tracking-wider text-stone ${allDone ? 'all-done' : ''}" id="scount-${section.id}">${doneCount}/${section.items.length}</div>
       </div>
       <div class="mt-2.5" id="items-${section.id}"></div>
-      <div class="section-done mt-1.5 max-h-0 overflow-hidden text-[0.58rem] tracking-[0.15em] text-warm uppercase opacity-0 [transition:max-height_0.4s_ease,opacity_0.3s] ${allDone ? 'visible' : ''}" id="sdone-${section.id}">✓ Complete</div>
+      <div class="section-done mt-1.5 max-h-0 overflow-hidden text-sm tracking-[0.15em] text-warm uppercase opacity-0 [transition:max-height_0.4s_ease,opacity_0.3s] ${allDone ? 'visible' : ''}" id="sdone-${section.id}">✓ Complete</div>
     `;
     container.appendChild(sec);
 
@@ -464,10 +464,10 @@ function renderSections() {
           <svg viewBox="0 0 12 12" class="size-[10px] scale-50 fill-none stroke-[white] stroke-[2.5] opacity-0 [stroke-linecap:round] [stroke-linejoin:round] [transition:all_0.2s_cubic-bezier(0.34,1.56,0.64,1)]"><polyline points="2 6 5 9 10 3"/></svg>
         </div>
         <div class="item-content min-w-0 flex-1">
-          <div class="item-text text-[0.78rem] leading-[1.4] tracking-[0.02em] text-ink">${item.text}</div>
-          ${item.note ? `<div class="item-note mt-[3px] max-h-0 overflow-hidden font-display text-[0.62rem] leading-[1.45] tracking-[0.02em] text-stone italic opacity-0 [transition:max-height_0.3s_ease,opacity_0.3s]">${item.note}</div>` : ''}
+          <div class="item-text text-base leading-relaxed tracking-[0.01em] text-ink">${item.text}</div>
+          ${item.note ? `<div class="item-note mt-[3px] max-h-0 overflow-hidden font-display text-base leading-relaxed tracking-[0.01em] text-stone italic opacity-0 [transition:max-height_0.3s_ease,opacity_0.3s]">${item.note}</div>` : ''}
         </div>
-        ${item.tag ? `<div class="${item.tag === 'supp' ? 'bg-warm' : item.tag === 'body' ? 'bg-moss' : 'bg-[#5a6b7a]'} mt-[3px] shrink-0 self-start rounded-[2px] px-1.5 py-[2px] text-[0.5rem] tracking-widest text-white uppercase">${item.tag}</div>` : ''}
+        ${item.tag ? `<div class="${item.tag === 'supp' ? 'bg-warm' : item.tag === 'body' ? 'bg-moss' : 'bg-[#5a6b7a]'} mt-[3px] shrink-0 self-start rounded-[2px] px-1.5 py-[2px] text-xs tracking-widest text-white uppercase">${item.tag}</div>` : ''}
       `;
 
       // Tap: toggle. Long press: expand note
@@ -509,7 +509,7 @@ function renderWeekly() {
     const isDone = state.history.includes(dStr) || (isToday && state.allDone);
     const dot = document.createElement('div');
     dot.className = `day-dot aspect-square rounded-full border border-ink/12 flex flex-col items-center justify-center gap-0.5 py-1 px-0.5${isToday ? ' active' : ''}${isDone ? ' complete' : ''}`;
-    dot.innerHTML = `<span class="day-label text-[0.48rem] tracking-wider text-stone uppercase">${days[d.getDay()]}</span><span class="day-num text-[0.55rem] text-ink">${d.getDate()}</span>`;
+    dot.innerHTML = `<span class="day-label text-xs tracking-wider text-stone uppercase">${days[d.getDay()]}</span><span class="day-num text-sm text-ink">${d.getDate()}</span>`;
     grid.appendChild(dot);
   }
 
@@ -598,9 +598,9 @@ function renderMeals() {
 
     sec.innerHTML = `
       <div class="mb-3.5 flex items-center gap-3">
-        <div class="text-[0.58rem] tracking-[0.2em] whitespace-nowrap text-stone uppercase">${section.label}</div>
+        <div class="text-sm tracking-[0.16em] whitespace-nowrap text-stone uppercase">${section.label}</div>
         <div class="h-px flex-1 bg-ink/12"></div>
-        <div class="text-[0.58rem] tracking-[0.08em] whitespace-nowrap text-warm">${metaText}</div>
+        <div class="text-sm tracking-[0.08em] whitespace-nowrap text-warm">${metaText}</div>
       </div>
     `;
 
@@ -608,7 +608,7 @@ function renderMeals() {
 
     if (isMacro && options.length === 0) {
       const empty = document.createElement('div');
-      empty.className = 'text-[0.65rem] text-stone italic font-display py-[18px] px-3 text-center border border-dashed border-ink/12 rounded-[4px] mb-2';
+      empty.className = 'text-base text-stone italic font-display py-[18px] px-3 text-center border border-dashed border-ink/12 rounded-[4px] mb-2';
       empty.textContent = `No meals currently fit this target for ${section.label.toLowerCase()}.`;
       sec.appendChild(empty);
     }
@@ -641,23 +641,23 @@ function renderDayTotals() {
   if (!totals) { totalsEl.innerHTML = ''; return; }
 
   const rows = totals.rows.map(row => `
-    <div class="mb-1.5 flex justify-between text-[0.68rem] text-ink">
+    <div class="mb-1.5 flex justify-between text-sm text-ink">
       <span>${row.label}</span>
       <span class="text-warm">${row.kcal} kcal · P${row.protein}g</span>
     </div>`).join('');
 
-  const milkNote = totals.showPlan ? '<div class="mt-1.5 font-display text-[0.58rem] text-stone italic">+ 150 kcal milk (225ml full fat) not included above</div>' : '';
+  const milkNote = totals.showPlan ? '<div class="mt-1.5 font-display text-base text-stone italic">+ 150 kcal milk (225ml full fat) not included above</div>' : '';
 
   let macroComparisonHtml = '';
   if (totals.macroComparison) {
     const target = totals.macroComparison.target;
     const remaining = totals.macroComparison.remaining;
     macroComparisonHtml = `
-      <div class="my-1.5 flex justify-between text-[0.68rem] text-ink">
+      <div class="my-1.5 flex justify-between text-sm text-ink">
         <span>Target (incl. milk)</span>
         <span class="text-warm">${target.kcal} kcal · P${target.protein}g · C${target.carbs}g · F${target.fat}g</span>
       </div>
-      <div class="mb-1.5 flex justify-between text-[0.68rem] text-ink">
+      <div class="mb-1.5 flex justify-between text-sm text-ink">
         <span>Remaining</span>
         <span class="text-warm">${remaining.kcal} kcal · P${remaining.protein}g · C${remaining.carbs}g · F${remaining.fat}g</span>
       </div>`;
@@ -665,9 +665,9 @@ function renderDayTotals() {
 
   totalsEl.innerHTML = `
     <div class="mt-8 rounded-[4px] border border-warm-light bg-[#fffdf8] p-4">
-      <div class="mb-2.5 text-[0.58rem] tracking-[0.15em] text-stone uppercase">Day total — ${totals.count} of 3 meals selected</div>
+      <div class="mb-2.5 text-sm tracking-[0.15em] text-stone uppercase">Day total — ${totals.count} of 3 meals selected</div>
       ${rows}
-      <div class="mt-1 flex justify-between border-t border-ink/12 pt-2 text-[0.72rem] text-ink">
+      <div class="mt-1 flex justify-between border-t border-ink/12 pt-2 text-base text-ink">
         <span>Total</span>
         <span class="text-warm">${totals.totals.kcal} kcal · P${totals.totals.protein}g · C${totals.totals.carbs}g · F${totals.totals.fat}g</span>
       </div>
@@ -749,12 +749,12 @@ function showMode(name) { appMode.show(name); }
 </script>
 
 <!-- Copy toast -->
-<div class="copy-toast pointer-events-none fixed bottom-6 left-1/2 z-300 -translate-x-1/2 translate-y-2 rounded-[3px] bg-ink px-[18px] py-[9px] text-[0.6rem] tracking-[0.12em] whitespace-nowrap text-paper uppercase opacity-0 [transition:opacity_0.25s,transform_0.25s]" id="copyToast">Copied to clipboard</div>
+<div class="copy-toast pointer-events-none fixed bottom-6 left-1/2 z-300 -translate-x-1/2 translate-y-2 rounded-[3px] bg-ink px-[18px] py-[9px] text-sm tracking-[0.12em] whitespace-nowrap text-paper uppercase opacity-0 [transition:opacity_0.25s,transform_0.25s]" id="copyToast">Copied to clipboard</div>
 
 <!-- Update banner -->
-<div id="updateBanner" class="update-banner fixed bottom-5 left-1/2 z-300 hidden -translate-x-1/2 animate-[slideUp_0.3s_ease] items-center gap-4 rounded-[3px] bg-ink px-4 py-2.5 text-[0.6rem] tracking-widest whitespace-nowrap text-paper uppercase">
+<div id="updateBanner" class="update-banner fixed bottom-5 left-1/2 z-300 hidden -translate-x-1/2 animate-[slideUp_0.3s_ease] items-center gap-4 rounded-[3px] bg-ink px-4 py-2.5 text-sm tracking-widest whitespace-nowrap text-paper uppercase">
   <span>Update available</span>
-  <button id="updateBtn" class="cursor-pointer rounded-[2px] border-0 bg-warm px-2.5 py-[5px] font-mono text-[0.58rem] tracking-widest text-white uppercase">Refresh</button>
+  <button type="button" id="updateBtn" class="cursor-pointer rounded-[2px] border-0 bg-warm px-3 py-1.5 font-mono text-sm tracking-wide text-white uppercase">Refresh</button>
 </div>
 </body>
 </html>

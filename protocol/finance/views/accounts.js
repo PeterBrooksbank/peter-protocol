@@ -65,10 +65,10 @@ function renderNetWorth(el, accounts) {
   el.innerHTML = `
     <div class="rounded-[4px] border border-ink/12 bg-white px-6 py-4">
       <div class="flex items-baseline justify-between">
-        <span class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Net worth</span>
-        <span class="font-display text-2xl font-light tabular-nums ${net >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(net)}</span>
+        <span class="font-mono text-sm tracking-[0.16em] text-stone uppercase">Net worth</span>
+        <span class="font-display text-2xl font-light tracking-tight tabular-nums ${net >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(net)}</span>
       </div>
-      <div class="mt-2 flex gap-6 font-mono text-[0.6rem] tracking-[0.06em] text-stone">
+      <div class="mt-2 flex gap-6 font-mono text-sm tracking-[0.06em] text-stone">
         <span>Assets <strong class="text-ink tabular-nums">${penceToCompact(assets)}</strong></span>
         <span>Liabilities <strong class="text-ink tabular-nums">${penceToCompact(liabilities)}</strong></span>
       </div>
@@ -92,7 +92,7 @@ function renderGroups(el, accounts) {
     const div = document.createElement('div');
     div.innerHTML = `
       <div class="mb-2 flex items-baseline justify-between">
-        <h3 class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">${meta.label}</h3>
+        <h3 class="font-mono text-sm tracking-[0.16em] text-stone uppercase">${meta.label}</h3>
         <span class="text-sm font-medium text-ink tabular-nums">${penceToCompact(subtotal)}</span>
       </div>
       <div class="divide-y divide-ink/12 rounded-[4px] border border-ink/12 bg-white">
@@ -108,7 +108,7 @@ function renderAccount(a) {
   const stale  = months > 60; // > 5 months since last real snapshot
   const isProjected = months > 0 && a.projection_mode !== 'manual';
 
-  const balLabel = isProjected ? `${penceToCompact(bal)} <span class="text-xs text-stone">(est)</span>` : penceToCompact(bal);
+  const balLabel = isProjected ? `${penceToCompact(bal)} <span class="text-sm text-stone">(est)</span>` : penceToCompact(bal);
   const snapshotInfo = a.snapshot_date
     ? `Logged ${formatDate(a.snapshot_date)}${stale ? ' — <span class="text-warm">update needed</span>' : ''}`
     : '<span class="text-warm">No balance logged yet</span>';
@@ -118,10 +118,10 @@ function renderAccount(a) {
       <div class="min-w-0 flex-1">
         <div class="flex items-baseline gap-2">
           <span class="text-sm font-medium text-ink">${esc(a.nickname)}</span>
-          ${a.owner_name ? `<span class="text-xs text-stone">${esc(a.owner_name)}</span>` : ''}
-          ${a.provider   ? `<span class="text-xs text-stone">· ${esc(a.provider)}</span>` : ''}
+          ${a.owner_name ? `<span class="text-sm text-stone">${esc(a.owner_name)}</span>` : ''}
+          ${a.provider   ? `<span class="text-sm text-stone">· ${esc(a.provider)}</span>` : ''}
         </div>
-        <div class="mt-0.5 text-xs text-stone">${projectionLabel(a)} · ${snapshotInfo}</div>
+        <div class="mt-0.5 text-sm text-stone">${projectionLabel(a)} · ${snapshotInfo}</div>
       </div>
       <div class="ml-4 shrink-0 text-right">
         <div class="text-sm font-medium text-ink tabular-nums">${balLabel}</div>
@@ -178,7 +178,7 @@ function addAccountModal(accounts, reload) {
       )}
       ${field('Provider', textInput('provider', '', 'e.g. HSBC (optional)'))}
       ${field('Opening balance (£)', textInput('opening_balance', '', 'e.g. 295000'))}
-      <p class="mt-1 mb-4 text-xs text-stone">Configure projections after adding.</p>`,
+      <p class="mt-1 mb-4 text-sm text-stone">Configure projections after adding.</p>`,
     submitLabel: 'Add account',
     async onSubmit(o, close) {
       const nickname = val(o, 'nickname');

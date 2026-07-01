@@ -30,15 +30,15 @@ async function load(el, month) {
         <!-- Month nav + import -->
         <div class="mb-6 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <button data-act="prev-month" class="cursor-pointer px-2 text-stone hover:text-ink">←</button>
+            <button type="button" data-act="prev-month" class="cursor-pointer px-2 text-stone hover:text-ink">←</button>
             <span class="font-display text-lg font-light text-ink">${formatMonth(month, { month: 'long' })}</span>
-            <button data-act="next-month" class="cursor-pointer px-2 text-stone hover:text-ink">→</button>
+            <button type="button" data-act="next-month" class="cursor-pointer px-2 text-stone hover:text-ink">→</button>
           </div>
           <div class="flex items-center gap-4">
             ${uncategorised_count > 0
               ? actionLink(`Review ${uncategorised_count} unmatched`, { data: { act: 'review' }, tone: 'warm' })
               : ''}
-            <button data-act="import" class="cursor-pointer rounded-[2px] border border-ink/12 px-3 py-2 font-mono text-[0.6rem] tracking-[0.15em] text-stone uppercase hover:border-warm hover:text-warm">
+            <button type="button" data-act="import" class="cursor-pointer rounded-[2px] border border-ink/12 px-3 py-2 font-mono text-sm tracking-[0.1em] text-stone uppercase hover:border-warm hover:text-warm">
               Import statement
             </button>
           </div>
@@ -74,17 +74,17 @@ function renderSummary(totals) {
     <div class="rounded-[4px] border border-ink/12 bg-white px-5 py-4">
       <div class="grid grid-cols-3 gap-4 text-center">
         <div>
-          <div class="mb-1 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Planned in</div>
+          <div class="mb-1 font-mono text-sm tracking-[0.16em] text-stone uppercase">Planned in</div>
           <div class="font-medium text-ink tabular-nums">${penceToCompact(totals.plannedIncome)}</div>
-          ${totals.actualIncome > 0 ? `<div class="text-xs text-stone tabular-nums">actual ${penceToCompact(totals.actualIncome)}</div>` : ''}
+          ${totals.actualIncome > 0 ? `<div class="text-sm text-stone tabular-nums">actual ${penceToCompact(totals.actualIncome)}</div>` : ''}
         </div>
         <div>
-          <div class="mb-1 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Planned spend</div>
+          <div class="mb-1 font-mono text-sm tracking-[0.16em] text-stone uppercase">Planned spend</div>
           <div class="font-medium text-ink tabular-nums">${penceToCompact(totals.plannedExpense)}</div>
-          ${totals.actualExpense > 0 ? `<div class="text-xs tabular-nums ${totals.actualExpense > totals.plannedExpense ? 'text-signal' : 'text-stone'}">actual ${penceToCompact(totals.actualExpense)}</div>` : ''}
+          ${totals.actualExpense > 0 ? `<div class="text-sm tabular-nums ${totals.actualExpense > totals.plannedExpense ? 'text-signal' : 'text-stone'}">actual ${penceToCompact(totals.actualExpense)}</div>` : ''}
         </div>
         <div>
-          <div class="mb-1 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Surplus</div>
+          <div class="mb-1 font-mono text-sm tracking-[0.16em] text-stone uppercase">Surplus</div>
           <div class="font-medium tabular-nums ${surplus >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(surplus)}</div>
         </div>
       </div>
@@ -100,8 +100,8 @@ function renderCategory(cat, month) {
     <div data-cat="${cat.id}">
       <div class="mb-2 flex items-baseline justify-between">
         <div class="flex items-center gap-2">
-          <span class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">${esc(cat.name)}</span>
-          <span class="text-xs text-stone">${cat.kind}</span>
+          <span class="font-mono text-sm tracking-[0.16em] text-stone uppercase">${esc(cat.name)}</span>
+          <span class="text-sm text-stone">${cat.kind}</span>
           ${actionLink('edit', { data: { act: 'edit-cat', id: cat.id } })}
         </div>
         <div class="text-sm tabular-nums ${over ? 'text-signal font-medium' : 'text-stone'}">
@@ -128,7 +128,7 @@ function renderLine(line, cat) {
       <div class="min-w-0 flex-1">
         <div class="flex items-baseline gap-2">
           <span class="text-sm text-ink">${esc(line.name)}</span>
-          ${line.match_rule ? `<span class="font-mono text-xs text-stone">${esc(line.match_rule)}</span>` : ''}
+          ${line.match_rule ? `<span class="font-mono text-sm text-stone">${esc(line.match_rule)}</span>` : ''}
           ${actionLink('edit', { data: { act: 'edit-line', id: line.id } })}
         </div>
         ${planned > 0 ? `
@@ -139,9 +139,9 @@ function renderLine(line, cat) {
       <div class="shrink-0 text-right">
         ${actual > 0
           ? `<span class="text-sm tabular-nums ${over ? 'text-signal font-medium' : 'text-ink'}">${penceToDisplay(actual)}</span>
-             ${planned > 0 ? `<span class="text-xs text-stone tabular-nums"> / ${penceToDisplay(planned)}</span>` : ''}`
+             ${planned > 0 ? `<span class="text-sm text-stone tabular-nums"> / ${penceToDisplay(planned)}</span>` : ''}`
           : `<span class="text-sm text-stone tabular-nums">${penceToDisplay(planned)}</span>`}
-        ${line.txn_count > 0 ? `<div class="text-xs text-stone">${line.txn_count} txn${line.txn_count > 1 ? 's' : ''}</div>` : ''}
+        ${line.txn_count > 0 ? `<div class="text-sm text-stone">${line.txn_count} txn${line.txn_count > 1 ? 's' : ''}</div>` : ''}
       </div>
     </div>`;
 }
@@ -298,19 +298,19 @@ function reviewTransactionsFromImport(txns, budgetLines, reload) {
     title: 'Review transactions',
     maxWidth: 'max-w-2xl',
     headerExtra: `
-          <span class="font-mono text-[0.6rem] tracking-[0.06em] text-stone">${unmatched.length} need review</span>
-          <button id="rev-save" class="cursor-pointer rounded-[2px] bg-ink px-4 py-2 font-mono text-[0.6rem] tracking-[0.15em] text-paper uppercase hover:opacity-80">Done</button>`,
+          <span class="font-mono text-sm tracking-[0.06em] text-stone">${unmatched.length} need review</span>
+          <button type="button" id="rev-save" class="cursor-pointer rounded-[2px] bg-ink px-4 py-2 font-mono text-sm tracking-[0.1em] text-paper uppercase hover:opacity-80">Done</button>`,
     bodyClass: 'px-6 py-4 space-y-6 max-h-[70vh] overflow-y-auto',
     bodyHtml: `
         ${autoable.length ? `
           <div>
             <div class="mb-2 flex items-center justify-between">
-              <h3 class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Auto-matched (${autoable.length})</h3>
-              <button id="rev-apply-auto" class="cursor-pointer font-mono text-[0.58rem] tracking-[0.1em] text-warm uppercase hover:text-ink">Apply all matches</button>
+              <h3 class="font-mono text-sm tracking-[0.16em] text-stone uppercase">Auto-matched (${autoable.length})</h3>
+              <button type="button" id="rev-apply-auto" class="cursor-pointer font-mono text-sm tracking-[0.1em] text-warm uppercase hover:text-ink">Apply all matches</button>
             </div>
             <div class="divide-y divide-ink/12 rounded-[4px] border border-ink/12">
               ${autoable.map(t => `
-                <div class="flex items-center gap-3 px-3 py-2 text-xs">
+                <div class="flex items-center gap-3 px-3 py-2 text-sm">
                   <span class="flex-1 truncate font-mono text-ink">${esc(t.description)}</span>
                   <span class="${t.amount_pence < 0 ? 'text-signal' : 'text-ink'} shrink-0 tabular-nums">${penceToDisplay(Math.abs(t.amount_pence))}</span>
                   <span class="shrink-0 text-stone">→ ${esc(t.matched_line?.name ?? '')}</span>
@@ -320,24 +320,24 @@ function reviewTransactionsFromImport(txns, budgetLines, reload) {
 
         ${unmatched.length ? `
           <div>
-            <h3 class="mb-2 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Needs action (${unmatched.length})</h3>
+            <h3 class="mb-2 font-mono text-sm tracking-[0.16em] text-stone uppercase">Needs action (${unmatched.length})</h3>
             <div class="space-y-2">
               ${unmatched.map(t => `
                 <div class="rounded-[4px] border border-warm/50 px-3 py-2" data-txn="${t.id}">
                   <div class="mb-2 flex items-start gap-2">
-                    <span class="flex-1 truncate font-mono text-xs text-ink">${esc(t.description)}</span>
-                    <span class="text-xs tabular-nums ${t.amount_pence < 0 ? 'text-signal' : 'text-ink'} shrink-0">${penceToDisplay(Math.abs(t.amount_pence))}</span>
-                    <span class="shrink-0 text-xs text-stone">${t.date}</span>
+                    <span class="flex-1 truncate font-mono text-sm text-ink">${esc(t.description)}</span>
+                    <span class="text-sm tabular-nums ${t.amount_pence < 0 ? 'text-signal' : 'text-ink'} shrink-0">${penceToDisplay(Math.abs(t.amount_pence))}</span>
+                    <span class="shrink-0 text-sm text-stone">${t.date}</span>
                   </div>
                   <div class="flex flex-wrap gap-2">
-                    <select data-role="line" class="rounded-[3px] border border-ink/12 bg-paper px-2 py-1 text-xs">
+                    <select data-role="line" class="rounded-[3px] border border-ink/12 bg-paper px-2 py-1 text-sm">
                       <option value="">Assign to line…</option>
                       ${lineOpts}
                     </select>
-                    <button data-role="new-line" class="cursor-pointer rounded-[2px] border border-ink/12 px-2 py-1 font-mono text-[0.58rem] tracking-[0.08em] uppercase hover:border-warm hover:text-warm">New line</button>
-                    <button data-role="income"   class="cursor-pointer rounded-[2px] border border-ink/12 px-2 py-1 font-mono text-[0.58rem] tracking-[0.08em] uppercase hover:border-warm hover:text-warm ${t.txn_class === 'income'   ? 'border-warm text-warm' : ''}">Income</button>
-                    <button data-role="transfer" class="cursor-pointer rounded-[2px] border border-ink/12 px-2 py-1 font-mono text-[0.58rem] tracking-[0.08em] uppercase hover:border-warm hover:text-warm ${t.txn_class === 'transfer' ? 'border-warm text-warm' : ''}">Transfer</button>
-                    <button data-role="ignore"   class="cursor-pointer rounded-[2px] border border-ink/12 px-2 py-1 font-mono text-[0.58rem] tracking-[0.08em] uppercase hover:border-warm hover:text-warm ${t.txn_class === 'ignore'   ? 'border-warm text-warm' : ''}">Ignore</button>
+                    <button type="button" data-role="new-line" class="cursor-pointer rounded-[2px] border border-ink/12 px-2.5 py-1.5 font-mono text-sm tracking-[0.06em] uppercase hover:border-warm hover:text-warm">New line</button>
+                    <button type="button" data-role="income"   class="cursor-pointer rounded-[2px] border border-ink/12 px-2.5 py-1.5 font-mono text-sm tracking-[0.06em] uppercase hover:border-warm hover:text-warm ${t.txn_class === 'income'   ? 'border-warm text-warm' : ''}">Income</button>
+                    <button type="button" data-role="transfer" class="cursor-pointer rounded-[2px] border border-ink/12 px-2.5 py-1.5 font-mono text-sm tracking-[0.06em] uppercase hover:border-warm hover:text-warm ${t.txn_class === 'transfer' ? 'border-warm text-warm' : ''}">Transfer</button>
+                    <button type="button" data-role="ignore"   class="cursor-pointer rounded-[2px] border border-ink/12 px-2.5 py-1.5 font-mono text-sm tracking-[0.06em] uppercase hover:border-warm hover:text-warm ${t.txn_class === 'ignore'   ? 'border-warm text-warm' : ''}">Ignore</button>
                   </div>
                 </div>`).join('')}
             </div>
@@ -345,8 +345,8 @@ function reviewTransactionsFromImport(txns, budgetLines, reload) {
 
         ${alreadyDone.length ? `
           <div>
-            <h3 class="mb-2 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Already categorised (${alreadyDone.length})</h3>
-            <div class="text-xs text-stone">Showing ${Math.min(alreadyDone.length, 3)} of ${alreadyDone.length}…</div>
+            <h3 class="mb-2 font-mono text-sm tracking-[0.16em] text-stone uppercase">Already categorised (${alreadyDone.length})</h3>
+            <div class="text-sm text-stone">Showing ${Math.min(alreadyDone.length, 3)} of ${alreadyDone.length}…</div>
           </div>` : ''}`,
   });
 

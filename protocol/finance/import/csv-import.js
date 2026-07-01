@@ -118,7 +118,7 @@ export function openImportWizard(accounts, onImport) {
     <p class="mb-4 text-sm text-stone">Choose a CSV export from your bank.</p>
     <div id="file-area"></div>`;
   const pickBtn = Object.assign(document.createElement('button'), {
-    className: 'cursor-pointer rounded-[2px] bg-ink px-5 py-2.5 font-mono text-[0.62rem] tracking-[0.15em] text-paper uppercase hover:opacity-80',
+    className: 'cursor-pointer rounded-[2px] bg-ink px-4 py-2 font-mono text-sm tracking-[0.1em] text-paper uppercase hover:opacity-80',
     textContent: 'Choose CSV file',
     onclick: () => fileInput.click(),
   });
@@ -137,30 +137,30 @@ export function openImportWizard(accounts, onImport) {
     const names = Object.keys(profs);
     body.innerHTML = `
       ${names.length ? `<div class="mb-4">
-        <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Saved bank profile</label>
+        <label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Saved bank profile</label>
         <select id="wiz-profile" class="${cls}">
           <option value="">— new mapping —</option>
           ${names.map(n => `<option>${n}</option>`).join('')}
         </select></div>` : ''}
       <div class="mb-4">
-        <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Account</label>
+        <label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Account</label>
         <select id="wiz-acct" class="${cls}">${accounts.map(a => `<option value="${a.id}">${a.nickname}</option>`).join('')}</select>
       </div>
       <div class="mb-4">
-        <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Statement month</label>
+        <label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Statement month</label>
         <input id="wiz-month" type="month" value="${new Date().toISOString().slice(0,7)}" class="${cls}">
       </div>
       <div class="mb-4">
-        <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Bank name</label>
+        <label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Bank name</label>
         <input id="wiz-bank" placeholder="e.g. Monzo" value="${pre.bank || ''}" class="${cls}">
       </div>
       <div class="mb-4 grid grid-cols-2 gap-3">
         <div>
-          <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Date column</label>
+          <label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Date column</label>
           <select id="wiz-date" class="${cls}">${colOptions(pre.dateCol ?? 0)}</select>
         </div>
         <div>
-          <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Date format</label>
+          <label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Date format</label>
           <select id="wiz-datefmt" class="${cls}">
             <option value="DMY" ${pre.dateFmt === 'DMY' || !pre.dateFmt ? 'selected' : ''}>DD/MM/YYYY</option>
             <option value="MDY" ${pre.dateFmt === 'MDY' ? 'selected' : ''}>MM/DD/YYYY</option>
@@ -169,11 +169,11 @@ export function openImportWizard(accounts, onImport) {
         </div>
       </div>
       <div class="mb-4">
-        <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Description column</label>
+        <label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Description column</label>
         <select id="wiz-desc" class="${cls}">${colOptions(pre.descCol ?? 1)}</select>
       </div>
       <div class="mb-4">
-        <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Amount style</label>
+        <label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Amount style</label>
         <select id="wiz-mode" class="${cls}">
           <option value="single" ${pre.mode !== 'split' ? 'selected' : ''}>One signed column</option>
           <option value="split"  ${pre.mode === 'split'  ? 'selected' : ''}>Separate in / out columns</option>
@@ -181,8 +181,8 @@ export function openImportWizard(accounts, onImport) {
       </div>
       <div id="wiz-amt-fields" class="mb-4"></div>
       <div class="flex justify-end gap-3">
-        <button id="wiz-cancel" class="cursor-pointer px-4 py-2 font-mono text-[0.6rem] tracking-[0.15em] text-stone uppercase hover:text-ink">Cancel</button>
-        <button id="wiz-preview" class="cursor-pointer rounded-[2px] bg-ink px-5 py-2.5 font-mono text-[0.62rem] tracking-[0.15em] text-paper uppercase hover:opacity-80">Preview</button>
+        <button type="button" id="wiz-cancel" class="cursor-pointer px-4 py-2 font-mono text-sm tracking-[0.1em] text-stone uppercase hover:text-ink">Cancel</button>
+        <button type="button" id="wiz-preview" class="cursor-pointer rounded-[2px] bg-ink px-4 py-2 font-mono text-sm tracking-[0.1em] text-paper uppercase hover:opacity-80">Preview</button>
       </div>`;
 
     const modeSel = body.querySelector('#wiz-mode');
@@ -190,13 +190,13 @@ export function openImportWizard(accounts, onImport) {
     const drawAmt = () => {
       amtWrap.innerHTML = modeSel.value === 'split'
         ? `<div class="grid grid-cols-2 gap-3">
-             <div><label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Money in column</label>
+             <div><label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Money in column</label>
                <select id="wiz-in" class="${cls}">${colOptions(pre.inCol ?? 2)}</select></div>
-             <div><label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Money out column</label>
+             <div><label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Money out column</label>
                <select id="wiz-out" class="${cls}">${colOptions(pre.outCol ?? 3)}</select></div>
            </div>`
         : `<div class="grid grid-cols-2 gap-3">
-             <div><label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Amount column</label>
+             <div><label class="mb-1 block font-mono text-sm tracking-[0.16em] text-stone uppercase">Amount column</label>
                <select id="wiz-amt" class="${cls}">${colOptions(pre.amountCol ?? 2)}</select></div>
              <div class="flex items-end pb-2">
                <label class="flex cursor-pointer items-center gap-2 text-sm">
@@ -242,7 +242,7 @@ export function openImportWizard(accounts, onImport) {
       <p class="mb-4 text-sm text-stone">
         ${rows.length} transactions${errors.length ? ` · <span class="text-warm">${errors.length} rows skipped</span>` : ''}
       </p>
-      <div class="mb-5 max-h-56 divide-y divide-ink/12 overflow-y-auto rounded-[4px] border border-ink/12 font-mono text-xs">
+      <div class="mb-5 max-h-56 divide-y divide-ink/12 overflow-y-auto rounded-[4px] border border-ink/12 font-mono text-sm">
         ${rows.slice(0, 10).map(r => `
           <div class="flex items-center gap-3 px-3 py-1.5">
             <span class="shrink-0 text-stone">${r.date}</span>
@@ -252,8 +252,8 @@ export function openImportWizard(accounts, onImport) {
         ${rows.length > 10 ? `<div class="px-3 py-1.5 text-center text-stone">+ ${rows.length - 10} more</div>` : ''}
       </div>
       <div class="flex justify-end gap-3">
-        <button id="wiz-back" class="cursor-pointer px-4 py-2 font-mono text-[0.6rem] tracking-[0.15em] text-stone uppercase hover:text-ink">Back</button>
-        <button id="wiz-import" class="cursor-pointer rounded-[2px] bg-ink px-5 py-2.5 font-mono text-[0.62rem] tracking-[0.15em] text-paper uppercase hover:opacity-80" ${rows.length ? '' : 'disabled'}>
+        <button type="button" id="wiz-back" class="cursor-pointer px-4 py-2 font-mono text-sm tracking-[0.1em] text-stone uppercase hover:text-ink">Back</button>
+        <button type="button" id="wiz-import" class="cursor-pointer rounded-[2px] bg-ink px-4 py-2 font-mono text-sm tracking-[0.1em] text-paper uppercase hover:opacity-80" ${rows.length ? '' : 'disabled'}>
           Import ${rows.length} transactions
         </button>
       </div>`;
