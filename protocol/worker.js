@@ -3,7 +3,7 @@ import { jwtVerify, createRemoteJWKSet } from 'jose';
 import { routeSettings } from './routes/finance-settings.js';
 import { routePeople }   from './routes/finance-people.js';
 import { routeIncome }   from './routes/finance-income.js';
-// Phase 3: import { routeAccounts }  from './routes/finance-accounts.js';
+import { routeAccounts } from './routes/finance-accounts.js';
 // Phase 4: import { routeBudget }    from './routes/finance-budget.js';
 // Phase 4: import { routeStatements } from './routes/finance-statements.js';
 
@@ -57,7 +57,7 @@ export default {
       json,
     };
 
-    for (const handler of [routeSettings, routePeople, routeIncome]) {
+    for (const handler of [routeSettings, routePeople, routeIncome, routeAccounts]) {
       const res = await handler(request, ctx);
       if (res !== null) return res;
     }

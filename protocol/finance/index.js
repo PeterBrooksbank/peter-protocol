@@ -3,7 +3,7 @@
 // Mounts the subnav, gear Settings, and lazy-loads each tab view.
 
 import { mount as mountIncome   } from './views/income.js';
-// Phase 3: import { mount as mountAccounts } from './views/accounts.js';
+import { mount as mountAccounts } from './views/accounts.js';
 // Phase 4: import { mount as mountBudget   } from './views/budget.js';
 // Phase 5: import { mount as mountDashboard} from './views/dashboard.js';
 import { openSettings } from './views/settings.js';
@@ -41,8 +41,10 @@ function mountTab(name, el) {
     el.innerHTML = `<div class="p-4 text-stone text-sm">Dashboard — coming in Phase 5.</div>`;
   } else if (name === 'budget') {
     el.innerHTML = `<div class="p-4 text-stone text-sm">Budget — coming in Phase 4.</div>`;
-  } else if (name === 'accounts') {
-    el.innerHTML = `<div class="p-4 text-stone text-sm">Accounts — coming in Phase 3.</div>`;
+  if (name === 'accounts') {
+    mountAccounts(el);
+    return;
+  }
   }
 }
 

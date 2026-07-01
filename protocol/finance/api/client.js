@@ -43,6 +43,7 @@ export const deleteIncomeEvent= (id)  => del(`/income-events/${id}`);
 // ── Accounts (Phase 3) ────────────────────────────────────────────────────────
 export const getAccounts    = ()    => get('/accounts');
 export const addAccount     = (b)   => post('/accounts', b);
+export const patchAccount   = (id, b) => patch(`/accounts/${id}`, b);
 export const addSnapshot    = (b)   => post('/snapshots', b);
 
 // ── Budget (Phase 4) ─────────────────────────────────────────────────────────
