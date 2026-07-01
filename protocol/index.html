@@ -193,18 +193,21 @@
 </div>
 
 <div id="finance-root" class="px-4 pb-[60px]" style="display:none">
-  <div class="flex gap-4 pt-[18px] pb-3 border-b border-ink/12 mb-5">
-    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm active" data-view="dashboard" onclick="showFinanceView('dashboard')">Dashboard</button>
-    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
-    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
-    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="transactions" onclick="showFinanceView('transactions')">Transactions</button>
-    <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="income" onclick="showFinanceView('income')">Income</button>
+  <div class="flex items-center justify-between gap-4 pt-[18px] pb-3 border-b border-ink/12 mb-5">
+    <div class="flex gap-4">
+      <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm fin-subtab--active" data-view="dashboard" onclick="showFinanceView('dashboard')">Dashboard</button>
+      <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="income" onclick="showFinanceView('income')">Income</button>
+      <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
+      <button class="fin-subtab bg-transparent border-0 p-0 cursor-pointer font-mono text-[0.6rem] tracking-[0.16em] uppercase text-warm" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
+    </div>
+    <button id="finance-settings-btn" class="bg-transparent border-0 p-1 cursor-pointer text-stone hover:text-ink" aria-label="Settings">
+      <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-[1.5]"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
   </div>
   <div id="finance-dashboard" class="fin-view"></div>
-  <div id="finance-accounts" class="fin-view" style="display:none"></div>
-  <div id="finance-budget" class="fin-view" style="display:none"></div>
-  <div id="finance-transactions" class="fin-view" style="display:none"></div>
-  <div id="finance-income" class="fin-view" style="display:none"></div>
+  <div id="finance-income"    class="fin-view" style="display:none"></div>
+  <div id="finance-budget"    class="fin-view" style="display:none"></div>
+  <div id="finance-accounts"  class="fin-view" style="display:none"></div>
 </div>
 
 
@@ -232,14 +235,8 @@
 <script src="render-coordinator.js"></script>
 <script src="day-completion.js"></script>
 <script src="update-coordinator.js"></script>
-<script src="finance.js"></script>
-<script src="finance-forms.js"></script>
 <script src="app-mode.js"></script>
-<script src="csv-import.js"></script>
-<script src="finance-transactions.js"></script>
-<script src="finance-income.js"></script>
-<script src="finance-budget.js"></script>
-<script src="finance-dashboard.js"></script>
+<script type="module" src="finance/index.js"></script>
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
 // Replace with your deployed Worker URL after deploying worker.js to Cloudflare
@@ -680,42 +677,7 @@ function renderDayTotals() {
   `;
 }
 
-const finance = createFinance();
-const budget = createFinanceBudget(finance);
-const financeForms = createFinanceForms(finance, refreshFinance);
-
-let currentFinanceView = 'accounts';
-function loadAccounts() {
-  finance.load(document.getElementById('finance-accounts'),
-    { onAdd: financeForms.addAccount, onUpdate: financeForms.updateBalance });
-}
-function loadBudget() {
-  budget.mount(document.getElementById('finance-budget'),
-    { onAddCategory: financeForms.addCategory, onEditCategory: financeForms.editCategory });
-}
-function showFinanceView(name) {
-  currentFinanceView = name;
-  document.querySelectorAll('.fin-subtab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
-  document.querySelectorAll('.fin-view').forEach(v => v.style.display = 'none');
-  document.getElementById('finance-' + name).style.display = '';
-  if (name === 'dashboard') loadDashboard();
-  else if (name === 'budget') loadBudget();
-  else if (name === 'transactions') loadTransactions();
-  else if (name === 'income') loadIncome();
-  else loadAccounts();
-}
-function refreshFinance() { showFinanceView(currentFinanceView); }
-
-const txnsView = createFinanceTransactions(finance);
-function loadTransactions() { txnsView.mount(document.getElementById('finance-transactions')); }
-
-const incomeView = createFinanceIncome(finance, financeForms);
-function loadIncome() { incomeView.mount(document.getElementById('finance-income')); }
-
-const dashboard = createFinanceDashboard(finance);
-function loadDashboard() { dashboard.mount(document.getElementById('finance-dashboard')); }
-
-const appMode = createAppMode({ onEnterFinance: first => { if (first) showFinanceView('dashboard'); } });
+const appMode = createAppMode({ onEnterFinance: first => { if (first) window.showFinanceView?.('dashboard'); } });
 function showMode(name) { appMode.show(name); }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────

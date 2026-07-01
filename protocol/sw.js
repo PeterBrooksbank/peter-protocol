@@ -1,8 +1,9 @@
-const CACHE = 'protocol-v15';
+const CACHE = 'protocol-v16';
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/app.css',
   '/state.js',
   '/device-identity.js',
   '/meal-state.js',
@@ -13,16 +14,24 @@ const ASSETS = [
   '/render-coordinator.js',
   '/day-completion.js',
   '/update-coordinator.js',
+  '/app-mode.js',
   '/protocol.json',
   '/meals.json',
-  '/finance.js',
-  '/finance-forms.js',
-  '/app-mode.js',
-  '/finance-budget.js',
-  '/finance-transactions.js',
-  '/finance-income.js',
-  '/csv-import.js',
-  '/finance-dashboard.js',
+  '/finance/index.js',
+  '/finance/models/money.js',
+  '/finance/models/rates.js',
+  '/finance/engine/tax-engine.js',
+  '/finance/engine/projections.js',
+  '/finance/engine/budget-match.js',
+  '/finance/api/client.js',
+  '/finance/components/forms.js',
+  '/finance/components/charts.js',
+  '/finance/import/csv-import.js',
+  '/finance/views/dashboard.js',
+  '/finance/views/income.js',
+  '/finance/views/budget.js',
+  '/finance/views/accounts.js',
+  '/finance/views/settings.js',
   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap'
 ];
 

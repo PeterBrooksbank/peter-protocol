@@ -1,3 +1,5 @@
 node_modules
 protocol/app.css
 .venv-imagegen
+.wrangler
+protocol/.wrangler
