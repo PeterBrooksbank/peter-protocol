@@ -4,8 +4,9 @@ import { routeSettings } from './routes/finance-settings.js';
 import { routePeople }   from './routes/finance-people.js';
 import { routeIncome }   from './routes/finance-income.js';
 import { routeAccounts } from './routes/finance-accounts.js';
-// Phase 4: import { routeBudget }    from './routes/finance-budget.js';
-// Phase 4: import { routeStatements } from './routes/finance-statements.js';
+import { routeBudget }    from './routes/finance-budget.js';
+import { routeStatements } from './routes/finance-statements.js';
+// Phase 5: import { routeDashboard } from './routes/finance-dashboard.js';
 
 const TEAM_DOMAIN = 'https://rough-band-262a.cloudflareaccess.com'\;
 const AUD = 'cc34bd0e84f761afdcc352b50c82a4b02117f7a9d2ee998c1587dc2f606d652d';
@@ -57,7 +58,7 @@ export default {
       json,
     };
 
-    for (const handler of [routeSettings, routePeople, routeIncome, routeAccounts]) {
+    for (const handler of [routeSettings, routePeople, routeIncome, routeAccounts, routeBudget, routeStatements]) {
       const res = await handler(request, ctx);
       if (res !== null) return res;
     }

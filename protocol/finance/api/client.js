@@ -47,12 +47,13 @@ export const patchAccount   = (id, b) => patch(`/accounts/${id}`, b);
 export const addSnapshot    = (b)   => post('/snapshots', b);
 
 // ── Budget (Phase 4) ─────────────────────────────────────────────────────────
-export const getBudget          = (month) => get(`/budget?month=${month}`);
-export const getBudgetCategories= ()      => get('/budget-categories');
-export const addBudgetCategory  = (b)     => post('/budget-categories', b);
-export const patchBudgetCategory= (id, b) => patch(`/budget-categories/${id}`, b);
-export const deleteBudgetCategory=(id)    => del(`/budget-categories/${id}`);
-export const getBudgetLines     = ()      => get('/budget-lines');
-export const addBudgetLine      = (b)     => post('/budget-lines', b);
-export const patchBudgetLine    = (id, b) => patch(`/budget-lines/${id}`, b);
-export const deleteBudgetLine   = (id)    => del(`/budget-lines/${id}`);
+const getJSON = (path) => fetch(path).then(r => r.json());
+export const getBudget              = (month) => get(`/budget?month=${month}`);
+export const getBudgetCategories    = ()      => get('/budget-categories');
+export const addBudgetCategory      = (b)     => post('/budget-categories', b);
+export const patchBudgetCategory    = (id, b) => patch(`/budget-categories/${id}`, b);
+export const deleteBudgetCategory   = (id)    => del(`/budget-categories/${id}`);
+export const getBudgetLines         = ()      => get('/budget-lines');
+export const addBudgetLine          = (b)     => post('/budget-lines', b);
+export const patchBudgetLine        = (id, b) => patch(`/budget-lines/${id}`, b);
+export const deleteBudgetLine       = (id)    => del(`/budget-lines/${id}`);

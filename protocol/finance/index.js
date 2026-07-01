@@ -4,7 +4,7 @@
 
 import { mount as mountIncome   } from './views/income.js';
 import { mount as mountAccounts } from './views/accounts.js';
-// Phase 4: import { mount as mountBudget   } from './views/budget.js';
+import { mount as mountBudget   } from './views/budget.js';
 // Phase 5: import { mount as mountDashboard} from './views/dashboard.js';
 import { openSettings } from './views/settings.js';
 
@@ -39,8 +39,10 @@ function mountTab(name, el) {
 
   if (name === 'dashboard') {
     el.innerHTML = `<div class="p-4 text-stone text-sm">Dashboard — coming in Phase 5.</div>`;
-  } else if (name === 'budget') {
-    el.innerHTML = `<div class="p-4 text-stone text-sm">Budget — coming in Phase 4.</div>`;
+  if (name === 'budget') {
+    mountBudget(el);
+    return;
+  }
   if (name === 'accounts') {
     mountAccounts(el);
     return;
