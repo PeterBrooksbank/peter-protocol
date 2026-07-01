@@ -1,0 +1,8 @@
+# Files excluded from Cloudflare Workers static asset upload
+.wrangler
+.wrangler/**
+node_modules
+node_modules/**
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

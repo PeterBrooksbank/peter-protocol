@@ -163,4 +163,5 @@ body::before {
 .fin-check input { width: auto; margin: 0; }
 .fin-delete { width: 100%; background: none; border: 1px solid var(--signal-light); color: var(--signal-light); border-radius: 4px; padding: 10px; margin-top: 6px; font-family: 'DM Mono', monospace; font-size: 0.62rem; cursor: pointer; }
 .fin-hint { font-size: 0.66rem; color: var(--stone); line-height: 1.5; margin-bottom: 12px; }
+.fin-subtab--active { border-bottom: 2px solid var(--warm); padding-bottom: 8px; }
 
