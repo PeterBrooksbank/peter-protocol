@@ -12,15 +12,15 @@
 <body class="min-h-dvh bg-paper font-mono text-ink antialiased">
 
   <div class="flex gap-1 px-4 pt-2.5">
-  <button type="button" class="active mode-tab flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2.5 py-2 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-mode="health" onclick="showMode('health')">Health</button>
-  <button type="button" class="mode-tab flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2.5 py-2 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-mode="finance" onclick="showMode('finance')">Finance</button>
+  <button type="button" class="active mode-tab flex-1 cursor-pointer rounded-t-[3px] border-0 border-b-2 border-transparent bg-transparent px-2.5 py-2 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-mode="health" onclick="showMode('health')">Health</button>
+  <button type="button" class="mode-tab flex-1 cursor-pointer rounded-t-[3px] border-0 border-b-2 border-transparent bg-transparent px-2.5 py-2 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-mode="finance" onclick="showMode('finance')">Finance</button>
 </div>
 
 <!-- Navigation -->
-<nav class="nav sticky top-0 z-50 flex justify-center border-b border-ink/12 bg-paper">
-  <button type="button" class="active nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-tab="checklist" onclick="showTab('checklist')">Checklist</button>
-  <button type="button" class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-tab="supplements" onclick="showTab('supplements')">Supplements</button>
-  <button type="button" class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-tab="meals" onclick="showTab('meals')">Meals</button>
+<nav class="nav sticky top-0 z-50 flex justify-center gap-1 border-b border-ink/12 bg-paper px-4">
+  <button type="button" class="active nav-tab -mb-px max-w-40 flex-1 cursor-pointer rounded-t-[3px] border-0 border-b-2 border-transparent bg-transparent px-2 py-3 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-tab="checklist" onclick="showTab('checklist')">Checklist</button>
+  <button type="button" class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer rounded-t-[3px] border-0 border-b-2 border-transparent bg-transparent px-2 py-3 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-tab="supplements" onclick="showTab('supplements')">Supplements</button>
+  <button type="button" class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer rounded-t-[3px] border-0 border-b-2 border-transparent bg-transparent px-2 py-3 font-mono text-sm tracking-[0.14em] text-stone uppercase" data-tab="meals" onclick="showTab('meals')">Meals</button>
 </nav>
 
 <!-- Sync status bar -->
@@ -34,9 +34,9 @@
   <!-- ── Checklist tab ── -->
   <div class="active tab-content" id="tab-checklist">
     <div class="mb-10 border-b border-ink/12 pb-5">
-      <div class="mb-1.5 flex items-baseline justify-between">
+      <div class="mb-1.5 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
         <h1 class="font-display text-[2.2rem] font-light tracking-tight">Daily Protocol</h1>
-        <div class="text-sm tracking-[0.15em] text-stone uppercase" id="dateDisplay"></div>
+        <div class="text-sm tracking-[0.15em] whitespace-nowrap text-stone uppercase" id="dateDisplay"></div>
       </div>
       <div class="mt-4 h-[2px] overflow-hidden rounded-[2px] bg-ink/12">
         <div class="h-full w-0 rounded-[2px] bg-warm [transition:width_0.5s_cubic-bezier(0.4,0,0.2,1)]" id="progressBar"></div>
@@ -193,14 +193,14 @@
 </div>
 
 <div id="finance-root" class="pb-[60px]" style="display:none">
-  <div class="mb-5 flex items-center justify-between gap-4 border-b border-ink/12 px-4 pt-[18px] pb-3">
-    <div class="flex gap-4">
-      <button type="button" class="fin-subtab fin-subtab--active cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="dashboard" onclick="showFinanceView('dashboard')">Dashboard</button>
-      <button type="button" class="fin-subtab cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="income" onclick="showFinanceView('income')">Income</button>
-      <button type="button" class="fin-subtab cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
-      <button type="button" class="fin-subtab cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
+  <div class="mb-5 flex items-center justify-between gap-3 border-b border-ink/12 px-4 pt-[18px] pb-3">
+    <div class="flex min-w-0 gap-4 overflow-x-auto">
+      <button type="button" class="fin-subtab fin-subtab--active shrink-0 cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="dashboard" onclick="showFinanceView('dashboard')">Dashboard</button>
+      <button type="button" class="fin-subtab shrink-0 cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="income" onclick="showFinanceView('income')">Income</button>
+      <button type="button" class="fin-subtab shrink-0 cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="budget" onclick="showFinanceView('budget')">Budget</button>
+      <button type="button" class="fin-subtab shrink-0 cursor-pointer border-0 bg-transparent p-0 font-mono text-sm tracking-[0.14em] text-warm uppercase" data-view="accounts" onclick="showFinanceView('accounts')">Accounts</button>
     </div>
-    <button type="button" id="finance-settings-btn" class="cursor-pointer border-0 bg-transparent p-1 text-stone hover:text-ink" aria-label="Settings">
+    <button type="button" id="finance-settings-btn" class="shrink-0 cursor-pointer border-0 bg-transparent p-1 text-stone hover:text-ink" aria-label="Settings">
       <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-[1.5]"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
@@ -598,9 +598,9 @@ function renderMeals() {
 
     sec.innerHTML = `
       <div class="mb-3.5 flex items-center gap-3">
-        <div class="text-sm tracking-[0.16em] whitespace-nowrap text-stone uppercase">${section.label}</div>
+        <div class="shrink-0 text-sm tracking-[0.16em] whitespace-nowrap text-stone uppercase">${section.label}</div>
         <div class="h-px flex-1 bg-ink/12"></div>
-        <div class="text-sm tracking-[0.08em] whitespace-nowrap text-warm">${metaText}</div>
+        <div class="min-w-0 truncate text-sm tracking-[0.08em] text-warm">${metaText}</div>
       </div>
     `;
 

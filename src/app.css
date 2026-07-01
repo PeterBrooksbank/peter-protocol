@@ -36,7 +36,14 @@
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────────── */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* Must be wrapped in @layer base — an unlayered rule here would win over every
+   Tailwind utility (spacing utilities included) regardless of specificity,
+   since unlayered CSS always beats @layer-ed CSS in the cascade. This was
+   previously a plain top-level rule and silently zeroed every margin/padding
+   utility (px-*, py-*, p-*, m-*, etc.) app-wide. */
+@layer base {
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+}
 
 /* Paper grain texture */
 body::before {
@@ -51,9 +58,9 @@ body::before {
 /* ── JS-toggled state variants (converted elements) ──────────────────────── */
 /* These override Tailwind base utilities when JS adds the state class.       */
 
-.mode-tab.active { color: var(--ink); border-bottom-color: var(--warm); }
+.mode-tab.active { color: var(--ink); border-bottom-color: var(--warm); background-color: rgba(200, 169, 110, 0.08); }
 
-.nav-tab.active { color: var(--ink); border-bottom-color: var(--warm); }
+.nav-tab.active { color: var(--ink); border-bottom-color: var(--warm); background-color: rgba(200, 169, 110, 0.08); }
 
 .sync-dot {
   width: 5px; height: 5px; border-radius: 50%;
