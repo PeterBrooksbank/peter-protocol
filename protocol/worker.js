@@ -8,7 +8,7 @@ import { routeBudget }    from './routes/finance-budget.js';
 import { routeStatements } from './routes/finance-statements.js';
 // Phase 5: import { routeDashboard } from './routes/finance-dashboard.js';
 
-const TEAM_DOMAIN = 'https://rough-band-262a.cloudflareaccess.com'\;
+const TEAM_DOMAIN = 'https://rough-band-262a.cloudflareaccess.com';
 const AUD = 'cc34bd0e84f761afdcc352b50c82a4b02117f7a9d2ee998c1587dc2f606d652d';
 const JWKS = createRemoteJWKSet(new URL(`${TEAM_DOMAIN}/cdn-cgi/access/certs`));
 
