@@ -28,7 +28,7 @@ export function openSettings(onClose) {
     body.innerHTML = `
       <!-- Household cliff-edge settings -->
       <section>
-        <h3 class="mb-3 text-sm font-medium tracking-wide text-stone uppercase">Household</h3>
+        <h3 class="mb-3 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Household</h3>
         <div class="space-y-3">
           ${field('Household name', textInput('name', settings.name ?? ''))}
           ${checkbox('claim_child_benefit', settings.claim_child_benefit,
@@ -36,7 +36,7 @@ export function openSettings(onClose) {
           <div id="cb-children" class="${settings.claim_child_benefit ? '' : 'hidden'} pl-6">
             ${field('Number of children',
               `<input name="num_children" type="number" min="0" value="${settings.num_children ?? 0}"
-               class="w-24 rounded border border-warm-light bg-paper px-3 py-2 text-sm text-ink">`)}
+               class="w-24 rounded-[3px] border border-ink/12 bg-paper px-3 py-2 text-sm text-ink">`)}
           </div>
           ${checkbox('uses_tax_free_childcare', settings.uses_tax_free_childcare,
             'Uses tax-free childcare or 30-hour free hours')}
@@ -46,9 +46,9 @@ export function openSettings(onClose) {
       <!-- People -->
       <section>
         <div class="mb-3 flex items-center justify-between">
-          <h3 class="text-sm font-medium tracking-wide text-stone uppercase">People</h3>
+          <h3 class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">People</h3>
           <button data-act="add-person"
-            class="rounded border border-warm px-3 py-1 text-xs text-ink hover:bg-warm-light">
+            class="cursor-pointer rounded-[2px] border border-ink/12 px-3 py-2 font-mono text-[0.6rem] tracking-[0.15em] text-stone uppercase hover:border-warm hover:text-warm">
             + Add person
           </button>
         </div>
@@ -59,7 +59,7 @@ export function openSettings(onClose) {
 
       <div class="flex justify-end pt-2">
         <button data-act="save"
-          class="rounded bg-ink px-5 py-2 text-sm text-paper transition-colors hover:bg-stone">
+          class="cursor-pointer rounded-[2px] bg-ink px-6 py-2.5 font-mono text-[0.62rem] tracking-[0.15em] text-paper uppercase hover:opacity-80">
           Save settings
         </button>
       </div>
@@ -79,7 +79,7 @@ export function openSettings(onClose) {
 
   function renderPersonRow(p) {
     return `
-      <li class="flex items-center justify-between border-b border-warm-light py-2 last:border-0">
+      <li class="flex items-center justify-between border-b border-ink/12 py-2 last:border-0">
         <div>
           <span class="text-sm font-medium text-ink">${esc(p.display_name)}</span>
           ${p.is_earner ? '' : '<span class="ml-2 text-xs text-stone">(not earner)</span>'}

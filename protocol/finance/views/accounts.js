@@ -33,7 +33,7 @@ async function load(el) {
       <div class="mx-auto max-w-2xl space-y-6 px-4 py-6">
         <div id="net-worth"></div>
         <div id="account-groups" class="space-y-6"></div>
-        <div class="border-t border-warm-light pt-2">
+        <div class="border-t border-ink/12 pt-2">
           ${actionLink('+ Add account', { data: { act: 'add' }, size: 'sm' })}
         </div>
       </div>`;
@@ -63,14 +63,14 @@ function renderNetWorth(el, accounts) {
   const net = assets - liabilities;
 
   el.innerHTML = `
-    <div class="rounded-lg border border-warm-light px-6 py-4">
+    <div class="rounded-[4px] border border-ink/12 bg-white px-6 py-4">
       <div class="flex items-baseline justify-between">
-        <span class="text-sm tracking-wide text-stone uppercase">Net worth</span>
-        <span class="font-display text-2xl ${net >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(net)}</span>
+        <span class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Net worth</span>
+        <span class="font-display text-2xl font-light tabular-nums ${net >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(net)}</span>
       </div>
-      <div class="mt-2 flex gap-6 text-xs text-stone">
-        <span>Assets <strong class="text-ink">${penceToCompact(assets)}</strong></span>
-        <span>Liabilities <strong class="text-ink">${penceToCompact(liabilities)}</strong></span>
+      <div class="mt-2 flex gap-6 font-mono text-[0.6rem] tracking-[0.06em] text-stone">
+        <span>Assets <strong class="text-ink tabular-nums">${penceToCompact(assets)}</strong></span>
+        <span>Liabilities <strong class="text-ink tabular-nums">${penceToCompact(liabilities)}</strong></span>
       </div>
     </div>`;
 }
@@ -92,10 +92,10 @@ function renderGroups(el, accounts) {
     const div = document.createElement('div');
     div.innerHTML = `
       <div class="mb-2 flex items-baseline justify-between">
-        <h3 class="text-xs font-medium tracking-wide text-stone uppercase">${meta.label}</h3>
-        <span class="text-sm font-medium text-ink">${penceToCompact(subtotal)}</span>
+        <h3 class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">${meta.label}</h3>
+        <span class="text-sm font-medium text-ink tabular-nums">${penceToCompact(subtotal)}</span>
       </div>
-      <div class="divide-y divide-warm-light rounded-lg border border-warm-light">
+      <div class="divide-y divide-ink/12 rounded-[4px] border border-ink/12 bg-white">
         ${group.map(a => renderAccount(a)).join('')}
       </div>`;
     el.appendChild(div);
@@ -124,8 +124,8 @@ function renderAccount(a) {
         <div class="mt-0.5 text-xs text-stone">${projectionLabel(a)} · ${snapshotInfo}</div>
       </div>
       <div class="ml-4 shrink-0 text-right">
-        <div class="text-sm font-medium text-ink">${balLabel}</div>
-        <div class="mt-1 flex justify-end gap-2">
+        <div class="text-sm font-medium text-ink tabular-nums">${balLabel}</div>
+        <div class="mt-1 flex justify-end gap-3">
           ${actionLink('Log balance', { data: { act: 'log', id: a.id } })}
           ${actionLink('Configure', { data: { act: 'configure', id: a.id } })}
         </div>
@@ -207,7 +207,7 @@ function logBalanceModal(account, reload) {
       ${twoCol(
         field('Real balance (£)', textInput('balance', '', 'e.g. 294250')),
         field('As of date', `<input name="as_of_date" type="date" value="${today}"
-          class="w-full rounded border border-warm-light bg-paper px-3 py-2 text-sm">`)
+          class="w-full rounded-[3px] border border-ink/12 bg-paper px-3 py-2 text-sm">`)
       )}
       ${field('Note (optional)', textInput('note', ''))}`,
     submitLabel: 'Log balance',

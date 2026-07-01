@@ -47,7 +47,7 @@ async function load(el, onRefresh) {
 // ── Rendering ──────────────────────────────────────────────────────────────────
 
 function emptyState() {
-  return `<p class="py-8 text-center text-sm text-stone">
+  return `<p class="py-8 text-center font-display text-sm text-stone italic">
     No people yet — add them in Settings (⚙) to get started.
   </p>`;
 }
@@ -56,14 +56,14 @@ function renderPerson(person, engine) {
   const net = engine?.total_net_monthly_pence;
   const gross = engine?.total_gross_monthly_pence;
   return `
-    <div class="overflow-hidden rounded-lg border border-warm-light" data-person="${person.id}">
+    <div class="overflow-hidden rounded-[4px] border border-ink/12 bg-white" data-person="${person.id}">
       <!-- Person header -->
-      <div class="flex items-baseline justify-between bg-warm-light/30 px-5 py-4">
-        <h2 class="font-display text-xl text-ink">${esc(person.display_name)}</h2>
+      <div class="flex items-baseline justify-between border-b border-ink/12 bg-paper px-5 py-4">
+        <h2 class="font-display text-xl font-light text-ink">${esc(person.display_name)}</h2>
         ${net != null ? `
           <div class="text-right">
-            <span class="text-lg font-medium text-ink">${penceToCompact(net)}<span class="text-sm text-stone">/mo</span></span>
-            <span class="ml-2 text-xs text-stone">gross ${penceToCompact(gross)}</span>
+            <span class="text-lg font-medium text-ink tabular-nums">${penceToCompact(net)}<span class="text-sm text-stone">/mo</span></span>
+            <span class="ml-2 text-xs text-stone tabular-nums">gross ${penceToCompact(gross)}</span>
           </div>` : ''}
       </div>
 
@@ -71,7 +71,7 @@ function renderPerson(person, engine) {
       ${engine?.cliff_edges?.length ? renderCliffs(engine.cliff_edges) : ''}
 
       <!-- Sources -->
-      <div class="divide-y divide-warm-light">
+      <div class="divide-y divide-ink/12">
         ${person.sources.map(src => {
           const srcEngine = engine?.sources?.find(s => s.source_id === src.id);
           return renderSource(src, srcEngine);
@@ -79,7 +79,7 @@ function renderPerson(person, engine) {
       </div>
 
       <!-- Add source -->
-      <div class="border-t border-warm-light bg-paper px-5 py-3">
+      <div class="border-t border-ink/12 px-5 py-3">
         ${actionLink('+ Add income source', { data: { act: 'add-source', person: person.id } })}
       </div>
 
@@ -89,7 +89,7 @@ function renderPerson(person, engine) {
 }
 
 function renderCliffs(cliffs) {
-  return `<div class="space-y-1 border-b border-warm-light bg-warm/10 px-5 py-3">
+  return `<div class="space-y-1 border-b border-ink/12 bg-warm/10 px-5 py-3">
     ${cliffs.map(c => {
       const dir = c.direction === 'approaching' ? '↑' : '↗';
       const dist = Math.abs(c.distance_pence);
@@ -149,7 +149,7 @@ function renderSource(src, engine) {
       </div>
 
       <!-- Waterfall breakdown -->
-      <div class="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-stone">
+      <div class="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-stone tabular-nums">
         ${rows.map((r, i) => `
           <span class="${i > 0 ? 'text-stone/60' : 'text-ink'} whitespace-nowrap">
             ${i > 0 ? (r.sign ?? '−') + ' ' : ''}${r.label} <strong class="text-ink">${penceToDisplay(Math.abs(r.value))}</strong>
@@ -168,9 +168,9 @@ function renderSource(src, engine) {
 function renderEvents(person) {
   const evts = person.events ?? [];
   return `
-    <div class="border-t border-warm-light px-5 py-3">
+    <div class="border-t border-ink/12 px-5 py-3">
       <div class="mb-2 flex items-center justify-between">
-        <span class="text-xs font-medium tracking-wide text-stone uppercase">One-off events this year</span>
+        <span class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">One-off events this year</span>
         ${actionLink('+ Add', { data: { act: 'add-event', person: person.id } })}
       </div>
       ${evts.length === 0
@@ -178,7 +178,7 @@ function renderEvents(person) {
         : `<ul class="space-y-1">${evts.map(e => `
             <li class="flex items-center justify-between text-xs">
               <span class="text-ink">${e.event_date} · ${e.kind} · ${penceToDisplay(e.gross_pence)} gross</span>
-              <span class="text-stone">${penceToDisplay(e.net_pence)} net</span>
+              <span class="text-stone tabular-nums">${penceToDisplay(e.net_pence)} net</span>
             </li>`).join('')}</ul>`
       }
     </div>`;
@@ -328,7 +328,7 @@ function entryModal(existingEntry, src, person, householdSettings, reload) {
         field('Effective from', monthInput('effective_from', existingEntry?.effective_from?.slice(0,7) ?? THIS_MONTH)),
         field('Annual gross (£)', textInput('annual_gross', grossPounds, 'e.g. 105000'))
       )}
-      <div id="preview" class="space-y-1 rounded-lg bg-warm-light/30 px-4 py-3 text-sm">
+      <div id="preview" class="space-y-1 rounded-[4px] border border-ink/12 bg-white px-4 py-3 text-sm">
         <p class="text-xs text-stone">Enter gross above to see breakdown</p>
       </div>
       <details class="mt-4">
@@ -375,8 +375,8 @@ function entryModal(existingEntry, src, person, householdSettings, reload) {
               ${s.student_loan_monthly_pence ? `
               <span class="text-stone">Student loan</span>
               <span class="text-right font-mono text-ink">−${penceToDisplay(s.student_loan_monthly_pence)}</span>` : ''}
-              <span class="border-t border-warm-light pt-1 font-medium text-ink">Net/mo</span>
-              <span class="border-t border-warm-light pt-1 text-right font-mono font-medium text-ink">
+              <span class="border-t border-ink/12 pt-1 font-medium text-ink">Net/mo</span>
+              <span class="border-t border-ink/12 pt-1 text-right font-mono font-medium text-ink">
                 ${penceToDisplay(s.net_monthly_pence)}
               </span>
             </div>`;
@@ -439,17 +439,17 @@ function historyModal(src) {
   api.getSourceHistory(src.id).then(entries => {
     if (!entries.length) { body.innerHTML = '<p class="text-sm text-stone">No entries yet.</p>'; return; }
     body.innerHTML = `<table class="w-full font-mono text-xs">
-      <thead><tr class="border-b border-warm-light text-left text-stone">
+      <thead><tr class="border-b border-ink/12 text-left text-stone">
         <th class="pb-2">From</th><th class="pb-2">Gross/mo</th>
         <th class="pb-2">Tax</th><th class="pb-2">NI</th><th class="pb-2">Net/mo</th>
       </tr></thead>
-      <tbody class="divide-y divide-warm-light">
+      <tbody class="divide-y divide-ink/12">
         ${entries.map(e => `<tr class="py-1">
           <td class="py-1">${formatMonth(e.effective_from)}</td>
-          <td class="py-1">${penceToDisplay(e.gross_monthly_pence)}</td>
-          <td class="py-1">${penceToDisplay(e.income_tax_pence)}</td>
-          <td class="py-1">${penceToDisplay(e.ni_pence)}</td>
-          <td class="py-1 font-medium">${penceToDisplay(e.net_monthly_pence)}</td>
+          <td class="py-1 tabular-nums">${penceToDisplay(e.gross_monthly_pence)}</td>
+          <td class="py-1 tabular-nums">${penceToDisplay(e.income_tax_pence)}</td>
+          <td class="py-1 tabular-nums">${penceToDisplay(e.ni_pence)}</td>
+          <td class="py-1 font-medium tabular-nums">${penceToDisplay(e.net_monthly_pence)}</td>
         </tr>`).join('')}
       </tbody>
     </table>`;
@@ -464,7 +464,7 @@ function addEventModal(person, allPeople, reload) {
       ${field('Kind', select('kind', [['bonus','Bonus'],['dividend','Dividend'],['other','Other']]))}
       ${twoCol(
         field('Date', `<input name="event_date" type="date" value="${TODAY}"
-          class="w-full rounded border border-warm-light bg-paper px-3 py-2 text-sm">`),
+          class="w-full rounded-[3px] border border-ink/12 bg-paper px-3 py-2 text-sm">`),
         field('Gross amount (£)', textInput('gross', '', 'e.g. 10000'))
       )}
       ${sources.length ? field('Linked source (optional)',
@@ -521,7 +521,7 @@ const kindLabel = (k) => ({ employment:'PAYE', self_employment:'Self-emp', renta
  */
 function pensionContribInput(namePrefix, existingType = 'pct', existingValue = 0) {
   const displayVal = existingValue ? (existingValue / 100).toString() : '';
-  const isCls = 'border border-warm-light rounded px-3 py-2 bg-paper text-ink text-sm focus:outline-none focus:ring-1 focus:ring-warm';
+  const isCls = 'border border-ink/12 rounded-[3px] px-3 py-2 bg-paper text-ink text-sm focus:outline-none focus:ring-1 focus:ring-warm';
   return `<div class="flex gap-2">
     <input name="${namePrefix}_val" type="number" step="0.01" min="0"
       value="${displayVal}" placeholder="5"

@@ -78,7 +78,7 @@ async function load(el) {
     }));
 
     el.innerHTML = `
-      <div class="mx-auto max-w-2xl space-y-6 px-4 py-6">
+      <div class="mx-auto max-w-2xl space-y-5 px-4 py-6">
         ${renderCashflowHero(totalNetIncome, plannedExpense, actualExpense)}
         ${renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, savings)}
         ${renderBudgetChart(chartData)}
@@ -95,25 +95,28 @@ async function load(el) {
 }
 
 // ── Sections ──────────────────────────────────────────────────────────────────
+// Typographic/border/radius language mirrors the Checklist/Supplements tabs:
+// rounded-[4px] hairline `ink/12` borders, tracking-[0.2em] mono eyebrow
+// labels, font-display for hero figures.
 
 function renderCashflowHero(netIncome, plannedExpense, actualExpense) {
   const surplus = netIncome - plannedExpense;
   return `
-    <div class="cursor-pointer rounded-lg border border-warm-light px-6 py-5 transition-colors hover:border-warm" data-goto="income">
-      <div class="mb-2 text-xs tracking-wide text-stone uppercase">This month</div>
+    <div class="cursor-pointer rounded-[4px] border border-ink/12 bg-white px-6 py-5 transition-colors hover:border-warm" data-goto="income">
+      <div class="mb-3 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">This month</div>
       <div class="grid grid-cols-3 gap-4 text-center">
         <div>
-          <div class="mb-1 text-xs text-stone">Net income</div>
-          <div class="font-display text-xl text-ink">${penceToCompact(netIncome)}</div>
+          <div class="mb-1 font-mono text-[0.6rem] tracking-[0.06em] text-stone uppercase">Net income</div>
+          <div class="font-display text-xl font-light text-ink tabular-nums">${penceToCompact(netIncome)}</div>
         </div>
         <div>
-          <div class="mb-1 text-xs text-stone">Planned spend</div>
-          <div class="font-display text-xl text-ink">${penceToCompact(plannedExpense)}</div>
-          ${actualExpense > 0 ? `<div class="text-xs text-stone">actual ${penceToCompact(actualExpense)}</div>` : ''}
+          <div class="mb-1 font-mono text-[0.6rem] tracking-[0.06em] text-stone uppercase">Planned spend</div>
+          <div class="font-display text-xl font-light text-ink tabular-nums">${penceToCompact(plannedExpense)}</div>
+          ${actualExpense > 0 ? `<div class="text-[0.62rem] text-stone tabular-nums">actual ${penceToCompact(actualExpense)}</div>` : ''}
         </div>
         <div>
-          <div class="mb-1 text-xs text-stone">Surplus</div>
-          <div class="font-display text-xl ${surplus >= 0 ? 'text-moss' : 'text-signal'}">${penceToCompact(surplus)}</div>
+          <div class="mb-1 font-mono text-[0.6rem] tracking-[0.06em] text-stone uppercase">Surplus</div>
+          <div class="font-display text-xl font-light tabular-nums ${surplus >= 0 ? 'text-moss' : 'text-signal'}">${penceToCompact(surplus)}</div>
         </div>
       </div>
     </div>`;
@@ -121,23 +124,23 @@ function renderCashflowHero(netIncome, plannedExpense, actualExpense) {
 
 function renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, savings) {
   return `
-    <div class="cursor-pointer rounded-lg border border-warm-light px-6 py-5 transition-colors hover:border-warm" data-goto="accounts">
+    <div class="cursor-pointer rounded-[4px] border border-ink/12 bg-white px-6 py-5 transition-colors hover:border-warm" data-goto="accounts">
       <div class="mb-3 flex items-baseline justify-between">
-        <span class="text-xs tracking-wide text-stone uppercase">Net worth</span>
-        <span class="font-display text-2xl ${netWorth >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(netWorth)}</span>
+        <span class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Net worth</span>
+        <span class="font-display text-2xl font-light tabular-nums ${netWorth >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(netWorth)}</span>
       </div>
-      <div class="grid grid-cols-3 gap-3 text-center text-xs">
-        <div class="rounded bg-warm-light/30 py-2">
-          <div class="mb-0.5 text-stone">Mortgage</div>
-          <div class="font-medium text-ink">${penceToCompact(mortgage)}</div>
+      <div class="grid grid-cols-3 gap-2.5 text-center">
+        <div class="rounded-[3px] border border-ink/12 py-2.5">
+          <div class="mb-0.5 font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Mortgage</div>
+          <div class="text-xs font-medium text-ink tabular-nums">${penceToCompact(mortgage)}</div>
         </div>
-        <div class="rounded bg-warm-light/30 py-2">
-          <div class="mb-0.5 text-stone">Pensions</div>
-          <div class="font-medium text-ink">${penceToCompact(pension)}</div>
+        <div class="rounded-[3px] border border-ink/12 py-2.5">
+          <div class="mb-0.5 font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Pensions</div>
+          <div class="text-xs font-medium text-ink tabular-nums">${penceToCompact(pension)}</div>
         </div>
-        <div class="rounded bg-warm-light/30 py-2">
-          <div class="mb-0.5 text-stone">Savings</div>
-          <div class="font-medium text-ink">${penceToCompact(savings)}</div>
+        <div class="rounded-[3px] border border-ink/12 py-2.5">
+          <div class="mb-0.5 font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Savings</div>
+          <div class="text-xs font-medium text-ink tabular-nums">${penceToCompact(savings)}</div>
         </div>
       </div>
     </div>`;
@@ -145,8 +148,8 @@ function renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, s
 
 function renderBudgetChart(chartData) {
   return `
-    <div class="cursor-pointer rounded-lg border border-warm-light px-6 py-5 transition-colors hover:border-warm" data-goto="budget">
-      <div class="mb-3 text-xs tracking-wide text-stone uppercase">Budget vs actual</div>
+    <div class="cursor-pointer rounded-[4px] border border-ink/12 bg-white px-6 py-5 transition-colors hover:border-warm" data-goto="budget">
+      <div class="mb-3 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Budget vs actual</div>
       ${groupedBarChart({ data: chartData })}
     </div>`;
 }
@@ -154,12 +157,12 @@ function renderBudgetChart(chartData) {
 function renderCliffs(cliffs) {
   if (!cliffs.length) return '';
   return `
-    <div class="cursor-pointer rounded-lg border border-warm/40 bg-warm/5 px-6 py-4 transition-colors hover:border-warm" data-goto="income">
-      <div class="mb-2 text-xs tracking-wide text-stone uppercase">Cliff-edge alerts</div>
+    <div class="cursor-pointer rounded-[4px] border border-warm bg-warm/5 px-6 py-4 transition-colors hover:border-warm" data-goto="income">
+      <div class="mb-2 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Cliff-edge alerts</div>
       <div class="space-y-1">
         ${cliffs.map(c => `
           <div class="text-xs text-ink">
-            <strong>${esc(c.person)}</strong> — ${c.label}
+            <strong class="font-medium">${esc(c.person)}</strong> — ${c.label}
             (${c.direction === 'approaching' ? penceToCompact(Math.abs(c.distance_pence)) + ' below' : penceToCompact(Math.abs(c.distance_pence)) + ' above'})
           </div>`).join('')}
       </div>
@@ -171,14 +174,14 @@ function renderNudges(uncategorised, staleAccounts) {
   return `
     <div class="space-y-2">
       ${uncategorised ? `
-        <div class="flex cursor-pointer items-center justify-between rounded-lg border border-warm-light px-4 py-3 transition-colors hover:border-warm" data-goto="budget">
-          <span class="text-sm text-ink">${uncategorised} uncategorised transaction${uncategorised > 1 ? 's' : ''}</span>
-          <span class="text-xs text-stone">Review →</span>
+        <div class="flex cursor-pointer items-center justify-between rounded-[4px] border border-ink/12 bg-white px-4 py-3 transition-colors hover:border-warm" data-goto="budget">
+          <span class="text-xs text-ink">${uncategorised} uncategorised transaction${uncategorised > 1 ? 's' : ''}</span>
+          <span class="font-mono text-[0.58rem] tracking-[0.1em] text-warm uppercase">Review →</span>
         </div>` : ''}
       ${staleAccounts.length ? `
-        <div class="flex cursor-pointer items-center justify-between rounded-lg border border-warm-light px-4 py-3 transition-colors hover:border-warm" data-goto="accounts">
-          <span class="text-sm text-ink">${staleAccounts.length} balance${staleAccounts.length > 1 ? 's' : ''} need updating</span>
-          <span class="text-xs text-stone">Log fresh balances →</span>
+        <div class="flex cursor-pointer items-center justify-between rounded-[4px] border border-ink/12 bg-white px-4 py-3 transition-colors hover:border-warm" data-goto="accounts">
+          <span class="text-xs text-ink">${staleAccounts.length} balance${staleAccounts.length > 1 ? 's' : ''} need updating</span>
+          <span class="font-mono text-[0.58rem] tracking-[0.1em] text-warm uppercase">Log fresh balances →</span>
         </div>` : ''}
     </div>`;
 }

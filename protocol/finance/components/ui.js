@@ -8,12 +8,12 @@ export function esc(s) {
 
 /** Standard "loading…" placeholder shown while a view's data is being fetched. */
 export function loadingState(label = '') {
-  return `<div class="animate-pulse p-4 text-sm text-stone">Loading${label ? ' ' + label : ''}…</div>`;
+  return `<div class="animate-pulse p-8 text-center font-display text-sm text-stone italic">Loading${label ? ' ' + label : ''}…</div>`;
 }
 
 /** Standard error placeholder shown when a view's load/action fails. */
 export function errorState(err) {
-  return `<div class="p-4 text-sm text-signal">${esc(err?.message ?? err)}</div>`;
+  return `<div class="p-6 text-center font-mono text-xs text-signal">${esc(err?.message ?? err)}</div>`;
 }
 
 /**
@@ -33,9 +33,9 @@ export function overlay({ title, maxWidth = 'max-w-lg', headerExtra = '', bodyHt
   const el = document.createElement('div');
   el.className = 'fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 overflow-y-auto';
   el.innerHTML = `
-    <div class="w-full rounded-lg bg-paper shadow-2xl ${maxWidth} my-auto">
-      <div class="sticky top-0 z-10 flex items-center justify-between border-b border-warm-light bg-paper px-6 py-4" data-header>
-        <h2 class="font-display text-xl text-ink" data-title>${title ?? ''}</h2>
+    <div class="w-full rounded-[4px] border border-ink/12 bg-paper shadow-sm ${maxWidth} my-auto">
+      <div class="sticky top-0 z-10 flex items-center justify-between border-b border-ink/12 bg-paper px-6 py-4" data-header>
+        <h2 class="font-display text-xl font-light text-ink" data-title>${title ?? ''}</h2>
         <div class="flex items-center gap-3">
           ${headerExtra}
           <button data-act="close" class="text-xl leading-none text-stone hover:text-ink">&times;</button>
@@ -57,7 +57,7 @@ export function overlay({ title, maxWidth = 'max-w-lg', headerExtra = '', bodyHt
 }
 
 /**
- * A small underlined text-action button, e.g. "+ Add", "Edit", "Configure".
+ * A small tracked mono-uppercase text-action button, e.g. "+ Add", "Edit", "Configure".
  * Pass `data` as an object of data-* attributes used for event delegation.
  *
  * @param {string} label
@@ -71,7 +71,7 @@ export function actionLink(label, { data = {}, size = 'xs', tone = 'stone', clas
   const attrs = Object.entries(data)
     .map(([k, v]) => `data-${k}="${esc(v)}"`)
     .join(' ');
-  const sizeCls = size === 'sm' ? 'text-sm' : 'text-xs';
+  const sizeCls = size === 'sm' ? 'text-[0.62rem]' : 'text-[0.58rem]';
   const toneCls = tone === 'warm' ? 'text-warm' : 'text-stone';
-  return `<button ${attrs} class="${sizeCls} ${toneCls} underline hover:text-ink ${extra}">${label}</button>`;
+  return `<button ${attrs} class="cursor-pointer font-mono ${sizeCls} tracking-[0.1em] ${toneCls} uppercase hover:text-ink ${extra}">${label}</button>`;
 }

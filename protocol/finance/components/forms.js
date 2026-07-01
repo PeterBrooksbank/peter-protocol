@@ -2,7 +2,7 @@
 
 import { esc, overlay as baseOverlay } from './ui.js';
 
-const cls = 'w-full border border-warm-light rounded px-3 py-2 bg-paper text-ink text-sm focus:outline-none focus:ring-1 focus:ring-warm';
+const cls = 'w-full border border-ink/12 rounded-[3px] px-3 py-2 bg-paper text-ink text-sm focus:outline-none focus:ring-1 focus:ring-warm';
 
 export const textInput   = (name, val = '', ph = '', attrs = '') =>
   `<input name="${name}" type="text" value="${esc(val)}" placeholder="${ph}" ${attrs} class="${cls}">`;
@@ -28,7 +28,7 @@ export const select = (name, options, val = '', attrs = '') => {
 
 export const field = (label, inputHtml, hint = '') =>
   `<div class="mb-4">
-     <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">${label}</label>
+     <label class="mb-1 block font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">${label}</label>
      ${inputHtml}
      ${hint ? `<p class="mt-1 text-xs text-stone">${hint}</p>` : ''}
    </div>`;
@@ -39,9 +39,9 @@ export const twoCol = (a, b) =>
 /** Open a modal overlay. Returns { overlay, close }. */
 export function modal({ title, bodyHtml, onMount, onSubmit, submitLabel = 'Save' }) {
   const footerHtml = `
-      <div class="flex justify-end gap-3 border-t border-warm-light px-6 py-4">
-        <button data-act="cancel" class="px-4 py-2 text-sm text-stone hover:text-ink">Cancel</button>
-        <button data-act="submit" class="rounded bg-ink px-5 py-2 text-sm text-paper transition-colors hover:bg-stone">
+      <div class="flex justify-end gap-3 border-t border-ink/12 px-6 py-4">
+        <button data-act="cancel" class="cursor-pointer px-4 py-2 font-mono text-[0.6rem] tracking-[0.15em] text-stone uppercase hover:text-ink">Cancel</button>
+        <button data-act="submit" class="cursor-pointer rounded-[2px] bg-ink px-5 py-2.5 font-mono text-[0.62rem] tracking-[0.15em] text-paper uppercase hover:opacity-80">
           ${submitLabel}
         </button>
       </div>`;
@@ -64,7 +64,7 @@ export function modal({ title, bodyHtml, onMount, onSubmit, submitLabel = 'Save'
         let errEl = overlay.querySelector('[data-error]');
         if (!errEl) {
           errEl = Object.assign(document.createElement('p'), { dataset: { error: '' } });
-          errEl.className = 'mt-3 text-sm text-signal';
+          errEl.className = 'mt-3 font-mono text-xs text-signal';
           body.appendChild(errEl);
         }
         errEl.textContent = err.message;
