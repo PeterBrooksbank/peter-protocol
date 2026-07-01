@@ -24,6 +24,27 @@ function src(overrides) {
 
 // ── parseTaxCode ──────────────────────────────────────────────────────────────
 
+test('parseTaxCode: 1288L with override £12,882 uses exact pence', () => {
+  const r = parseTaxCode('1288L', 1_288_200);
+  assert.equal(r.type, 'L');
+  assert.equal(r.allowance_pence, 1_288_200);
+});
+
+test('1288L override pays less tax than 1257L on £60k', () => {
+  // 1288L gives £312 more allowance → £62.40/yr less tax (£312 × 20%)
+  const std  = computePersonIncome(PERSON, [src({ gross_monthly_pence: 500_000 })], [], NO_SETTINGS, DATE);
+  const over = computePersonIncome(PERSON, [src({
+    gross_monthly_pence: 500_000,
+    tax_code: '1288L',
+    tax_code_allowance_pence: 1_288_200,
+  })], [], NO_SETTINGS, DATE);
+  assert.ok(over.total_income_tax_monthly_pence < std.total_income_tax_monthly_pence,
+    '1288L should pay less tax than 1257L');
+  // Difference: £312 × 20% = £62.40/yr → ~5p/mo
+  const annualDiff = (std.total_income_tax_monthly_pence - over.total_income_tax_monthly_pence) * 12;
+  assert.ok(Math.abs(annualDiff - 6240) <= 100, `annual saving should be ~£62.40, got ${annualDiff}p`);
+});
+
 test('parseTaxCode: 1257L → allowance £12,570', () => {
   const r = parseTaxCode('1257L');
   assert.equal(r.type, 'L');

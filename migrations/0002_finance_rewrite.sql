@@ -29,6 +29,9 @@ CREATE TABLE income_sources (
   kind                TEXT    NOT NULL DEFAULT 'employment',
   -- Tax code: e.g. '1257L', 'BR', 'D0', 'D1', '0T', 'NT', 'K500'
   tax_code            TEXT    NOT NULL DEFAULT '1257L',
+  -- Optional: the exact allowance in pence when the code alone isn't precise enough.
+  -- e.g. 1288L computes £12,880 but HMRC may have set it to £12,882 — store 1288200 here.
+  tax_code_allowance_pence INTEGER DEFAULT NULL,
   -- 1 = personal allowance applied here (taper too); only one source per person
   is_primary          INTEGER NOT NULL DEFAULT 0,
   -- salary_sacrifice | net_pay | relief_at_source | none

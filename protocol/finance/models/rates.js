@@ -15,12 +15,16 @@ const RUK_2627 = {
   // Higher-rate gross threshold (for cliff detection)
   higher_rate_threshold_pence:  5027000,  // £50,270
 
-  // Income tax bands — applied to TAXABLE income (after personal allowance).
-  // 'from'/'to' are pence of TAXABLE income, not gross.
+  // Income tax bands — thresholds are GROSS INCOME (pence).
+  // Personal allowance is applied at computation time; any tax code works correctly.
+  //   0%  : £0      → PA        (from tax code, e.g. 1257L = £12,570, 1288L = £12,880)
+  //   20% : PA+1    → £50,270
+  //   40% : £50,271 → £125,140
+  //   45% : £125,141+
   it_bands: [
-    { name: 'basic',      from:        0, to:  3770000, rate_bps: 2000 }, // 20% — first £37,700
-    { name: 'higher',     from:  3770000, to: 11257000, rate_bps: 4000 }, // 40% — up to £112,570 taxable (£125,140 gross)
-    { name: 'additional', from: 11257000, to: Infinity,  rate_bps: 4500 }, // 45%
+    { name: 'basic',      from:       0, to:  5027000, rate_bps: 2000 }, // 20% — gross £0–£50,270
+    { name: 'higher',     from: 5027000, to: 12514000, rate_bps: 4000 }, // 40% — gross £50,270–£125,140
+    { name: 'additional', from:12514000, to: Infinity,  rate_bps: 4500 }, // 45% — gross £125,140+
   ],
 
   // National Insurance (employee Class 1) — monthly-equivalent thresholds

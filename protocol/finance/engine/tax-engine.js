@@ -18,26 +18,40 @@ import { getRatesForDate } from '../models/rates.js';
 /**
  * Parse a tax code into its type and personal allowance in pence.
  *  '1257L'  → { type: 'L',  allowance_pence: 1_257_000 }
+ *  '1288L'  → { type: 'L',  allowance_pence: 1_288_000 }  (but actual may be £12,882 — use override)
  *  'BR'     → { type: 'BR', allowance_pence: 0 }
  *  'D0'     → { type: 'D0', allowance_pence: 0 }
  *  'D1'     → { type: 'D1', allowance_pence: 0 }
  *  '0T'     → { type: '0T', allowance_pence: 0 }
  *  'NT'     → { type: 'NT', allowance_pence: 0 }
  *  'K500'   → { type: 'K',  allowance_pence: -500_000 }  (adds taxable income)
+ *
+ * @param {string}      code                  Tax code string
+ * @param {number|null} allowanceOverridePence Exact allowance in pence (overrides computed value).
+ *                                             Use when the user knows their precise allowance
+ *                                             (e.g. 1288L = £12,882 not £12,880).
  */
-export function parseTaxCode(code) {
+export function parseTaxCode(code, allowanceOverridePence = null) {
   const c = String(code ?? '1257L').trim().toUpperCase();
-  if (c === 'BR') return { type: 'BR', allowance_pence: 0 };
-  if (c === 'D0') return { type: 'D0', allowance_pence: 0 };
-  if (c === 'D1') return { type: 'D1', allowance_pence: 0 };
-  if (c === 'NT') return { type: 'NT', allowance_pence: 0 };
-  if (c === '0T') return { type: '0T', allowance_pence: 0 };
-  const k = c.match(/^K(\d+)$/);
-  if (k) return { type: 'K', allowance_pence: -parseInt(k[1]) * 10 * 100 };
-  // Standard nnnnL / nnnnM / nnnnN
-  const l = c.match(/^(\d+)[A-Z]$/);
-  if (l) return { type: 'L', allowance_pence: parseInt(l[1]) * 10 * 100 };
-  return { type: 'L', allowance_pence: 1_257_000 }; // safe fallback
+  let type, allowance_pence;
+  if (c === 'BR') { type = 'BR'; allowance_pence = 0; }
+  else if (c === 'D0') { type = 'D0'; allowance_pence = 0; }
+  else if (c === 'D1') { type = 'D1'; allowance_pence = 0; }
+  else if (c === 'NT') { type = 'NT'; allowance_pence = 0; }
+  else if (c === '0T') { type = '0T'; allowance_pence = 0; }
+  else {
+    const k = c.match(/^K(\d+)$/);
+    if (k) { type = 'K'; allowance_pence = -parseInt(k[1]) * 10 * 100; }
+    else {
+      // Standard nnnnL / nnnnM / nnnnN
+      const l = c.match(/^(\d+)[A-Z]$/);
+      if (l) { type = 'L'; allowance_pence = parseInt(l[1]) * 10 * 100; }
+      else   { type = 'L'; allowance_pence = 1_257_000; } // safe fallback
+    }
+  }
+  // User-supplied override takes precedence (e.g. 1288L actual allowance is £12,882 not £12,880)
+  if (allowanceOverridePence !== null) allowance_pence = allowanceOverridePence;
+  return { type, allowance_pence };
 }
 
 // ── Pension contribution amounts ──────────────────────────────────────────────
@@ -58,17 +72,20 @@ function pensionAmounts(source) {
 
 // ── Income tax on a single source ────────────────────────────────────────────
 
-/** Compute annual income tax given taxable annual pence, allowance, and rates. */
-function annualTax(taxableAnnual, allowancePence, rates) {
-  const taxable = Math.max(0, taxableAnnual - allowancePence);
+/**
+ * Compute annual income tax.
+ * Bands are defined at GROSS income thresholds; allowancePence is the zero-rate portion.
+ * Tax = sum over bands of: max(0, min(gross, band.to) − max(allowance, band.from)) × rate
+ * This correctly handles any PA (1257L, 1288L, K codes, tapered allowance etc.).
+ */
+function annualTax(grossAnnual, allowancePence, rates) {
   let tax = 0;
-  let remaining = taxable;
   for (const band of rates.it_bands) {
-    if (remaining <= 0) break;
-    const size = band.to === Infinity ? remaining : band.to - band.from;
-    const inBand = Math.min(remaining, size);
+    const start  = Math.max(allowancePence, band.from);
+    const end    = band.to === Infinity ? grossAnnual : Math.min(grossAnnual, band.to);
+    const inBand = Math.max(0, end - start);
+    if (inBand <= 0) continue;
     tax += Math.round(inBand * band.rate_bps / 10000);
-    remaining -= inBand;
   }
   return tax;
 }
@@ -98,23 +115,24 @@ function annualSL(annualGross, plan, rates) {
 
 /**
  * Annual dividend tax.
- * Dividends sit on top of non-dividend taxable income within the bands.
- * @param {number} dividendAnnual   Total gross dividends (pence)
- * @param {number} nonDivTaxable    Non-dividend taxable income after PA (pence)
+ * Dividends stack on top of non-dividend gross income in the gross-based bands.
+ * @param {number} dividendAnnual  Total gross dividends (pence)
+ * @param {number} nonDivGross     Non-dividend gross income after pension deductions, before PA (pence)
  * @param {object} rates
  */
-function dividendTax(dividendAnnual, nonDivTaxable, rates) {
+function dividendTax(dividendAnnual, nonDivGross, rates) {
   const { dividend_allowance_pence: allowance, dividend_rates_bps: dr, it_bands } = rates;
   let remaining = Math.max(0, dividendAnnual - allowance);
   if (remaining <= 0) return 0;
 
-  let bandUsed = nonDivTaxable; // non-div income has already consumed this much of the bands
+  let pos = nonDivGross; // current position in gross income terms
   let tax = 0;
 
   for (const band of it_bands) {
     if (remaining <= 0) break;
-    const ceiling = band.to === Infinity ? bandUsed + remaining : band.to;
-    const space = Math.max(0, ceiling - Math.max(band.from, bandUsed));
+    const space = band.to === Infinity
+      ? remaining
+      : Math.max(0, band.to - Math.max(band.from, pos));
     const inBand = Math.min(remaining, space);
     if (inBand <= 0) continue;
     const rate = band.name === 'basic' ? dr.basic
@@ -122,7 +140,7 @@ function dividendTax(dividendAnnual, nonDivTaxable, rates) {
                : dr.additional;
     tax += Math.round(inBand * rate / 10000);
     remaining -= inBand;
-    bandUsed += inBand;
+    pos += inBand;
   }
   return tax;
 }
@@ -281,8 +299,8 @@ export function computePersonIncome(
 
   // ── 4. Per-source breakdown ───────────────────────────────────────────────
   const sourceBreakdowns = enriched.map(s => {
-    const { type, allowance_pence } = parseTaxCode(s.tax_code);
-    const annualTaxable = s.taxableMonthly * 12;
+    const { type, allowance_pence } = parseTaxCode(s.tax_code, s.tax_code_allowance_pence ?? null);
+    const annualGross = s.taxableMonthly * 12;
 
     let tax_monthly = 0;
     let ni_monthly  = 0;
@@ -295,7 +313,7 @@ export function computePersonIncome(
         case 'BR': tax_monthly = Math.round(s.taxableMonthly * 2000 / 10000); break;
         case 'D0': tax_monthly = Math.round(s.taxableMonthly * 4000 / 10000); break;
         case 'D1': tax_monthly = Math.round(s.taxableMonthly * 4500 / 10000); break;
-        default:   tax_monthly = Math.round(annualTax(annualTaxable, allowance_pence, rates) / 12);
+        default:   tax_monthly = Math.round(annualTax(annualGross, allowance_pence, rates) / 12);
       }
       // NI on NI-gross (salary sacrifice reduces NI base)
       ni_monthly = monthlyNI(s.niMonthly, rates);
@@ -307,7 +325,7 @@ export function computePersonIncome(
       switch (type) {
         case 'NT': tax_monthly = 0; break;
         case 'BR': tax_monthly = Math.round(s.taxableMonthly * 2000 / 10000); break;
-        default:   tax_monthly = Math.round(annualTax(annualTaxable, allowance_pence, rates) / 12);
+        default:   tax_monthly = Math.round(annualTax(annualGross, allowance_pence, rates) / 12);
       }
     }
     // dividends handled below; benefits/other: no automatic tax (override available)
@@ -330,9 +348,9 @@ export function computePersonIncome(
   });
 
   // ── 5. Dividend tax (pooled, annual) ──────────────────────────────────────
-  // Non-div taxable after theoretical PA (used for band positioning)
-  const nonDivTaxable = Math.max(0, totalNonDivAnnual - annualPensionDeduction - theoreticalPA);
-  const divTaxAnnual = totalDivAnnual > 0 ? dividendTax(totalDivAnnual, nonDivTaxable, rates) : 0;
+  // Dividends stack on top of non-div gross in the gross-based bands.
+  const nonDivGross = Math.max(0, totalNonDivAnnual - annualPensionDeduction);
+  const divTaxAnnual = totalDivAnnual > 0 ? dividendTax(totalDivAnnual, nonDivGross, rates) : 0;
 
   // ── 6. HICBC ──────────────────────────────────────────────────────────────
   const hicbcAnnual = householdSettings.claim_child_benefit

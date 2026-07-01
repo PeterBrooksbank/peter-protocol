@@ -18,7 +18,8 @@ test('PA = £12,570', () => assert.equal(R.personal_allowance_pence, 1_257_000))
 test('PA taper threshold = £100k', () => assert.equal(R.pa_taper_threshold_pence, 10_000_000));
 test('PA taper floor = £125,140', () => assert.equal(R.pa_taper_floor_pence, 12_514_000));
 test('higher rate threshold = £50,270', () => assert.equal(R.higher_rate_threshold_pence, 5_027_000));
-test('basic band ceiling = £37,700 taxable', () => assert.equal(R.it_bands[0].to, 3_770_000));
+test('basic band upper = £50,270 gross', () => assert.equal(R.it_bands[0].to, 5_027_000));
+test('higher band upper = £125,140 gross', () => assert.equal(R.it_bands[1].to, 12_514_000));
 test('basic rate 20%', () => assert.equal(R.it_bands[0].rate_bps, 2000));
 test('higher rate 40%', () => assert.equal(R.it_bands[1].rate_bps, 4000));
 test('additional rate 45%', () => assert.equal(R.it_bands[2].rate_bps, 4500));
