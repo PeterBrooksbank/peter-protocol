@@ -1,7 +1,13 @@
-// protocol/worker.js
+// protocol/worker.js — Cloudflare Worker: auth + route dispatch
 import { jwtVerify, createRemoteJWKSet } from 'jose';
+import { routeSettings } from './routes/finance-settings.js';
+import { routePeople }   from './routes/finance-people.js';
+import { routeIncome }   from './routes/finance-income.js';
+// Phase 3: import { routeAccounts }  from './routes/finance-accounts.js';
+// Phase 4: import { routeBudget }    from './routes/finance-budget.js';
+// Phase 4: import { routeStatements } from './routes/finance-statements.js';
 
-const TEAM_DOMAIN = 'https://rough-band-262a.cloudflareaccess.com';
+const TEAM_DOMAIN = 'https://rough-band-262a.cloudflareaccess.com'\;
 const AUD = 'cc34bd0e84f761afdcc352b50c82a4b02117f7a9d2ee998c1587dc2f606d652d';
 const JWKS = createRemoteJWKSet(new URL(`${TEAM_DOMAIN}/cdn-cgi/access/certs`));
 
@@ -16,26 +22,17 @@ async function identify(request) {
     return payload.email;
   } catch { return null; }
 }
-const scope = (db, email) =>
-  db.prepare('SELECT household_id, person_id, role FROM memberships WHERE user_email = ?')
-    .bind(email).first();
-
-const normalise = s => s.toLowerCase().replace(/\s+/g, ' ').trim();
-async function sha(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-}
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Anything not /api/* is a static asset — hand it back to the assets binding.
+    // Static assets
     if (!url.pathname.startsWith('/api/')) {
       return env.ASSETS.fetch(request);
     }
 
-    // Probe — no auth, just confirms the worker + binding are live.
+    // Health probe — no auth
     if (url.pathname === '/api/_probe') {
       return json({ hasDB: !!env.FINANCE_DB, bindings: Object.keys(env) });
     }
@@ -43,301 +40,28 @@ export default {
     const db = env.FINANCE_DB;
     const email = await identify(request);
     if (!email) return json({ error: 'unauthorised' }, 403);
-    const ctx = await scope(db, email);
-    if (!ctx) return json({ error: 'no household' }, 403);
-    const { household_id } = ctx;
-    const p = url.pathname;
-    const m = request.method;
 
-    if (m === 'GET' && p === '/api/finance/accounts') {
-      const { results } = await db.prepare(`
-        SELECT a.*, s.balance, s.as_of_date
-        FROM accounts a
-        LEFT JOIN (
-          SELECT account_id, balance, as_of_date,
-                 ROW_NUMBER() OVER (PARTITION BY account_id ORDER BY as_of_date DESC) rn
-          FROM snapshots
-        ) s ON s.account_id = a.id AND s.rn = 1
-        WHERE a.household_id = ? AND a.closed_date IS NULL
-      `).bind(household_id).all();
-      return json(results);
-    }
+    const membership = await db.prepare(
+      'SELECT household_id, person_id, role FROM memberships WHERE user_email = ?'
+    ).bind(email).first();
+    if (!membership) return json({ error: 'no household' }, 403);
 
-    if (m === 'POST' && p === '/api/finance/snapshots') {
-      const b = await request.json();
-      const owns = await db.prepare('SELECT 1 FROM accounts WHERE id = ? AND household_id = ?')
-        .bind(b.account_id, household_id).first();
-      if (!owns) return json({ error: 'not found' }, 404);
-      await db.prepare(`INSERT INTO snapshots (id, account_id, as_of_date, balance, contribution_since_last, note)
-                        VALUES (?,?,?,?,?,?)`)
-        .bind(crypto.randomUUID(), b.account_id, b.as_of_date, b.balance,
-          b.contribution_since_last ?? null, b.note ?? null).run();
-      return json({ ok: true });
-    }
+    const ctx = {
+      db,
+      email,
+      household_id: membership.household_id,
+      person_id:    membership.person_id,
+      role:         membership.role,
+      url,
+      m: request.method,
+      json,
+    };
 
-    // REPLACES the old income-entries route — now ownership-checked
-    if (m === 'POST' && p === '/api/finance/income-entries') {
-      const b = await request.json();
-      const owns = await db.prepare(
-        `SELECT 1 FROM income_sources s JOIN people pp ON pp.id = s.person_id
-         WHERE s.id = ? AND pp.household_id = ?`).bind(b.income_source_id, household_id).first();
-      if (!owns) return json({ error: 'not found' }, 404);
-      await db.prepare(`INSERT INTO income_entries (id, income_source_id, effective_from,
-          gross_monthly, income_tax, national_insurance, pension_employee, pension_employer,
-          student_loan, other_deductions, net_monthly, note)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
-        .bind(crypto.randomUUID(), b.income_source_id, b.effective_from, b.gross_monthly,
-              b.income_tax ?? 0, b.national_insurance ?? 0, b.pension_employee ?? 0,
-              b.pension_employer ?? 0, b.student_loan ?? 0, b.other_deductions ?? 0,
-              b.net_monthly, b.note ?? null).run();
-      return json({ ok: true });
-    }
-
-    if (m === 'GET' && p === '/api/finance/people') {
-      const { results } = await db.prepare('SELECT * FROM people WHERE household_id = ? ORDER BY display_name')
-        .bind(household_id).all();
-      return json(results);
-    }
-
-    if (m === 'POST' && p === '/api/finance/people') {
-      const b = await request.json();
-      if (!b.display_name) return json({ error: 'name required' }, 400);
-      const id = crypto.randomUUID();
-      await db.prepare('INSERT INTO people (id, household_id, display_name, is_earner) VALUES (?,?,?,?)')
-        .bind(id, household_id, b.display_name, b.is_earner === false ? 0 : 1).run();
-      return json({ id });
-    }
-
-    if (m === 'POST' && p === '/api/finance/income-sources') {
-      const b = await request.json();
-      const okp = await db.prepare('SELECT 1 FROM people WHERE id = ? AND household_id = ?')
-        .bind(b.person_id, household_id).first();
-      if (!okp) return json({ error: 'person not found' }, 404);
-      const id = crypto.randomUUID();
-      await db.prepare('INSERT INTO income_sources (id, person_id, name, kind, is_active) VALUES (?,?,?,?,1)')
-        .bind(id, b.person_id, b.name, b.kind ?? 'employment').run();
-      if (b.entry) {
-        const e = b.entry;
-        await db.prepare(`INSERT INTO income_entries (id, income_source_id, effective_from,
-            gross_monthly, income_tax, national_insurance, pension_employee, pension_employer,
-            student_loan, other_deductions, net_monthly, note)
-          VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
-          .bind(crypto.randomUUID(), id, e.effective_from, e.gross_monthly, e.income_tax ?? 0,
-                e.national_insurance ?? 0, e.pension_employee ?? 0, e.pension_employer ?? 0,
-                e.student_loan ?? 0, e.other_deductions ?? 0, e.net_monthly, e.note ?? null).run();
-      }
-      return json({ id });
-    }
-
-    // Effective-dated read: each source's latest entry effective on/before the month
-    if (m === 'GET' && p === '/api/finance/income') {
-      const month = url.searchParams.get('month');
-      if (!month) return json({ error: 'month required' }, 400);
-      const { results } = await db.prepare(`
-        SELECT p.id AS person_id, p.display_name, p.is_earner,
-               s.id AS source_id, s.name AS source_name, s.kind,
-               e.effective_from, e.gross_monthly, e.income_tax, e.national_insurance,
-               e.pension_employee, e.pension_employer, e.student_loan, e.other_deductions, e.net_monthly
-        FROM people p
-        LEFT JOIN income_sources s ON s.person_id = p.id AND s.is_active = 1
-        LEFT JOIN income_entries e ON e.id = (
-          SELECT e2.id FROM income_entries e2
-          WHERE e2.income_source_id = s.id AND substr(e2.effective_from,1,7) <= ?
-          ORDER BY e2.effective_from DESC LIMIT 1
-        )
-        WHERE p.household_id = ?
-        ORDER BY p.display_name, s.name
-      `).bind(month, household_id).all();
-      return json(results);
-    }
-
-    // History of a source's effective values (the raise log)
-    const histMatch = p.match(/^\/api\/finance\/income-sources\/([^/]+)\/history$/);
-    if (histMatch && m === 'GET') {
-      const sid = histMatch[1];
-      const owns = await db.prepare(`SELECT 1 FROM income_sources s JOIN people pp ON pp.id = s.person_id
-                                     WHERE s.id = ? AND pp.household_id = ?`).bind(sid, household_id).first();
-      if (!owns) return json({ error: 'not found' }, 404);
-      const { results } = await db.prepare(
-        'SELECT * FROM income_entries WHERE income_source_id = ? ORDER BY effective_from DESC').bind(sid).all();
-      return json(results);
-    }
-
-    // Rename / deactivate a source
-    const srcMatch = p.match(/^\/api\/finance\/income-sources\/([^/]+)$/);
-    if (srcMatch && m === 'PATCH') {
-      const sid = srcMatch[1];
-      const owns = await db.prepare(`SELECT 1 FROM income_sources s JOIN people pp ON pp.id = s.person_id
-                                     WHERE s.id = ? AND pp.household_id = ?`).bind(sid, household_id).first();
-      if (!owns) return json({ error: 'not found' }, 404);
-      const b = await request.json();
-      const fields = [], vals = [];
-      if (b.name != null)      { fields.push('name = ?');      vals.push(b.name); }
-      if (b.is_active != null) { fields.push('is_active = ?'); vals.push(b.is_active ? 1 : 0); }
-      if (!fields.length) return json({ error: 'nothing to update' }, 400);
-      vals.push(sid);
-      await db.prepare(`UPDATE income_sources SET ${fields.join(', ')} WHERE id = ?`).bind(...vals).run();
-      return json({ ok: true });
-    }
-
-    if (m === 'POST' && p === '/api/finance/accounts') {
-      const b = await request.json();
-      const id = crypto.randomUUID();
-      await db.prepare(`INSERT INTO accounts
-        (id, household_id, owner_person_id, type, is_liability, provider, nickname, meta, opened_date)
-        VALUES (?,?,?,?,?,?,?,?,?)`)
-        .bind(id, household_id, b.owner_person_id ?? null, b.type,
-          b.is_liability ? 1 : 0, b.provider ?? null, b.nickname,
-          b.meta ? JSON.stringify(b.meta) : null, b.opened_date ?? null).run();
-      // optional opening balance → first snapshot
-      if (b.balance != null) {
-        await db.prepare(`INSERT INTO snapshots (id, account_id, as_of_date, balance)
-                          VALUES (?,?,date('now'),?)`)
-          .bind(crypto.randomUUID(), id, b.balance).run();
-      }
-      return json({ id });
-    }
-
-    // REPLACES the old import route
-    if (m === 'POST' && p === '/api/finance/transactions/import') {
-      const { account_id, bank, filename, rows } = await request.json();
-      const owns = await db.prepare('SELECT 1 FROM accounts WHERE id = ? AND household_id = ?')
-        .bind(account_id, household_id).first();
-      if (!owns) return json({ error: 'not found' }, 404);
-      const statement_id = crypto.randomUUID();
-      await db.prepare(`INSERT INTO statements (id, household_id, account_id, uploaded_by, bank, filename)
-                        VALUES (?,?,?,?,?,?)`)
-        .bind(statement_id, household_id, account_id, email, bank ?? null, filename ?? null).run();
-      const stmts = [];
-      for (const r of rows) {
-        const dh = await sha(`${r.date}|${r.amount}|${normalise(r.description)}`);
-        stmts.push(db.prepare(`INSERT OR IGNORE INTO transactions
-          (id, household_id, account_id, date, description, amount, statement_id, dedupe_hash)
-          VALUES (?,?,?,?,?,?,?,?)`)
-          .bind(crypto.randomUUID(), household_id, account_id, r.date, r.description,
-            r.amount, statement_id, dh));
-      }
-      const res = await db.batch(stmts);
-      const imported = res.filter(x => (x.meta?.changes ?? 0) > 0).length;   // ignored rows report 0 changes
-      return json({ statement_id, imported, skipped: rows.length - imported });
-    }
-
-    // Bulk categorise — single tap OR "apply to all matching"
-    if (m === 'POST' && p === '/api/finance/transactions/categorise') {
-      const { ids, category_id } = await request.json();
-      if (!Array.isArray(ids) || !ids.length) return json({ error: 'ids required' }, 400);
-      if (category_id) {
-        const okc = await db.prepare('SELECT 1 FROM categories WHERE id = ? AND household_id = ?')
-          .bind(category_id, household_id).first();
-        if (!okc) return json({ error: 'category not found' }, 404);
-      }
-      const ph = ids.map(() => '?').join(',');
-      await db.prepare(`UPDATE transactions SET category_id = ?
-                        WHERE household_id = ? AND id IN (${ph})`)
-        .bind(category_id ?? null, household_id, ...ids).run();
-      return json({ ok: true, updated: ids.length });
-    }
-
-    // List transactions for a month (with category name joined)
-    if (m === 'GET' && p === '/api/finance/transactions') {
-      const month = url.searchParams.get('month');
-      const where = ['t.household_id = ?']; const binds = [household_id];
-      if (month) { where.push("substr(t.date, 1, 7) = ?"); binds.push(month); }
-      const { results } = await db.prepare(`
-        SELECT t.id, t.date, t.description, t.amount, t.category_id, t.reconciled,
-               c.name AS category_name, c.kind AS category_kind
-        FROM transactions t
-        LEFT JOIN categories c ON c.id = t.category_id
-        WHERE ${where.join(' AND ')}
-        ORDER BY t.date DESC
-      `).bind(...binds).all();
-      return json(results);
-    }
-
-    // Single transaction patch (category / reconciled)
-    const txnMatch = p.match(/^\/api\/finance\/transactions\/([^/]+)$/);
-    if (txnMatch && m === 'PATCH') {
-      const txnId = txnMatch[1];
-      const owns = await db.prepare('SELECT 1 FROM transactions WHERE id = ? AND household_id = ?')
-        .bind(txnId, household_id).first();
-      if (!owns) return json({ error: 'not found' }, 404);
-      const b = await request.json();
-      const fields = [], vals = [];
-      if ('category_id' in b) { fields.push('category_id = ?'); vals.push(b.category_id); }
-      if ('reconciled' in b) { fields.push('reconciled = ?'); vals.push(b.reconciled ? 1 : 0); }
-      if (!fields.length) return json({ error: 'nothing to update' }, 400);
-      vals.push(txnId, household_id);
-      await db.prepare(`UPDATE transactions SET ${fields.join(', ')} WHERE id = ? AND household_id = ?`)
-        .bind(...vals).run();
-      return json({ ok: true });
-    }
-
-    // GET /api/finance/budget?month=YYYY-MM — planned vs actual per category
-    if (m === 'GET' && p === '/api/finance/budget') {
-      const month = url.searchParams.get('month');
-      if (!month) return json({ error: 'month required' }, 400);
-      const { results } = await db.prepare(`
-        SELECT c.id, c.name, c.kind, c.planned_monthly, c.rollover_enabled,
-          CASE WHEN c.kind = 'expense'
-               THEN -COALESCE(SUM(t.amount), 0)
-               ELSE  COALESCE(SUM(t.amount), 0) END AS actual
-        FROM categories c
-        LEFT JOIN transactions t
-          ON t.category_id = c.id AND t.household_id = c.household_id
-         AND substr(t.date, 1, 7) = ?
-        WHERE c.household_id = ?
-        GROUP BY c.id
-        ORDER BY c.kind, c.name
-      `).bind(month, household_id).all();
-      return json(results);
-    }
-
-    if (m === 'GET' && p === '/api/finance/categories') {
-      const { results } = await db.prepare(
-        'SELECT * FROM categories WHERE household_id = ? ORDER BY kind, name'
-      ).bind(household_id).all();
-      return json(results);
-    }
-
-    if (m === 'POST' && p === '/api/finance/categories') {
-      const b = await request.json();
-      const id = crypto.randomUUID();
-      await db.prepare(`INSERT INTO categories (id, household_id, name, kind, planned_monthly, rollover_enabled)
-                        VALUES (?,?,?,?,?,?)`)
-        .bind(id, household_id, b.name, b.kind ?? 'expense',
-          b.planned_monthly ?? 0, b.rollover_enabled ? 1 : 0).run();
-      return json({ id });
-    }
-
-    // PATCH / DELETE /api/finance/categories/:id
-    const catMatch = p.match(/^\/api\/finance\/categories\/([^/]+)$/);
-    if (catMatch) {
-      const catId = catMatch[1];
-      const owns = await db.prepare('SELECT 1 FROM categories WHERE id = ? AND household_id = ?')
-        .bind(catId, household_id).first();
-      if (!owns) return json({ error: 'not found' }, 404);
-
-      if (m === 'PATCH') {
-        const b = await request.json();
-        const fields = [], vals = [];
-        if (b.name != null) { fields.push('name = ?'); vals.push(b.name); }
-        if (b.planned_monthly != null) { fields.push('planned_monthly = ?'); vals.push(b.planned_monthly); }
-        if (b.rollover_enabled != null) { fields.push('rollover_enabled = ?'); vals.push(b.rollover_enabled ? 1 : 0); }
-        if (!fields.length) return json({ error: 'nothing to update' }, 400);
-        vals.push(catId, household_id);
-        await db.prepare(`UPDATE categories SET ${fields.join(', ')} WHERE id = ? AND household_id = ?`)
-          .bind(...vals).run();
-        return json({ ok: true });
-      }
-      if (m === 'DELETE') {
-        await db.prepare('UPDATE transactions SET category_id = NULL WHERE category_id = ? AND household_id = ?')
-          .bind(catId, household_id).run();
-        await db.prepare('DELETE FROM categories WHERE id = ? AND household_id = ?')
-          .bind(catId, household_id).run();
-        return json({ ok: true });
-      }
+    for (const handler of [routeSettings, routePeople, routeIncome]) {
+      const res = await handler(request, ctx);
+      if (res !== null) return res;
     }
 
     return json({ error: 'not found' }, 404);
-  }
+  },
 };
