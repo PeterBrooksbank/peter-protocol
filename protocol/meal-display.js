@@ -29,11 +29,11 @@
       if (!meal.ingredients) return '';
 
       return `
-        <div class="mt-2 mb-1 grid grid-cols-2 gap-[2px_12px]">
+        <div class="mt-2 mb-1 space-y-1">
           ${meal.ingredients.map(item => `
-            <div class="flex items-baseline gap-[5px] text-base leading-relaxed tracking-[0.02em] text-stone">
-              <span class="min-w-0 text-sm text-warm tabular-nums">${item.amount}</span>
-              <span class="min-w-0">${item.name}</span>
+            <div class="flex items-baseline gap-2 text-base leading-relaxed tracking-[0.02em] text-stone">
+              <span class="shrink-0 text-sm text-warm tabular-nums">${item.amount}</span>
+              <span class="min-w-0 flex-1">${item.name}</span>
             </div>`).join('')}
         </div>
         <div class="my-2 h-px bg-ink/12"></div>`;
