@@ -1,7 +1,8 @@
 {
   "scripts": {
     "build": "tailwindcss -i ./src/app.css -o ./protocol/app.css --minify",
-    "dev":   "tailwindcss -i ./src/app.css -o ./protocol/app.css --watch"
+    "dev":   "tailwindcss -i ./src/app.css -o ./protocol/app.css --watch",
+    "test":  "node --test test/finance-money.test.js test/tax-rates.test.js"
   },
   "dependencies": {
     "jose": "^6.2.3"
