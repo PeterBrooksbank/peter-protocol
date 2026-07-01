@@ -5,7 +5,7 @@
 import { mount as mountIncome   } from './views/income.js';
 import { mount as mountAccounts } from './views/accounts.js';
 import { mount as mountBudget   } from './views/budget.js';
-// Phase 5: import { mount as mountDashboard} from './views/dashboard.js';
+import { mount as mountDashboard} from './views/dashboard.js';
 import { openSettings } from './views/settings.js';
 
 const TABS = ['dashboard', 'income', 'budget', 'accounts'];
@@ -27,18 +27,11 @@ export function showFinanceView(name) {
   mountTab(name, pane);
 }
 
-const mounted = new Set();
-
 function mountTab(name, el) {
   if (name === 'income') {
     mountIncome(el, { onRefresh: () => mountIncome(el) });
     return;
   }
-  if (mounted.has(name)) return;
-  mounted.add(name);
-
-  if (name === 'dashboard') {
-    el.innerHTML = `<div class="p-4 text-stone text-sm">Dashboard — coming in Phase 5.</div>`;
   if (name === 'budget') {
     mountBudget(el);
     return;
@@ -47,6 +40,9 @@ function mountTab(name, el) {
     mountAccounts(el);
     return;
   }
+  if (name === 'dashboard') {
+    mountDashboard(el);
+    return;
   }
 }
 
@@ -56,10 +52,7 @@ export function initFinance() {
   if (gear) gear.onclick = () => openSettings(() => {
     // Refresh the active tab after settings change
     const active = document.querySelector('.fin-subtab--active')?.dataset?.view;
-    if (active) {
-      mounted.delete(active);
-      showFinanceView(active);
-    }
+    if (active) showFinanceView(active);
   });
 }
 
@@ -69,3 +62,6 @@ if (document.readyState === 'loading') {
 } else {
   initFinance();
 }
+
+// Expose for onclick="showFinanceView(...)" in index.html and cross-view navigation
+window.showFinanceView = showFinanceView;
