@@ -11,7 +11,7 @@ import { esc } from './ui.js';
  * @returns {string} SVG markup
  */
 export function groupedBarChart({ data, width = 560, height = 200 }) {
-  if (!data.length) return '<p class="text-stone text-sm">No data yet.</p>';
+  if (!data.length) return '<p class="text-sm text-stone">No data yet.</p>';
 
   const padding = { top: 16, right: 12, bottom: 28, left: 12 };
   const chartW = width - padding.left - padding.right;
@@ -42,14 +42,14 @@ export function groupedBarChart({ data, width = 560, height = 200 }) {
   }).join('');
 
   return `
-    <svg viewBox="0 0 ${width} ${height}" class="w-full h-auto" role="img" aria-label="Planned vs actual by month">
+    <svg viewBox="0 0 ${width} ${height}" class="h-auto w-full" role="img" aria-label="Planned vs actual by month">
       <line x1="${padding.left}" y1="${padding.top + chartH}" x2="${width - padding.right}" y2="${padding.top + chartH}"
             stroke="var(--color-stone)" stroke-opacity="0.2"/>
       ${bars}
     </svg>
-    <div class="flex gap-4 mt-2 text-xs text-stone justify-center">
-      <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm inline-block" style="background:var(--color-warm);opacity:0.5"></span>Planned</span>
-      <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm inline-block" style="background:var(--color-moss)"></span>Actual</span>
+    <div class="mt-2 flex justify-center gap-4 text-xs text-stone">
+      <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm" style="background:var(--color-warm);opacity:0.5"></span>Planned</span>
+      <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm" style="background:var(--color-moss)"></span>Actual</span>
     </div>`;
 }
 
@@ -59,7 +59,7 @@ export function groupedBarChart({ data, width = 560, height = 200 }) {
  * @param {Array<{label: string, value: number}>} opts.data  Pence values
  */
 export function lineChart({ data, width = 560, height = 160 }) {
-  if (!data.length) return '<p class="text-stone text-sm">No data yet.</p>';
+  if (!data.length) return '<p class="text-sm text-stone">No data yet.</p>';
   const padding = { top: 12, right: 12, bottom: 24, left: 12 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
@@ -74,7 +74,7 @@ export function lineChart({ data, width = 560, height = 160 }) {
   const points = data.map((d, i) => `${scaleX(i)},${scaleY(d.value)}`).join(' ');
 
   return `
-    <svg viewBox="0 0 ${width} ${height}" class="w-full h-auto" role="img" aria-label="Trend over time">
+    <svg viewBox="0 0 ${width} ${height}" class="h-auto w-full" role="img" aria-label="Trend over time">
       <polyline points="${points}" fill="none" stroke="var(--color-moss)" stroke-width="2"/>
       ${data.map((d, i) => `<circle cx="${scaleX(i)}" cy="${scaleY(d.value)}" r="2.5" fill="var(--color-moss)"/>`).join('')}
       ${data.map((d, i) => `<text x="${scaleX(i)}" y="${height - 6}" text-anchor="middle" font-size="10" fill="var(--color-stone)">${esc(d.label)}</text>`).join('')}

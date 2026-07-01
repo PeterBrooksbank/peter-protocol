@@ -14,7 +14,7 @@ export const monthInput  = (name, val = '', attrs = '') =>
   `<input name="${name}" type="month" value="${esc(val)}" ${attrs} class="${cls}">`;
 
 export const checkbox = (name, checked, label) =>
-  `<label class="flex items-center gap-2 text-sm cursor-pointer">
+  `<label class="flex cursor-pointer items-center gap-2 text-sm">
      <input name="${name}" type="checkbox" ${checked ? 'checked' : ''} class="accent-warm">
      ${label}
    </label>`;
@@ -28,9 +28,9 @@ export const select = (name, options, val = '', attrs = '') => {
 
 export const field = (label, inputHtml, hint = '') =>
   `<div class="mb-4">
-     <label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">${label}</label>
+     <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">${label}</label>
      ${inputHtml}
-     ${hint ? `<p class="text-xs text-stone mt-1">${hint}</p>` : ''}
+     ${hint ? `<p class="mt-1 text-xs text-stone">${hint}</p>` : ''}
    </div>`;
 
 export const twoCol = (a, b) =>
@@ -39,9 +39,9 @@ export const twoCol = (a, b) =>
 /** Open a modal overlay. Returns { overlay, close }. */
 export function modal({ title, bodyHtml, onMount, onSubmit, submitLabel = 'Save' }) {
   const footerHtml = `
-      <div class="flex justify-end gap-3 px-6 py-4 border-t border-warm-light">
+      <div class="flex justify-end gap-3 border-t border-warm-light px-6 py-4">
         <button data-act="cancel" class="px-4 py-2 text-sm text-stone hover:text-ink">Cancel</button>
-        <button data-act="submit" class="px-5 py-2 text-sm bg-ink text-paper rounded hover:bg-stone transition-colors">
+        <button data-act="submit" class="rounded bg-ink px-5 py-2 text-sm text-paper transition-colors hover:bg-stone">
           ${submitLabel}
         </button>
       </div>`;

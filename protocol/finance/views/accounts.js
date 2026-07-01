@@ -30,10 +30,10 @@ async function load(el) {
   try {
     const accounts = await api.getAccounts();
     el.innerHTML = `
-      <div class="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div class="mx-auto max-w-2xl space-y-6 px-4 py-6">
         <div id="net-worth"></div>
         <div id="account-groups" class="space-y-6"></div>
-        <div class="pt-2 border-t border-warm-light">
+        <div class="border-t border-warm-light pt-2">
           ${actionLink('+ Add account', { data: { act: 'add' }, size: 'sm' })}
         </div>
       </div>`;
@@ -65,7 +65,7 @@ function renderNetWorth(el, accounts) {
   el.innerHTML = `
     <div class="rounded-lg border border-warm-light px-6 py-4">
       <div class="flex items-baseline justify-between">
-        <span class="text-sm text-stone uppercase tracking-wide">Net worth</span>
+        <span class="text-sm tracking-wide text-stone uppercase">Net worth</span>
         <span class="font-display text-2xl ${net >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(net)}</span>
       </div>
       <div class="mt-2 flex gap-6 text-xs text-stone">
@@ -91,11 +91,11 @@ function renderGroups(el, accounts) {
 
     const div = document.createElement('div');
     div.innerHTML = `
-      <div class="flex items-baseline justify-between mb-2">
-        <h3 class="text-xs font-medium text-stone uppercase tracking-wide">${meta.label}</h3>
+      <div class="mb-2 flex items-baseline justify-between">
+        <h3 class="text-xs font-medium tracking-wide text-stone uppercase">${meta.label}</h3>
         <span class="text-sm font-medium text-ink">${penceToCompact(subtotal)}</span>
       </div>
-      <div class="rounded-lg border border-warm-light divide-y divide-warm-light">
+      <div class="divide-y divide-warm-light rounded-lg border border-warm-light">
         ${group.map(a => renderAccount(a)).join('')}
       </div>`;
     el.appendChild(div);
@@ -117,15 +117,15 @@ function renderAccount(a) {
     <div class="flex items-start justify-between px-4 py-3" data-account="${a.id}">
       <div class="min-w-0 flex-1">
         <div class="flex items-baseline gap-2">
-          <span class="font-medium text-sm text-ink">${esc(a.nickname)}</span>
+          <span class="text-sm font-medium text-ink">${esc(a.nickname)}</span>
           ${a.owner_name ? `<span class="text-xs text-stone">${esc(a.owner_name)}</span>` : ''}
           ${a.provider   ? `<span class="text-xs text-stone">· ${esc(a.provider)}</span>` : ''}
         </div>
-        <div class="text-xs text-stone mt-0.5">${projectionLabel(a)} · ${snapshotInfo}</div>
+        <div class="mt-0.5 text-xs text-stone">${projectionLabel(a)} · ${snapshotInfo}</div>
       </div>
-      <div class="ml-4 text-right shrink-0">
+      <div class="ml-4 shrink-0 text-right">
         <div class="text-sm font-medium text-ink">${balLabel}</div>
-        <div class="flex gap-2 mt-1 justify-end">
+        <div class="mt-1 flex justify-end gap-2">
           ${actionLink('Log balance', { data: { act: 'log', id: a.id } })}
           ${actionLink('Configure', { data: { act: 'configure', id: a.id } })}
         </div>
@@ -178,7 +178,7 @@ function addAccountModal(accounts, reload) {
       )}
       ${field('Provider', textInput('provider', '', 'e.g. HSBC (optional)'))}
       ${field('Opening balance (£)', textInput('opening_balance', '', 'e.g. 295000'))}
-      <p class="text-xs text-stone mt-1 mb-4">Configure projections after adding.</p>`,
+      <p class="mt-1 mb-4 text-xs text-stone">Configure projections after adding.</p>`,
     submitLabel: 'Add account',
     async onSubmit(o, close) {
       const nickname = val(o, 'nickname');
@@ -207,7 +207,7 @@ function logBalanceModal(account, reload) {
       ${twoCol(
         field('Real balance (£)', textInput('balance', '', 'e.g. 294250')),
         field('As of date', `<input name="as_of_date" type="date" value="${today}"
-          class="w-full border border-warm-light rounded px-3 py-2 bg-paper text-sm">`)
+          class="w-full rounded border border-warm-light bg-paper px-3 py-2 text-sm">`)
       )}
       ${field('Note (optional)', textInput('note', ''))}`,
     submitLabel: 'Log balance',

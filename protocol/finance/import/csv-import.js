@@ -115,7 +115,7 @@ export function openImportWizard(accounts, onImport) {
   };
 
   body.innerHTML = `
-    <p class="text-stone text-sm mb-4">Choose a CSV export from your bank.</p>
+    <p class="mb-4 text-sm text-stone">Choose a CSV export from your bank.</p>
     <div id="file-area"></div>`;
   const pickBtn = Object.assign(document.createElement('button'), {
     className: 'px-4 py-2 text-sm bg-ink text-paper rounded hover:bg-stone',
@@ -137,30 +137,30 @@ export function openImportWizard(accounts, onImport) {
     const names = Object.keys(profs);
     body.innerHTML = `
       ${names.length ? `<div class="mb-4">
-        <label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Saved bank profile</label>
+        <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Saved bank profile</label>
         <select id="wiz-profile" class="${cls}">
           <option value="">— new mapping —</option>
           ${names.map(n => `<option>${n}</option>`).join('')}
         </select></div>` : ''}
       <div class="mb-4">
-        <label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Account</label>
+        <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Account</label>
         <select id="wiz-acct" class="${cls}">${accounts.map(a => `<option value="${a.id}">${a.nickname}</option>`).join('')}</select>
       </div>
       <div class="mb-4">
-        <label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Statement month</label>
+        <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Statement month</label>
         <input id="wiz-month" type="month" value="${new Date().toISOString().slice(0,7)}" class="${cls}">
       </div>
       <div class="mb-4">
-        <label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Bank name</label>
+        <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Bank name</label>
         <input id="wiz-bank" placeholder="e.g. Monzo" value="${pre.bank || ''}" class="${cls}">
       </div>
-      <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="mb-4 grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Date column</label>
+          <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Date column</label>
           <select id="wiz-date" class="${cls}">${colOptions(pre.dateCol ?? 0)}</select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Date format</label>
+          <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Date format</label>
           <select id="wiz-datefmt" class="${cls}">
             <option value="DMY" ${pre.dateFmt === 'DMY' || !pre.dateFmt ? 'selected' : ''}>DD/MM/YYYY</option>
             <option value="MDY" ${pre.dateFmt === 'MDY' ? 'selected' : ''}>MM/DD/YYYY</option>
@@ -169,11 +169,11 @@ export function openImportWizard(accounts, onImport) {
         </div>
       </div>
       <div class="mb-4">
-        <label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Description column</label>
+        <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Description column</label>
         <select id="wiz-desc" class="${cls}">${colOptions(pre.descCol ?? 1)}</select>
       </div>
       <div class="mb-4">
-        <label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Amount style</label>
+        <label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Amount style</label>
         <select id="wiz-mode" class="${cls}">
           <option value="single" ${pre.mode !== 'split' ? 'selected' : ''}>One signed column</option>
           <option value="split"  ${pre.mode === 'split'  ? 'selected' : ''}>Separate in / out columns</option>
@@ -182,7 +182,7 @@ export function openImportWizard(accounts, onImport) {
       <div id="wiz-amt-fields" class="mb-4"></div>
       <div class="flex justify-end gap-3">
         <button id="wiz-cancel" class="px-4 py-2 text-sm text-stone hover:text-ink">Cancel</button>
-        <button id="wiz-preview" class="px-5 py-2 text-sm bg-ink text-paper rounded hover:bg-stone">Preview</button>
+        <button id="wiz-preview" class="rounded bg-ink px-5 py-2 text-sm text-paper hover:bg-stone">Preview</button>
       </div>`;
 
     const modeSel = body.querySelector('#wiz-mode');
@@ -190,16 +190,16 @@ export function openImportWizard(accounts, onImport) {
     const drawAmt = () => {
       amtWrap.innerHTML = modeSel.value === 'split'
         ? `<div class="grid grid-cols-2 gap-3">
-             <div><label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Money in column</label>
+             <div><label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Money in column</label>
                <select id="wiz-in" class="${cls}">${colOptions(pre.inCol ?? 2)}</select></div>
-             <div><label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Money out column</label>
+             <div><label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Money out column</label>
                <select id="wiz-out" class="${cls}">${colOptions(pre.outCol ?? 3)}</select></div>
            </div>`
         : `<div class="grid grid-cols-2 gap-3">
-             <div><label class="block text-xs font-medium text-stone uppercase tracking-wide mb-1">Amount column</label>
+             <div><label class="mb-1 block text-xs font-medium tracking-wide text-stone uppercase">Amount column</label>
                <select id="wiz-amt" class="${cls}">${colOptions(pre.amountCol ?? 2)}</select></div>
              <div class="flex items-end pb-2">
-               <label class="flex items-center gap-2 text-sm cursor-pointer">
+               <label class="flex cursor-pointer items-center gap-2 text-sm">
                  <input type="checkbox" id="wiz-flip" ${pre.flip ? 'checked' : ''} class="accent-warm">
                  Flip signs (debits shown as positive)
                </label>
@@ -239,21 +239,21 @@ export function openImportWizard(accounts, onImport) {
     const { rows, errors } = buildRows(parsed, map);
     const fmt = (n) => n < 0 ? `-£${Math.abs(n).toFixed(2)}` : `£${n.toFixed(2)}`;
     body.innerHTML = `
-      <p class="text-sm text-stone mb-4">
+      <p class="mb-4 text-sm text-stone">
         ${rows.length} transactions${errors.length ? ` · <span class="text-warm">${errors.length} rows skipped</span>` : ''}
       </p>
-      <div class="rounded border border-warm-light divide-y divide-warm-light mb-5 max-h-56 overflow-y-auto font-mono text-xs">
+      <div class="mb-5 max-h-56 divide-y divide-warm-light overflow-y-auto rounded border border-warm-light font-mono text-xs">
         ${rows.slice(0, 10).map(r => `
           <div class="flex items-center gap-3 px-3 py-1.5">
-            <span class="text-stone shrink-0">${r.date}</span>
+            <span class="shrink-0 text-stone">${r.date}</span>
             <span class="flex-1 truncate text-ink">${esc(r.description)}</span>
             <span class="${r.amount < 0 ? 'text-signal' : 'text-ink'} shrink-0">${fmt(r.amount)}</span>
           </div>`).join('')}
-        ${rows.length > 10 ? `<div class="px-3 py-1.5 text-stone text-center">+ ${rows.length - 10} more</div>` : ''}
+        ${rows.length > 10 ? `<div class="px-3 py-1.5 text-center text-stone">+ ${rows.length - 10} more</div>` : ''}
       </div>
       <div class="flex justify-end gap-3">
         <button id="wiz-back" class="px-4 py-2 text-sm text-stone hover:text-ink">Back</button>
-        <button id="wiz-import" class="px-5 py-2 text-sm bg-ink text-paper rounded hover:bg-stone" ${rows.length ? '' : 'disabled'}>
+        <button id="wiz-import" class="rounded bg-ink px-5 py-2 text-sm text-paper hover:bg-stone" ${rows.length ? '' : 'disabled'}>
           Import ${rows.length} transactions
         </button>
       </div>`;
@@ -268,7 +268,7 @@ export function openImportWizard(accounts, onImport) {
       } catch (err) {
         btn.disabled = false;
         btn.textContent = `Import ${rows.length} transactions`;
-        body.insertAdjacentHTML('beforeend', `<p class="text-signal text-sm mt-2">${esc(err.message)}</p>`);
+        body.insertAdjacentHTML('beforeend', `<p class="mt-2 text-sm text-signal">${esc(err.message)}</p>`);
       }
     };
   }

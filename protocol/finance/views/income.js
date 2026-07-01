@@ -25,7 +25,7 @@ async function load(el, onRefresh) {
     };
 
     el.innerHTML = `
-      <div class="max-w-2xl mx-auto px-4 py-6 space-y-8">
+      <div class="mx-auto max-w-2xl space-y-8 px-4 py-6">
         ${people.length === 0 ? emptyState() : ''}
         <div id="income-people"></div>
       </div>`;
@@ -47,7 +47,7 @@ async function load(el, onRefresh) {
 // ── Rendering ──────────────────────────────────────────────────────────────────
 
 function emptyState() {
-  return `<p class="text-stone text-sm text-center py-8">
+  return `<p class="py-8 text-center text-sm text-stone">
     No people yet — add them in Settings (⚙) to get started.
   </p>`;
 }
@@ -56,14 +56,14 @@ function renderPerson(person, engine) {
   const net = engine?.total_net_monthly_pence;
   const gross = engine?.total_gross_monthly_pence;
   return `
-    <div class="rounded-lg border border-warm-light overflow-hidden" data-person="${person.id}">
+    <div class="overflow-hidden rounded-lg border border-warm-light" data-person="${person.id}">
       <!-- Person header -->
-      <div class="flex items-baseline justify-between px-5 py-4 bg-warm-light/30">
+      <div class="flex items-baseline justify-between bg-warm-light/30 px-5 py-4">
         <h2 class="font-display text-xl text-ink">${esc(person.display_name)}</h2>
         ${net != null ? `
           <div class="text-right">
             <span class="text-lg font-medium text-ink">${penceToCompact(net)}<span class="text-sm text-stone">/mo</span></span>
-            <span class="text-xs text-stone ml-2">gross ${penceToCompact(gross)}</span>
+            <span class="ml-2 text-xs text-stone">gross ${penceToCompact(gross)}</span>
           </div>` : ''}
       </div>
 
@@ -79,7 +79,7 @@ function renderPerson(person, engine) {
       </div>
 
       <!-- Add source -->
-      <div class="px-5 py-3 border-t border-warm-light bg-paper">
+      <div class="border-t border-warm-light bg-paper px-5 py-3">
         ${actionLink('+ Add income source', { data: { act: 'add-source', person: person.id } })}
       </div>
 
@@ -89,7 +89,7 @@ function renderPerson(person, engine) {
 }
 
 function renderCliffs(cliffs) {
-  return `<div class="px-5 py-3 bg-warm/10 border-b border-warm-light space-y-1">
+  return `<div class="space-y-1 border-b border-warm-light bg-warm/10 px-5 py-3">
     ${cliffs.map(c => {
       const dir = c.direction === 'approaching' ? '↑' : '↗';
       const dist = Math.abs(c.distance_pence);
@@ -97,7 +97,7 @@ function renderCliffs(cliffs) {
         ? `${penceToCompact(dist)} below`
         : `${penceToCompact(dist)} above`;
       return `<div class="flex items-start gap-2 text-xs text-ink">
-        <span class="text-warm shrink-0">${dir}</span>
+        <span class="shrink-0 text-warm">${dir}</span>
         <span><strong>${c.label}</strong> — ${msg}</span>
       </div>`;
     }).join('')}
@@ -108,7 +108,7 @@ function renderSource(src, engine) {
   const entry = src.entry;
   if (!entry) {
     return `
-      <div class="px-5 py-4 flex items-center justify-between" data-source="${src.id}">
+      <div class="flex items-center justify-between px-5 py-4" data-source="${src.id}">
         <div>
           <span class="text-sm font-medium text-ink">${esc(src.name)}</span>
           <span class="ml-2 text-xs text-stone">${kindLabel(src.kind)}</span>
@@ -133,7 +133,7 @@ function renderSource(src, engine) {
 
   return `
     <div class="px-5 py-4" data-source="${src.id}">
-      <div class="flex items-start justify-between mb-3">
+      <div class="mb-3 flex items-start justify-between">
         <div>
           <span class="text-sm font-medium text-ink">${esc(src.name)}</span>
           <span class="ml-2 text-xs text-stone">${src.tax_code}${src.is_primary ? ' · primary' : ''}</span>
@@ -141,7 +141,7 @@ function renderSource(src, engine) {
           <span class="ml-2 text-xs text-stone">from ${formatMonth(entry.effective_from)}</span>
           ${entry.has_overrides ? '<span class="ml-2 text-xs text-warm">overrides</span>' : ''}
         </div>
-        <div class="flex gap-3 text-xs text-stone shrink-0 ml-4">
+        <div class="ml-4 flex shrink-0 gap-3 text-xs text-stone">
           ${actionLink('Edit', { data: { act: 'edit-entry', source: src.id } })}
           ${actionLink('History', { data: { act: 'history', source: src.id } })}
           ${actionLink('Configure', { data: { act: 'configure', source: src.id } })}
@@ -149,7 +149,7 @@ function renderSource(src, engine) {
       </div>
 
       <!-- Waterfall breakdown -->
-      <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone font-mono">
+      <div class="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-stone">
         ${rows.map((r, i) => `
           <span class="${i > 0 ? 'text-stone/60' : 'text-ink'} whitespace-nowrap">
             ${i > 0 ? (r.sign ?? '−') + ' ' : ''}${r.label} <strong class="text-ink">${penceToDisplay(Math.abs(r.value))}</strong>
@@ -168,9 +168,9 @@ function renderSource(src, engine) {
 function renderEvents(person) {
   const evts = person.events ?? [];
   return `
-    <div class="px-5 py-3 border-t border-warm-light">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-medium text-stone uppercase tracking-wide">One-off events this year</span>
+    <div class="border-t border-warm-light px-5 py-3">
+      <div class="mb-2 flex items-center justify-between">
+        <span class="text-xs font-medium tracking-wide text-stone uppercase">One-off events this year</span>
         ${actionLink('+ Add', { data: { act: 'add-event', person: person.id } })}
       </div>
       ${evts.length === 0
@@ -328,11 +328,11 @@ function entryModal(existingEntry, src, person, householdSettings, reload) {
         field('Effective from', monthInput('effective_from', existingEntry?.effective_from?.slice(0,7) ?? THIS_MONTH)),
         field('Annual gross (£)', textInput('annual_gross', grossPounds, 'e.g. 105000'))
       )}
-      <div id="preview" class="rounded-lg bg-warm-light/30 px-4 py-3 space-y-1 text-sm">
-        <p class="text-stone text-xs">Enter gross above to see breakdown</p>
+      <div id="preview" class="space-y-1 rounded-lg bg-warm-light/30 px-4 py-3 text-sm">
+        <p class="text-xs text-stone">Enter gross above to see breakdown</p>
       </div>
       <details class="mt-4">
-        <summary class="text-xs text-stone cursor-pointer hover:text-ink">Override computed values</summary>
+        <summary class="cursor-pointer text-xs text-stone hover:text-ink">Override computed values</summary>
         <div class="mt-3 grid grid-cols-2 gap-3">
           ${field('Income tax (£/mo)', textInput('override_tax', '', '', 'data-override'))}
           ${field('NI (£/mo)', textInput('override_ni', '', '', 'data-override'))}
@@ -349,7 +349,7 @@ function entryModal(existingEntry, src, person, householdSettings, reload) {
         const annualGrossStr = val(o, 'annual_gross');
         const annualGrossPence = parsePence(annualGrossStr);
         if (!annualGrossPence || annualGrossPence <= 0) {
-          previewEl.innerHTML = '<p class="text-stone text-xs">Enter gross above to see breakdown</p>';
+          previewEl.innerHTML = '<p class="text-xs text-stone">Enter gross above to see breakdown</p>';
           return;
         }
         const monthlyGross = annualToMonthly(annualGrossPence);
@@ -364,23 +364,23 @@ function entryModal(existingEntry, src, person, householdSettings, reload) {
           previewEl.innerHTML = `
             <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
               <span class="text-stone">Gross/mo</span>
-              <span class="font-mono text-ink text-right">${penceToDisplay(s.gross_monthly_pence)}</span>
+              <span class="text-right font-mono text-ink">${penceToDisplay(s.gross_monthly_pence)}</span>
               ${s.pension_ee_monthly_pence ? `
               <span class="text-stone">Pension (you)</span>
-              <span class="font-mono text-ink text-right">−${penceToDisplay(s.pension_ee_monthly_pence)}</span>` : ''}
+              <span class="text-right font-mono text-ink">−${penceToDisplay(s.pension_ee_monthly_pence)}</span>` : ''}
               <span class="text-stone">Income tax</span>
-              <span class="font-mono text-ink text-right">−${penceToDisplay(s.income_tax_monthly_pence)}</span>
+              <span class="text-right font-mono text-ink">−${penceToDisplay(s.income_tax_monthly_pence)}</span>
               <span class="text-stone">NI</span>
-              <span class="font-mono text-ink text-right">−${penceToDisplay(s.ni_monthly_pence)}</span>
+              <span class="text-right font-mono text-ink">−${penceToDisplay(s.ni_monthly_pence)}</span>
               ${s.student_loan_monthly_pence ? `
               <span class="text-stone">Student loan</span>
-              <span class="font-mono text-ink text-right">−${penceToDisplay(s.student_loan_monthly_pence)}</span>` : ''}
-              <span class="font-medium text-ink border-t border-warm-light pt-1">Net/mo</span>
-              <span class="font-mono font-medium text-ink border-t border-warm-light pt-1 text-right">
+              <span class="text-right font-mono text-ink">−${penceToDisplay(s.student_loan_monthly_pence)}</span>` : ''}
+              <span class="border-t border-warm-light pt-1 font-medium text-ink">Net/mo</span>
+              <span class="border-t border-warm-light pt-1 text-right font-mono font-medium text-ink">
                 ${penceToDisplay(s.net_monthly_pence)}
               </span>
             </div>`;
-        } catch { previewEl.innerHTML = '<p class="text-signal text-xs">Calculation error</p>'; }
+        } catch { previewEl.innerHTML = '<p class="text-xs text-signal">Calculation error</p>'; }
       }
       o.querySelector('[name="annual_gross"]').addEventListener('input', updatePreview);
       if (grossPounds) updatePreview();
@@ -433,13 +433,13 @@ function historyModal(src) {
   const { body } = baseOverlay({
     title: `History: ${esc(src.name)}`,
     bodyClass: 'px-6 py-4 max-h-96 overflow-y-auto',
-    bodyHtml: '<p class="text-stone text-sm">Loading…</p>',
+    bodyHtml: '<p class="text-sm text-stone">Loading…</p>',
   });
 
   api.getSourceHistory(src.id).then(entries => {
-    if (!entries.length) { body.innerHTML = '<p class="text-stone text-sm">No entries yet.</p>'; return; }
-    body.innerHTML = `<table class="w-full text-xs font-mono">
-      <thead><tr class="text-stone text-left border-b border-warm-light">
+    if (!entries.length) { body.innerHTML = '<p class="text-sm text-stone">No entries yet.</p>'; return; }
+    body.innerHTML = `<table class="w-full font-mono text-xs">
+      <thead><tr class="border-b border-warm-light text-left text-stone">
         <th class="pb-2">From</th><th class="pb-2">Gross/mo</th>
         <th class="pb-2">Tax</th><th class="pb-2">NI</th><th class="pb-2">Net/mo</th>
       </tr></thead>
@@ -464,7 +464,7 @@ function addEventModal(person, allPeople, reload) {
       ${field('Kind', select('kind', [['bonus','Bonus'],['dividend','Dividend'],['other','Other']]))}
       ${twoCol(
         field('Date', `<input name="event_date" type="date" value="${TODAY}"
-          class="w-full border border-warm-light rounded px-3 py-2 bg-paper text-sm">`),
+          class="w-full rounded border border-warm-light bg-paper px-3 py-2 text-sm">`),
         field('Gross amount (£)', textInput('gross', '', 'e.g. 10000'))
       )}
       ${sources.length ? field('Linked source (optional)',
@@ -525,7 +525,7 @@ function pensionContribInput(namePrefix, existingType = 'pct', existingValue = 0
   return `<div class="flex gap-2">
     <input name="${namePrefix}_val" type="number" step="0.01" min="0"
       value="${displayVal}" placeholder="5"
-      class="flex-1 min-w-0 ${isCls}">
+      class="min-w-0 flex-1 ${isCls}">
     <select name="${namePrefix}_type" class="shrink-0 ${isCls}">
       <option value="pct"   ${existingType === 'pct'   ? 'selected' : ''}>%</option>
       <option value="fixed" ${existingType === 'fixed' ? 'selected' : ''}>£/mo</option>

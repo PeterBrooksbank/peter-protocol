@@ -8,12 +8,12 @@ export function esc(s) {
 
 /** Standard "loading…" placeholder shown while a view's data is being fetched. */
 export function loadingState(label = '') {
-  return `<div class="p-4 text-stone text-sm animate-pulse">Loading${label ? ' ' + label : ''}…</div>`;
+  return `<div class="animate-pulse p-4 text-sm text-stone">Loading${label ? ' ' + label : ''}…</div>`;
 }
 
 /** Standard error placeholder shown when a view's load/action fails. */
 export function errorState(err) {
-  return `<div class="p-4 text-signal text-sm">${esc(err?.message ?? err)}</div>`;
+  return `<div class="p-4 text-sm text-signal">${esc(err?.message ?? err)}</div>`;
 }
 
 /**
@@ -33,12 +33,12 @@ export function overlay({ title, maxWidth = 'max-w-lg', headerExtra = '', bodyHt
   const el = document.createElement('div');
   el.className = 'fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 overflow-y-auto';
   el.innerHTML = `
-    <div class="bg-paper rounded-lg shadow-2xl w-full ${maxWidth} my-auto">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-warm-light sticky top-0 bg-paper z-10" data-header>
+    <div class="w-full rounded-lg bg-paper shadow-2xl ${maxWidth} my-auto">
+      <div class="sticky top-0 z-10 flex items-center justify-between border-b border-warm-light bg-paper px-6 py-4" data-header>
         <h2 class="font-display text-xl text-ink" data-title>${title ?? ''}</h2>
         <div class="flex items-center gap-3">
           ${headerExtra}
-          <button data-act="close" class="text-stone hover:text-ink text-xl leading-none">&times;</button>
+          <button data-act="close" class="text-xl leading-none text-stone hover:text-ink">&times;</button>
         </div>
       </div>
       <div class="${bodyClass}" data-body>${bodyHtml}</div>
@@ -73,5 +73,5 @@ export function actionLink(label, { data = {}, size = 'xs', tone = 'stone', clas
     .join(' ');
   const sizeCls = size === 'sm' ? 'text-sm' : 'text-xs';
   const toneCls = tone === 'warm' ? 'text-warm' : 'text-stone';
-  return `<button ${attrs} class="${sizeCls} ${toneCls} hover:text-ink underline ${extra}">${label}</button>`;
+  return `<button ${attrs} class="${sizeCls} ${toneCls} underline hover:text-ink ${extra}">${label}</button>`;
 }

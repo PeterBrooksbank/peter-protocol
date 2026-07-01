@@ -12,7 +12,7 @@ export function openSettings(onClose) {
   const { overlay, body, close: closeOverlay } = baseOverlay({
     title: 'Settings',
     bodyClass: 'px-6 py-5 space-y-6',
-    bodyHtml: '<div data-loading class="text-stone text-sm">Loading…</div>',
+    bodyHtml: '<div data-loading class="text-sm text-stone">Loading…</div>',
   });
 
   const close = () => { closeOverlay(); if (dirty) onClose?.(); };
@@ -28,7 +28,7 @@ export function openSettings(onClose) {
     body.innerHTML = `
       <!-- Household cliff-edge settings -->
       <section>
-        <h3 class="text-sm font-medium text-stone uppercase tracking-wide mb-3">Household</h3>
+        <h3 class="mb-3 text-sm font-medium tracking-wide text-stone uppercase">Household</h3>
         <div class="space-y-3">
           ${field('Household name', textInput('name', settings.name ?? ''))}
           ${checkbox('claim_child_benefit', settings.claim_child_benefit,
@@ -36,7 +36,7 @@ export function openSettings(onClose) {
           <div id="cb-children" class="${settings.claim_child_benefit ? '' : 'hidden'} pl-6">
             ${field('Number of children',
               `<input name="num_children" type="number" min="0" value="${settings.num_children ?? 0}"
-               class="w-24 border border-warm-light rounded px-3 py-2 bg-paper text-ink text-sm">`)}
+               class="w-24 rounded border border-warm-light bg-paper px-3 py-2 text-sm text-ink">`)}
           </div>
           ${checkbox('uses_tax_free_childcare', settings.uses_tax_free_childcare,
             'Uses tax-free childcare or 30-hour free hours')}
@@ -45,21 +45,21 @@ export function openSettings(onClose) {
 
       <!-- People -->
       <section>
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-sm font-medium text-stone uppercase tracking-wide">People</h3>
+        <div class="mb-3 flex items-center justify-between">
+          <h3 class="text-sm font-medium tracking-wide text-stone uppercase">People</h3>
           <button data-act="add-person"
-            class="text-xs px-3 py-1 border border-warm rounded hover:bg-warm-light text-ink">
+            class="rounded border border-warm px-3 py-1 text-xs text-ink hover:bg-warm-light">
             + Add person
           </button>
         </div>
         <ul class="space-y-2" id="people-list">
-          ${people.map(renderPersonRow).join('') || '<li class="text-stone text-sm">No people yet.</li>'}
+          ${people.map(renderPersonRow).join('') || '<li class="text-sm text-stone">No people yet.</li>'}
         </ul>
       </section>
 
       <div class="flex justify-end pt-2">
         <button data-act="save"
-          class="px-5 py-2 text-sm bg-ink text-paper rounded hover:bg-stone transition-colors">
+          class="rounded bg-ink px-5 py-2 text-sm text-paper transition-colors hover:bg-stone">
           Save settings
         </button>
       </div>
@@ -79,7 +79,7 @@ export function openSettings(onClose) {
 
   function renderPersonRow(p) {
     return `
-      <li class="flex items-center justify-between py-2 border-b border-warm-light last:border-0">
+      <li class="flex items-center justify-between border-b border-warm-light py-2 last:border-0">
         <div>
           <span class="text-sm font-medium text-ink">${esc(p.display_name)}</span>
           ${p.is_earner ? '' : '<span class="ml-2 text-xs text-stone">(not earner)</span>'}

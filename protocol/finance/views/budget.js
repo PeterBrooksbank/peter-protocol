@@ -26,19 +26,19 @@ async function load(el, month) {
     const totals = computeTotals(categories);
 
     el.innerHTML = `
-      <div class="max-w-2xl mx-auto px-4 py-6">
+      <div class="mx-auto max-w-2xl px-4 py-6">
         <!-- Month nav + import -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="mb-6 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <button data-act="prev-month" class="text-stone hover:text-ink px-2">←</button>
+            <button data-act="prev-month" class="px-2 text-stone hover:text-ink">←</button>
             <span class="font-medium text-ink">${formatMonth(month, { month: 'long' })}</span>
-            <button data-act="next-month" class="text-stone hover:text-ink px-2">→</button>
+            <button data-act="next-month" class="px-2 text-stone hover:text-ink">→</button>
           </div>
-          <div class="flex gap-3 items-center">
+          <div class="flex items-center gap-3">
             ${uncategorised_count > 0
               ? actionLink(`Review ${uncategorised_count} unmatched`, { data: { act: 'review' }, tone: 'warm' })
               : ''}
-            <button data-act="import" class="text-sm px-3 py-1.5 border border-warm-light rounded hover:bg-warm-light text-ink">
+            <button data-act="import" class="rounded border border-warm-light px-3 py-1.5 text-sm text-ink hover:bg-warm-light">
               Import statement
             </button>
           </div>
@@ -48,14 +48,14 @@ async function load(el, month) {
         ${renderSummary(totals)}
 
         <!-- Categories -->
-        <div id="cat-list" class="space-y-6 mt-6">
+        <div id="cat-list" class="mt-6 space-y-6">
           ${categories.length === 0
-            ? '<p class="text-stone text-sm text-center py-8">No budget categories yet.</p>'
+            ? '<p class="py-8 text-center text-sm text-stone">No budget categories yet.</p>'
             : categories.map(c => renderCategory(c, month)).join('')}
         </div>
 
         <!-- Add category -->
-        <div class="mt-6 pt-4 border-t border-warm-light">
+        <div class="mt-6 border-t border-warm-light pt-4">
           ${actionLink('+ Add category', { data: { act: 'add-cat' }, size: 'sm' })}
         </div>
       </div>`;
@@ -74,17 +74,17 @@ function renderSummary(totals) {
     <div class="rounded-lg border border-warm-light px-5 py-4">
       <div class="grid grid-cols-3 gap-4 text-center">
         <div>
-          <div class="text-xs text-stone uppercase tracking-wide mb-1">Planned in</div>
+          <div class="mb-1 text-xs tracking-wide text-stone uppercase">Planned in</div>
           <div class="font-medium text-ink">${penceToCompact(totals.plannedIncome)}</div>
           ${totals.actualIncome > 0 ? `<div class="text-xs text-stone">actual ${penceToCompact(totals.actualIncome)}</div>` : ''}
         </div>
         <div>
-          <div class="text-xs text-stone uppercase tracking-wide mb-1">Planned spend</div>
+          <div class="mb-1 text-xs tracking-wide text-stone uppercase">Planned spend</div>
           <div class="font-medium text-ink">${penceToCompact(totals.plannedExpense)}</div>
           ${totals.actualExpense > 0 ? `<div class="text-xs ${totals.actualExpense > totals.plannedExpense ? 'text-signal' : 'text-stone'}">actual ${penceToCompact(totals.actualExpense)}</div>` : ''}
         </div>
         <div>
-          <div class="text-xs text-stone uppercase tracking-wide mb-1">Surplus</div>
+          <div class="mb-1 text-xs tracking-wide text-stone uppercase">Surplus</div>
           <div class="font-medium ${surplus >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(surplus)}</div>
         </div>
       </div>
@@ -98,9 +98,9 @@ function renderCategory(cat, month) {
 
   return `
     <div data-cat="${cat.id}">
-      <div class="flex items-baseline justify-between mb-2">
+      <div class="mb-2 flex items-baseline justify-between">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-medium text-stone uppercase tracking-wide">${esc(cat.name)}</span>
+          <span class="text-xs font-medium tracking-wide text-stone uppercase">${esc(cat.name)}</span>
           <span class="text-xs text-stone">${cat.kind}</span>
           ${actionLink('edit', { data: { act: 'edit-cat', id: cat.id } })}
         </div>
@@ -108,7 +108,7 @@ function renderCategory(cat, month) {
           ${catActual > 0 ? `${penceToCompact(catActual)} / ` : ''}${penceToCompact(catPlanned)}
         </div>
       </div>
-      <div class="rounded-lg border border-warm-light divide-y divide-warm-light">
+      <div class="divide-y divide-warm-light rounded-lg border border-warm-light">
         ${cat.lines.map(l => renderLine(l, cat)).join('')}
         <div class="px-4 py-2.5">
           ${actionLink('+ Add line', { data: { act: 'add-line', cat: cat.id } })}
@@ -125,18 +125,18 @@ function renderLine(line, cat) {
 
   return `
     <div class="flex items-center gap-3 px-4 py-2.5" data-line="${line.id}">
-      <div class="flex-1 min-w-0">
+      <div class="min-w-0 flex-1">
         <div class="flex items-baseline gap-2">
           <span class="text-sm text-ink">${esc(line.name)}</span>
-          ${line.match_rule ? `<span class="text-xs text-stone font-mono">${esc(line.match_rule)}</span>` : ''}
+          ${line.match_rule ? `<span class="font-mono text-xs text-stone">${esc(line.match_rule)}</span>` : ''}
           ${actionLink('edit', { data: { act: 'edit-line', id: line.id } })}
         </div>
         ${planned > 0 ? `
-        <div class="mt-1 h-1 rounded bg-warm-light overflow-hidden">
+        <div class="mt-1 h-1 overflow-hidden rounded bg-warm-light">
           <div class="h-full rounded ${over ? 'bg-signal' : 'bg-warm'}" style="width:${pct}%"></div>
         </div>` : ''}
       </div>
-      <div class="text-right shrink-0">
+      <div class="shrink-0 text-right">
         ${actual > 0
           ? `<span class="text-sm ${over ? 'text-signal font-medium' : 'text-ink'}">${penceToDisplay(actual)}</span>
              ${planned > 0 ? `<span class="text-xs text-stone"> / ${penceToDisplay(planned)}</span>` : ''}`
@@ -299,53 +299,53 @@ function reviewTransactionsFromImport(txns, budgetLines, reload) {
     maxWidth: 'max-w-2xl',
     headerExtra: `
           <span class="text-xs text-stone">${unmatched.length} need review</span>
-          <button id="rev-save" class="px-4 py-1.5 text-sm bg-ink text-paper rounded hover:bg-stone">Done</button>`,
+          <button id="rev-save" class="rounded bg-ink px-4 py-1.5 text-sm text-paper hover:bg-stone">Done</button>`,
     bodyClass: 'px-6 py-4 space-y-6 max-h-[70vh] overflow-y-auto',
     bodyHtml: `
         ${autoable.length ? `
           <div>
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-xs font-medium text-stone uppercase tracking-wide">Auto-matched (${autoable.length})</h3>
-              <button id="rev-apply-auto" class="text-xs text-warm hover:text-ink underline">Apply all matches</button>
+            <div class="mb-2 flex items-center justify-between">
+              <h3 class="text-xs font-medium tracking-wide text-stone uppercase">Auto-matched (${autoable.length})</h3>
+              <button id="rev-apply-auto" class="text-xs text-warm underline hover:text-ink">Apply all matches</button>
             </div>
-            <div class="rounded border border-warm-light divide-y divide-warm-light">
+            <div class="divide-y divide-warm-light rounded border border-warm-light">
               ${autoable.map(t => `
                 <div class="flex items-center gap-3 px-3 py-2 text-xs">
-                  <span class="flex-1 truncate text-ink font-mono">${esc(t.description)}</span>
+                  <span class="flex-1 truncate font-mono text-ink">${esc(t.description)}</span>
                   <span class="${t.amount_pence < 0 ? 'text-signal' : 'text-ink'} shrink-0">${penceToDisplay(Math.abs(t.amount_pence))}</span>
-                  <span class="text-stone shrink-0">→ ${esc(t.matched_line?.name ?? '')}</span>
+                  <span class="shrink-0 text-stone">→ ${esc(t.matched_line?.name ?? '')}</span>
                 </div>`).join('')}
             </div>
           </div>` : ''}
 
         ${unmatched.length ? `
           <div>
-            <h3 class="text-xs font-medium text-stone uppercase tracking-wide mb-2">Needs action (${unmatched.length})</h3>
+            <h3 class="mb-2 text-xs font-medium tracking-wide text-stone uppercase">Needs action (${unmatched.length})</h3>
             <div class="space-y-2">
               ${unmatched.map(t => `
                 <div class="rounded border border-warm/50 px-3 py-2" data-txn="${t.id}">
-                  <div class="flex items-start gap-2 mb-2">
-                    <span class="flex-1 text-xs font-mono text-ink truncate">${esc(t.description)}</span>
+                  <div class="mb-2 flex items-start gap-2">
+                    <span class="flex-1 truncate font-mono text-xs text-ink">${esc(t.description)}</span>
                     <span class="text-xs ${t.amount_pence < 0 ? 'text-signal' : 'text-ink'} shrink-0">${penceToDisplay(Math.abs(t.amount_pence))}</span>
-                    <span class="text-xs text-stone shrink-0">${t.date}</span>
+                    <span class="shrink-0 text-xs text-stone">${t.date}</span>
                   </div>
-                  <div class="flex gap-2 flex-wrap">
-                    <select data-role="line" class="text-xs border border-warm-light rounded px-2 py-1 bg-paper">
+                  <div class="flex flex-wrap gap-2">
+                    <select data-role="line" class="rounded border border-warm-light bg-paper px-2 py-1 text-xs">
                       <option value="">Assign to line…</option>
                       ${lineOpts}
                     </select>
-                    <button data-role="new-line" class="text-xs px-2 py-1 border border-warm-light rounded hover:bg-warm-light">New line</button>
-                    <button data-role="income"   class="text-xs px-2 py-1 border border-warm-light rounded hover:bg-warm-light ${t.txn_class === 'income'   ? 'bg-warm-light' : ''}">Income</button>
-                    <button data-role="transfer" class="text-xs px-2 py-1 border border-warm-light rounded hover:bg-warm-light ${t.txn_class === 'transfer' ? 'bg-warm-light' : ''}">Transfer</button>
-                    <button data-role="ignore"   class="text-xs px-2 py-1 border border-warm-light rounded hover:bg-warm-light ${t.txn_class === 'ignore'   ? 'bg-warm-light' : ''}">Ignore</button>
+                    <button data-role="new-line" class="rounded border border-warm-light px-2 py-1 text-xs hover:bg-warm-light">New line</button>
+                    <button data-role="income"   class="rounded border border-warm-light px-2 py-1 text-xs hover:bg-warm-light ${t.txn_class === 'income'   ? 'bg-warm-light' : ''}">Income</button>
+                    <button data-role="transfer" class="rounded border border-warm-light px-2 py-1 text-xs hover:bg-warm-light ${t.txn_class === 'transfer' ? 'bg-warm-light' : ''}">Transfer</button>
+                    <button data-role="ignore"   class="rounded border border-warm-light px-2 py-1 text-xs hover:bg-warm-light ${t.txn_class === 'ignore'   ? 'bg-warm-light' : ''}">Ignore</button>
                   </div>
                 </div>`).join('')}
             </div>
-          </div>` : '<p class="text-stone text-sm text-center py-4">All transactions matched ✓</p>'}
+          </div>` : '<p class="py-4 text-center text-sm text-stone">All transactions matched ✓</p>'}
 
         ${alreadyDone.length ? `
           <div>
-            <h3 class="text-xs font-medium text-stone uppercase tracking-wide mb-2">Already categorised (${alreadyDone.length})</h3>
+            <h3 class="mb-2 text-xs font-medium tracking-wide text-stone uppercase">Already categorised (${alreadyDone.length})</h3>
             <div class="text-xs text-stone">Showing ${Math.min(alreadyDone.length, 3)} of ${alreadyDone.length}…</div>
           </div>` : ''}`,
   });

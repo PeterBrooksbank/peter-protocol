@@ -78,7 +78,7 @@ async function load(el) {
     }));
 
     el.innerHTML = `
-      <div class="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div class="mx-auto max-w-2xl space-y-6 px-4 py-6">
         ${renderCashflowHero(totalNetIncome, plannedExpense, actualExpense)}
         ${renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, savings)}
         ${renderBudgetChart(chartData)}
@@ -99,20 +99,20 @@ async function load(el) {
 function renderCashflowHero(netIncome, plannedExpense, actualExpense) {
   const surplus = netIncome - plannedExpense;
   return `
-    <div class="rounded-lg border border-warm-light px-6 py-5 cursor-pointer hover:border-warm transition-colors" data-goto="income">
-      <div class="text-xs text-stone uppercase tracking-wide mb-2">This month</div>
+    <div class="cursor-pointer rounded-lg border border-warm-light px-6 py-5 transition-colors hover:border-warm" data-goto="income">
+      <div class="mb-2 text-xs tracking-wide text-stone uppercase">This month</div>
       <div class="grid grid-cols-3 gap-4 text-center">
         <div>
-          <div class="text-xs text-stone mb-1">Net income</div>
+          <div class="mb-1 text-xs text-stone">Net income</div>
           <div class="font-display text-xl text-ink">${penceToCompact(netIncome)}</div>
         </div>
         <div>
-          <div class="text-xs text-stone mb-1">Planned spend</div>
+          <div class="mb-1 text-xs text-stone">Planned spend</div>
           <div class="font-display text-xl text-ink">${penceToCompact(plannedExpense)}</div>
           ${actualExpense > 0 ? `<div class="text-xs text-stone">actual ${penceToCompact(actualExpense)}</div>` : ''}
         </div>
         <div>
-          <div class="text-xs text-stone mb-1">Surplus</div>
+          <div class="mb-1 text-xs text-stone">Surplus</div>
           <div class="font-display text-xl ${surplus >= 0 ? 'text-moss' : 'text-signal'}">${penceToCompact(surplus)}</div>
         </div>
       </div>
@@ -121,22 +121,22 @@ function renderCashflowHero(netIncome, plannedExpense, actualExpense) {
 
 function renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, savings) {
   return `
-    <div class="rounded-lg border border-warm-light px-6 py-5 cursor-pointer hover:border-warm transition-colors" data-goto="accounts">
-      <div class="flex items-baseline justify-between mb-3">
-        <span class="text-xs text-stone uppercase tracking-wide">Net worth</span>
+    <div class="cursor-pointer rounded-lg border border-warm-light px-6 py-5 transition-colors hover:border-warm" data-goto="accounts">
+      <div class="mb-3 flex items-baseline justify-between">
+        <span class="text-xs tracking-wide text-stone uppercase">Net worth</span>
         <span class="font-display text-2xl ${netWorth >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(netWorth)}</span>
       </div>
       <div class="grid grid-cols-3 gap-3 text-center text-xs">
         <div class="rounded bg-warm-light/30 py-2">
-          <div class="text-stone mb-0.5">Mortgage</div>
+          <div class="mb-0.5 text-stone">Mortgage</div>
           <div class="font-medium text-ink">${penceToCompact(mortgage)}</div>
         </div>
         <div class="rounded bg-warm-light/30 py-2">
-          <div class="text-stone mb-0.5">Pensions</div>
+          <div class="mb-0.5 text-stone">Pensions</div>
           <div class="font-medium text-ink">${penceToCompact(pension)}</div>
         </div>
         <div class="rounded bg-warm-light/30 py-2">
-          <div class="text-stone mb-0.5">Savings</div>
+          <div class="mb-0.5 text-stone">Savings</div>
           <div class="font-medium text-ink">${penceToCompact(savings)}</div>
         </div>
       </div>
@@ -145,8 +145,8 @@ function renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, s
 
 function renderBudgetChart(chartData) {
   return `
-    <div class="rounded-lg border border-warm-light px-6 py-5 cursor-pointer hover:border-warm transition-colors" data-goto="budget">
-      <div class="text-xs text-stone uppercase tracking-wide mb-3">Budget vs actual</div>
+    <div class="cursor-pointer rounded-lg border border-warm-light px-6 py-5 transition-colors hover:border-warm" data-goto="budget">
+      <div class="mb-3 text-xs tracking-wide text-stone uppercase">Budget vs actual</div>
       ${groupedBarChart({ data: chartData })}
     </div>`;
 }
@@ -154,8 +154,8 @@ function renderBudgetChart(chartData) {
 function renderCliffs(cliffs) {
   if (!cliffs.length) return '';
   return `
-    <div class="rounded-lg border border-warm/40 bg-warm/5 px-6 py-4 cursor-pointer hover:border-warm transition-colors" data-goto="income">
-      <div class="text-xs text-stone uppercase tracking-wide mb-2">Cliff-edge alerts</div>
+    <div class="cursor-pointer rounded-lg border border-warm/40 bg-warm/5 px-6 py-4 transition-colors hover:border-warm" data-goto="income">
+      <div class="mb-2 text-xs tracking-wide text-stone uppercase">Cliff-edge alerts</div>
       <div class="space-y-1">
         ${cliffs.map(c => `
           <div class="text-xs text-ink">
@@ -171,12 +171,12 @@ function renderNudges(uncategorised, staleAccounts) {
   return `
     <div class="space-y-2">
       ${uncategorised ? `
-        <div class="flex items-center justify-between rounded-lg border border-warm-light px-4 py-3 cursor-pointer hover:border-warm transition-colors" data-goto="budget">
+        <div class="flex cursor-pointer items-center justify-between rounded-lg border border-warm-light px-4 py-3 transition-colors hover:border-warm" data-goto="budget">
           <span class="text-sm text-ink">${uncategorised} uncategorised transaction${uncategorised > 1 ? 's' : ''}</span>
           <span class="text-xs text-stone">Review →</span>
         </div>` : ''}
       ${staleAccounts.length ? `
-        <div class="flex items-center justify-between rounded-lg border border-warm-light px-4 py-3 cursor-pointer hover:border-warm transition-colors" data-goto="accounts">
+        <div class="flex cursor-pointer items-center justify-between rounded-lg border border-warm-light px-4 py-3 transition-colors hover:border-warm" data-goto="accounts">
           <span class="text-sm text-ink">${staleAccounts.length} balance${staleAccounts.length > 1 ? 's' : ''} need updating</span>
           <span class="text-xs text-stone">Log fresh balances →</span>
         </div>` : ''}
