@@ -258,7 +258,7 @@ function addSourceModal(person, allPeople, reload) {
         person_id: person.id,
         name, kind: val(o, 'kind'),
         tax_code: val(o, 'tax_code') || '1257L',
-        tax_code_allowance_pence: allowP ? allowP * 12 : null, // annual £ → pence (already pence from parsePence)
+        tax_code_allowance_pence: allowP ?? null, // parsePence gives pence directly
         is_primary: bool(o, 'is_primary'),
         pension_method: 'none', pension_ee_type: 'pct', pension_ee_value: 0,
         pension_er_type: 'pct', pension_er_value: 0, student_loan_plan: 'none',
@@ -283,15 +283,12 @@ function configureModal(src, reload) {
       ${field('Pension method', select('pension_method', PENSION_METHODS, src.pension_method ?? 'none'))}
       <div id="pension-detail" class="${src.pension_method === 'none' ? 'hidden' : ''}">
         ${twoCol(
-          field('Employee contribution',
-            textInput('pension_ee', src.pension_ee_value ? (src.pension_ee_type === 'pct' ? src.pension_ee_value / 100 : src.pension_ee_value / 100) : '',
-              '5% or £200'),
-            'Enter as % (e.g. 5) or £/mo (e.g. 200)'),
-          field('Employer contribution',
-            textInput('pension_er', src.pension_er_value ? src.pension_er_value / 100 : '', '5% or £200'))
+          field('Employee contribution', pensionContribInput('pension_ee', src.pension_ee_type, src.pension_ee_value)),
+          field('Employer contribution', pensionContribInput('pension_er', src.pension_er_type, src.pension_er_value))
         )}
       </div>
       ${field('Student loan plan', select('student_loan_plan', SL_PLANS, src.student_loan_plan ?? 'none'))}`,
+
     submitLabel: 'Save',
     onMount(o) {
       o.querySelector('[name="pension_method"]').addEventListener('change', e => {
@@ -301,20 +298,15 @@ function configureModal(src, reload) {
     async onSubmit(o, close) {
       const allowStr = val(o, 'allowance_override');
       const allowP   = allowStr ? parsePence(allowStr) : null;
-      // Parse pension contribution: if contains %, strip it; if >=1 & <=100 treat as %, else treat as fixed
-      const parseContrib = (s) => {
-        const clean = s.replace('%','').trim();
-        const n = parseFloat(clean);
-        if (isNaN(n)) return { type: 'pct', value: 0 };
-        // If value is reasonable % (1-100) and no decimals suggesting £, treat as %
-        const isPercent = n > 0 && n <= 100 && !clean.includes('.');
-        return isPercent ? { type: 'pct', value: Math.round(n * 100) } : { type: 'fixed', value: Math.round(n * 100) };
-      };
-      const ee = parseContrib(val(o, 'pension_ee'));
-      const er = parseContrib(val(o, 'pension_er'));
+      const readContrib = (prefix) => ({
+        type:  val(o, `${prefix}_type`),
+        value: Math.round(parseFloat(o.querySelector(`[name="${prefix}_val"]`)?.value || '0') * 100),
+      });
+      const ee = readContrib('pension_ee');
+      const er = readContrib('pension_er');
       await api.patchIncomeSource(src.id, {
         tax_code: val(o, 'tax_code') || '1257L',
-        tax_code_allowance_pence: allowP ? allowP * 12 : null,
+        tax_code_allowance_pence: allowP ?? null,
         is_primary: bool(o, 'is_primary'),
         pension_method: val(o, 'pension_method'),
         pension_ee_type: ee.type, pension_ee_value: ee.value,
@@ -533,6 +525,24 @@ function toEngineSource(s) {
 
 const kindLabel = (k) => ({ employment:'PAYE', self_employment:'Self-emp', rental:'Rental',
   dividends:'Dividends', benefits:'Benefits', other:'Other' }[k] ?? k);
+
+/**
+ * Render a paired number input + % / £/mo select for pension contributions.
+ * Stored value is always in basis points (pct) or pence (fixed), both divided by 100 for display.
+ */
+function pensionContribInput(namePrefix, existingType = 'pct', existingValue = 0) {
+  const displayVal = existingValue ? (existingValue / 100).toString() : '';
+  const isCls = 'border border-warm-light rounded px-3 py-2 bg-paper text-ink text-sm focus:outline-none focus:ring-1 focus:ring-warm';
+  return `<div class="flex gap-2">
+    <input name="${namePrefix}_val" type="number" step="0.01" min="0"
+      value="${displayVal}" placeholder="5"
+      class="flex-1 min-w-0 ${isCls}">
+    <select name="${namePrefix}_type" class="shrink-0 ${isCls}">
+      <option value="pct"   ${existingType === 'pct'   ? 'selected' : ''}>%</option>
+      <option value="fixed" ${existingType === 'fixed' ? 'selected' : ''}>£/mo</option>
+    </select>
+  </div>`;
+}
 
 const fmtMonth = (s) => {
   if (!s) return '';
