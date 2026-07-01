@@ -129,17 +129,17 @@ function renderNetWorthStrip(netWorth, assets, liabilities, mortgage, pension, s
         <span class="font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Net worth</span>
         <span class="font-display text-2xl font-light tabular-nums ${netWorth >= 0 ? 'text-ink' : 'text-signal'}">${penceToCompact(netWorth)}</span>
       </div>
-      <div class="grid grid-cols-3 gap-2.5 text-center">
-        <div class="rounded-[3px] border border-ink/12 py-2.5">
-          <div class="mb-0.5 font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Mortgage</div>
+      <div class="grid grid-cols-3 divide-x divide-ink/12 border-t border-ink/12 pt-3 text-center">
+        <div class="pr-2">
+          <div class="mb-0.5 truncate font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Mortgage</div>
           <div class="text-xs font-medium text-ink tabular-nums">${penceToCompact(mortgage)}</div>
         </div>
-        <div class="rounded-[3px] border border-ink/12 py-2.5">
-          <div class="mb-0.5 font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Pensions</div>
+        <div class="px-2">
+          <div class="mb-0.5 truncate font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Pensions</div>
           <div class="text-xs font-medium text-ink tabular-nums">${penceToCompact(pension)}</div>
         </div>
-        <div class="rounded-[3px] border border-ink/12 py-2.5">
-          <div class="mb-0.5 font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Savings</div>
+        <div class="pl-2">
+          <div class="mb-0.5 truncate font-mono text-[0.55rem] tracking-[0.1em] text-stone uppercase">Savings</div>
           <div class="text-xs font-medium text-ink tabular-nums">${penceToCompact(savings)}</div>
         </div>
       </div>
@@ -157,7 +157,7 @@ function renderBudgetChart(chartData) {
 function renderCliffs(cliffs) {
   if (!cliffs.length) return '';
   return `
-    <div class="cursor-pointer rounded-[4px] border border-warm bg-warm/5 px-6 py-4 transition-colors hover:border-warm" data-goto="income">
+    <div class="cursor-pointer rounded-[4px] border border-warm bg-warm/5 px-6 py-5 transition-colors hover:border-warm" data-goto="income">
       <div class="mb-2 font-mono text-[0.58rem] tracking-[0.2em] text-stone uppercase">Cliff-edge alerts</div>
       <div class="space-y-1">
         ${cliffs.map(c => `
@@ -174,12 +174,12 @@ function renderNudges(uncategorised, staleAccounts) {
   return `
     <div class="space-y-2">
       ${uncategorised ? `
-        <div class="flex cursor-pointer items-center justify-between rounded-[4px] border border-ink/12 bg-white px-4 py-3 transition-colors hover:border-warm" data-goto="budget">
+        <div class="flex cursor-pointer items-center justify-between rounded-[4px] border border-ink/12 bg-white px-6 py-4 transition-colors hover:border-warm" data-goto="budget">
           <span class="text-xs text-ink">${uncategorised} uncategorised transaction${uncategorised > 1 ? 's' : ''}</span>
           <span class="font-mono text-[0.58rem] tracking-[0.1em] text-warm uppercase">Review →</span>
         </div>` : ''}
       ${staleAccounts.length ? `
-        <div class="flex cursor-pointer items-center justify-between rounded-[4px] border border-ink/12 bg-white px-4 py-3 transition-colors hover:border-warm" data-goto="accounts">
+        <div class="flex cursor-pointer items-center justify-between rounded-[4px] border border-ink/12 bg-white px-6 py-4 transition-colors hover:border-warm" data-goto="accounts">
           <span class="text-xs text-ink">${staleAccounts.length} balance${staleAccounts.length > 1 ? 's' : ''} need updating</span>
           <span class="font-mono text-[0.58rem] tracking-[0.1em] text-warm uppercase">Log fresh balances →</span>
         </div>` : ''}

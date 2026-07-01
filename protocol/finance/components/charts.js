@@ -11,7 +11,7 @@ import { esc } from './ui.js';
  * @returns {string} SVG markup
  */
 export function groupedBarChart({ data, width = 560, height = 200 }) {
-  if (!data.length) return '<p class="text-sm text-stone">No data yet.</p>';
+  if (!data.length) return '<p class="py-8 text-center font-display text-sm text-stone italic">No budget history yet.</p>';
 
   const padding = { top: 16, right: 12, bottom: 28, left: 12 };
   const chartW = width - padding.left - padding.right;
@@ -59,7 +59,7 @@ export function groupedBarChart({ data, width = 560, height = 200 }) {
  * @param {Array<{label: string, value: number}>} opts.data  Pence values
  */
 export function lineChart({ data, width = 560, height = 160 }) {
-  if (!data.length) return '<p class="text-sm text-stone">No data yet.</p>';
+  if (!data.length) return '<p class="py-8 text-center font-display text-sm text-stone italic">No trend data yet.</p>';
   const padding = { top: 12, right: 12, bottom: 24, left: 12 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
