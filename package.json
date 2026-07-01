@@ -1,9 +1,10 @@
 {
   "type": "module",
   "scripts": {
-    "build": "tailwindcss -i ./src/app.css -o ./protocol/app.css --minify",
-    "dev":   "tailwindcss -i ./src/app.css -o ./protocol/app.css --watch",
-    "test":  "node --test test/finance/*.test.js"
+    "build":  "tailwindcss -i ./src/app.css -o ./protocol/app.css --minify",
+    "dev":    "tailwindcss -i ./src/app.css -o ./protocol/app.css --watch",
+    "test":   "node --test test/finance/*.test.js",
+    "deploy": "npm run build && wrangler deploy --config protocol/wrangler.jsonc"
   },
   "dependencies": {
     "jose": "^6.2.3"

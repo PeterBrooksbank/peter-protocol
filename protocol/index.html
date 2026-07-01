@@ -17,19 +17,19 @@
 </div>
 
 <!-- Navigation -->
-<nav class="sticky top-0 z-50 flex justify-center border-b border-ink/12 bg-paper">
+<nav class="nav sticky top-0 z-50 flex justify-center border-b border-ink/12 bg-paper">
   <button class="active nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3.5 font-mono text-[0.58rem] tracking-[0.18em] text-stone uppercase" data-tab="checklist" onclick="showTab('checklist')">Checklist</button>
   <button class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3.5 font-mono text-[0.58rem] tracking-[0.18em] text-stone uppercase" data-tab="supplements" onclick="showTab('supplements')">Supplements</button>
   <button class="nav-tab -mb-px max-w-40 flex-1 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-2 py-3.5 font-mono text-[0.58rem] tracking-[0.18em] text-stone uppercase" data-tab="meals" onclick="showTab('meals')">Meals</button>
 </nav>
 
 <!-- Sync status bar -->
-<div class="flex items-center gap-1.5 border-b border-ink/12 px-6 py-1.5 text-[0.55rem] tracking-widest text-stone">
+<div class="sync-bar flex items-center gap-1.5 border-b border-ink/12 px-6 py-1.5 text-[0.55rem] tracking-widest text-stone">
   <div class="sync-dot" id="syncDot"></div>
   <span id="syncStatus">Loading…</span>
 </div>
 
-<div class="relative isolate z-1 mx-auto max-w-[640px] px-6 pt-8 pb-20">
+<div class="health-content relative isolate z-1 mx-auto max-w-[640px] px-6 pt-8 pb-20">
 
   <!-- ── Checklist tab ── -->
   <div class="active tab-content" id="tab-checklist">

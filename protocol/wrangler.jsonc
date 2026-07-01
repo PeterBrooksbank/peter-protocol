@@ -4,6 +4,10 @@
   "compatibility_date": "2026-06-09",
   "main": "worker.js",
   "observability": { "enabled": true },
+  "build": {
+    "command": "npm run build",
+    "cwd": ".."
+  },
   "assets": {
     "directory": ".",
     "binding": "ASSETS",

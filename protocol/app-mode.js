@@ -8,6 +8,7 @@
     const hidden = () => [
       document.querySelector('.nav'),
       document.querySelector('.sync-bar'),
+      document.querySelector('.health-content'),
       ...document.querySelectorAll('.tab-content'),
     ].filter(Boolean);
 
