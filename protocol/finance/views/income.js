@@ -3,13 +3,15 @@
 import * as api from '../api/client.js';
 import { computePersonIncome } from '../engine/tax-engine.js';
 import { penceToDisplay, penceToCompact, parsePence, annualToMonthly } from '../models/money.js';
+import { formatMonth } from '../models/dates.js';
 import { modal, field, textInput, numberInput, monthInput, select, checkbox, twoCol, val, num, bool } from '../components/forms.js';
+import { esc, loadingState, errorState, overlay as baseOverlay, actionLink } from '../components/ui.js';
 
 const TODAY = new Date().toISOString().slice(0, 10);
 const THIS_MONTH = TODAY.slice(0, 7);
 
 export function mount(el, { onRefresh } = {}) {
-  el.innerHTML = `<div class="p-4 text-stone text-sm animate-pulse">Loading income…</div>`;
+  el.innerHTML = loadingState('income');
   load(el, onRefresh);
 }
 
@@ -38,7 +40,7 @@ async function load(el, onRefresh) {
 
     bindHandlers(el, people, householdSettings, () => load(el, onRefresh));
   } catch (err) {
-    el.innerHTML = `<div class="p-4 text-signal text-sm">${err.message}</div>`;
+    el.innerHTML = errorState(err);
   }
 }
 
@@ -78,10 +80,7 @@ function renderPerson(person, engine) {
 
       <!-- Add source -->
       <div class="px-5 py-3 border-t border-warm-light bg-paper">
-        <button data-act="add-source" data-person="${person.id}"
-          class="text-xs text-stone hover:text-ink underline">
-          + Add income source
-        </button>
+        ${actionLink('+ Add income source', { data: { act: 'add-source', person: person.id } })}
       </div>
 
       <!-- One-off events -->
@@ -116,8 +115,8 @@ function renderSource(src, engine) {
           <span class="ml-1 text-xs text-stone">— no entry yet</span>
         </div>
         <div class="flex gap-3 text-xs text-stone">
-          <button data-act="add-entry" data-source="${src.id}" class="hover:text-ink underline">Set salary</button>
-          <button data-act="configure" data-source="${src.id}" class="hover:text-ink underline">Configure</button>
+          ${actionLink('Set salary', { data: { act: 'add-entry', source: src.id } })}
+          ${actionLink('Configure', { data: { act: 'configure', source: src.id } })}
         </div>
       </div>`;
   }
@@ -139,13 +138,13 @@ function renderSource(src, engine) {
           <span class="text-sm font-medium text-ink">${esc(src.name)}</span>
           <span class="ml-2 text-xs text-stone">${src.tax_code}${src.is_primary ? ' · primary' : ''}</span>
           <span class="ml-1 text-xs text-stone">${kindLabel(src.kind)}</span>
-          <span class="ml-2 text-xs text-stone">from ${fmtMonth(entry.effective_from)}</span>
+          <span class="ml-2 text-xs text-stone">from ${formatMonth(entry.effective_from)}</span>
           ${entry.has_overrides ? '<span class="ml-2 text-xs text-warm">overrides</span>' : ''}
         </div>
         <div class="flex gap-3 text-xs text-stone shrink-0 ml-4">
-          <button data-act="edit-entry"   data-source="${src.id}" class="hover:text-ink underline">Edit</button>
-          <button data-act="history"      data-source="${src.id}" class="hover:text-ink underline">History</button>
-          <button data-act="configure"    data-source="${src.id}" class="hover:text-ink underline">Configure</button>
+          ${actionLink('Edit', { data: { act: 'edit-entry', source: src.id } })}
+          ${actionLink('History', { data: { act: 'history', source: src.id } })}
+          ${actionLink('Configure', { data: { act: 'configure', source: src.id } })}
         </div>
       </div>
 
@@ -172,7 +171,7 @@ function renderEvents(person) {
     <div class="px-5 py-3 border-t border-warm-light">
       <div class="flex items-center justify-between mb-2">
         <span class="text-xs font-medium text-stone uppercase tracking-wide">One-off events this year</span>
-        <button data-act="add-event" data-person="${person.id}" class="text-xs text-stone hover:text-ink underline">+ Add</button>
+        ${actionLink('+ Add', { data: { act: 'add-event', person: person.id } })}
       </div>
       ${evts.length === 0
         ? '<p class="text-xs text-stone">None recorded.</p>'
@@ -431,23 +430,13 @@ function entryModal(existingEntry, src, person, householdSettings, reload) {
 }
 
 function historyModal(src) {
-  const overlay = document.createElement('div');
-  overlay.className = 'fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4';
-  overlay.innerHTML = `
-    <div class="bg-paper rounded-lg shadow-2xl w-full max-w-lg">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-warm-light">
-        <h2 class="font-display text-xl">History: ${esc(src.name)}</h2>
-        <button data-act="close" class="text-stone hover:text-ink text-xl leading-none">&times;</button>
-      </div>
-      <div class="px-6 py-4 max-h-96 overflow-y-auto" id="history-body">
-        <p class="text-stone text-sm">Loading…</p>
-      </div>
-    </div>`;
-  overlay.querySelector('[data-act="close"]').onclick = () => overlay.remove();
-  document.body.appendChild(overlay);
+  const { body } = baseOverlay({
+    title: `History: ${esc(src.name)}`,
+    bodyClass: 'px-6 py-4 max-h-96 overflow-y-auto',
+    bodyHtml: '<p class="text-stone text-sm">Loading…</p>',
+  });
 
   api.getSourceHistory(src.id).then(entries => {
-    const body = overlay.querySelector('#history-body');
     if (!entries.length) { body.innerHTML = '<p class="text-stone text-sm">No entries yet.</p>'; return; }
     body.innerHTML = `<table class="w-full text-xs font-mono">
       <thead><tr class="text-stone text-left border-b border-warm-light">
@@ -456,7 +445,7 @@ function historyModal(src) {
       </tr></thead>
       <tbody class="divide-y divide-warm-light">
         ${entries.map(e => `<tr class="py-1">
-          <td class="py-1">${fmtMonth(e.effective_from)}</td>
+          <td class="py-1">${formatMonth(e.effective_from)}</td>
           <td class="py-1">${penceToDisplay(e.gross_monthly_pence)}</td>
           <td class="py-1">${penceToDisplay(e.income_tax_pence)}</td>
           <td class="py-1">${penceToDisplay(e.ni_pence)}</td>
@@ -544,12 +533,3 @@ function pensionContribInput(namePrefix, existingType = 'pct', existingValue = 0
   </div>`;
 }
 
-const fmtMonth = (s) => {
-  if (!s) return '';
-  const [y, m] = s.split('-');
-  return new Date(+y, +m - 1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-};
-
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;');
-}

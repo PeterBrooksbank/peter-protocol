@@ -3,13 +3,15 @@
 import * as api from '../api/client.js';
 import { autoMatch, deriveRule } from '../engine/budget-match.js';
 import { penceToDisplay, penceToCompact } from '../models/money.js';
+import { formatMonth } from '../models/dates.js';
 import { openImportWizard } from '../import/csv-import.js';
 import { modal, field, textInput, select, twoCol, val, bool } from '../components/forms.js';
+import { esc, loadingState, errorState, actionLink, overlay as baseOverlay } from '../components/ui.js';
 
 export function mount(el) {
   const thisMonth = new Date().toISOString().slice(0, 7);
   el.dataset.month = thisMonth;
-  el.innerHTML = `<div class="p-4 text-stone text-sm animate-pulse">Loading budget…</div>`;
+  el.innerHTML = loadingState('budget');
   load(el, thisMonth);
 }
 
@@ -29,14 +31,12 @@ async function load(el, month) {
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">
             <button data-act="prev-month" class="text-stone hover:text-ink px-2">←</button>
-            <span class="font-medium text-ink">${fmtMonth(month)}</span>
+            <span class="font-medium text-ink">${formatMonth(month, { month: 'long' })}</span>
             <button data-act="next-month" class="text-stone hover:text-ink px-2">→</button>
           </div>
           <div class="flex gap-3 items-center">
             ${uncategorised_count > 0
-              ? `<button data-act="review" class="text-xs text-warm hover:text-ink underline">
-                   Review ${uncategorised_count} unmatched
-                 </button>`
+              ? actionLink(`Review ${uncategorised_count} unmatched`, { data: { act: 'review' }, tone: 'warm' })
               : ''}
             <button data-act="import" class="text-sm px-3 py-1.5 border border-warm-light rounded hover:bg-warm-light text-ink">
               Import statement
@@ -56,13 +56,13 @@ async function load(el, month) {
 
         <!-- Add category -->
         <div class="mt-6 pt-4 border-t border-warm-light">
-          <button data-act="add-cat" class="text-sm text-stone hover:text-ink underline">+ Add category</button>
+          ${actionLink('+ Add category', { data: { act: 'add-cat' }, size: 'sm' })}
         </div>
       </div>`;
 
     bindHandlers(el, month, categories, lines, accounts, () => load(el, month));
   } catch (err) {
-    el.innerHTML = `<div class="p-4 text-signal text-sm">${err.message}</div>`;
+    el.innerHTML = errorState(err);
   }
 }
 
@@ -102,8 +102,7 @@ function renderCategory(cat, month) {
         <div class="flex items-center gap-2">
           <span class="text-xs font-medium text-stone uppercase tracking-wide">${esc(cat.name)}</span>
           <span class="text-xs text-stone">${cat.kind}</span>
-          <button data-act="edit-cat" data-id="${cat.id}"
-            class="text-xs text-stone hover:text-ink underline">edit</button>
+          ${actionLink('edit', { data: { act: 'edit-cat', id: cat.id } })}
         </div>
         <div class="text-sm ${over ? 'text-signal font-medium' : 'text-stone'}">
           ${catActual > 0 ? `${penceToCompact(catActual)} / ` : ''}${penceToCompact(catPlanned)}
@@ -112,9 +111,7 @@ function renderCategory(cat, month) {
       <div class="rounded-lg border border-warm-light divide-y divide-warm-light">
         ${cat.lines.map(l => renderLine(l, cat)).join('')}
         <div class="px-4 py-2.5">
-          <button data-act="add-line" data-cat="${cat.id}" class="text-xs text-stone hover:text-ink underline">
-            + Add line
-          </button>
+          ${actionLink('+ Add line', { data: { act: 'add-line', cat: cat.id } })}
         </div>
       </div>
     </div>`;
@@ -132,8 +129,7 @@ function renderLine(line, cat) {
         <div class="flex items-baseline gap-2">
           <span class="text-sm text-ink">${esc(line.name)}</span>
           ${line.match_rule ? `<span class="text-xs text-stone font-mono">${esc(line.match_rule)}</span>` : ''}
-          <button data-act="edit-line" data-id="${line.id}"
-            class="text-xs text-stone hover:text-ink underline">edit</button>
+          ${actionLink('edit', { data: { act: 'edit-line', id: line.id } })}
         </div>
         ${planned > 0 ? `
         <div class="mt-1 h-1 rounded bg-warm-light overflow-hidden">
@@ -173,7 +169,7 @@ function gotoMonth(el, current, delta, reload) {
   const date = new Date(y, m - 1 + delta, 1);
   const next = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
   el.dataset.month = next;
-  el.innerHTML = `<div class="p-4 text-stone text-sm animate-pulse">Loading…</div>`;
+  el.innerHTML = loadingState();
   load(el, next);
 }
 
@@ -298,19 +294,14 @@ function reviewTransactionsFromImport(txns, budgetLines, reload) {
 
   const lineOpts = budgetLines.map(l => `<option value="${l.id}">${esc(l.name)}</option>`).join('');
 
-  const overlay = document.createElement('div');
-  overlay.className = 'fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 overflow-y-auto';
-  overlay.innerHTML = `
-    <div class="bg-paper rounded-lg shadow-2xl w-full max-w-2xl my-auto">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-warm-light sticky top-0 bg-paper z-10">
-        <h2 class="font-display text-xl text-ink">Review transactions</h2>
-        <div class="flex items-center gap-3">
+  const { overlay, close: closeOverlay } = baseOverlay({
+    title: 'Review transactions',
+    maxWidth: 'max-w-2xl',
+    headerExtra: `
           <span class="text-xs text-stone">${unmatched.length} need review</span>
-          <button id="rev-save" class="px-4 py-1.5 text-sm bg-ink text-paper rounded hover:bg-stone">Done</button>
-          <button id="rev-close" class="text-stone hover:text-ink text-xl leading-none">&times;</button>
-        </div>
-      </div>
-      <div class="px-6 py-4 space-y-6 max-h-[70vh] overflow-y-auto">
+          <button id="rev-save" class="px-4 py-1.5 text-sm bg-ink text-paper rounded hover:bg-stone">Done</button>`,
+    bodyClass: 'px-6 py-4 space-y-6 max-h-[70vh] overflow-y-auto',
+    bodyHtml: `
         ${autoable.length ? `
           <div>
             <div class="flex items-center justify-between mb-2">
@@ -356,12 +347,11 @@ function reviewTransactionsFromImport(txns, budgetLines, reload) {
           <div>
             <h3 class="text-xs font-medium text-stone uppercase tracking-wide mb-2">Already categorised (${alreadyDone.length})</h3>
             <div class="text-xs text-stone">Showing ${Math.min(alreadyDone.length, 3)} of ${alreadyDone.length}…</div>
-          </div>` : ''}
-      </div>
-    </div>`;
+          </div>` : ''}`,
+  });
 
-  const close = () => { overlay.remove(); reload(); };
-  overlay.querySelector('#rev-close').onclick = close;
+  const close = () => { closeOverlay(); reload(); };
+  overlay.querySelector('[data-act="close"]').onclick = close;
 
   overlay.querySelector('#rev-apply-auto')?.addEventListener('click', async () => {
     const assignments = autoable.map(t => ({
@@ -450,8 +440,6 @@ function reviewTransactionsFromImport(txns, budgetLines, reload) {
     }
     close();
   };
-
-  document.body.appendChild(overlay);
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -471,6 +459,3 @@ function computeTotals(categories) {
   }
   return { plannedExpense, actualExpense, plannedIncome, actualIncome };
 }
-
-const fmtMonth = (s) => new Date(s + '-01T00:00:00').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }

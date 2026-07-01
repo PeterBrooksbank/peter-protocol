@@ -1,5 +1,7 @@
 // finance/components/charts.js — hand-rolled inline SVG charts (no dependencies)
 
+import { esc } from './ui.js';
+
 /**
  * Render a grouped bar chart comparing two series across months.
  * @param {object} opts
@@ -78,5 +80,3 @@ export function lineChart({ data, width = 560, height = 160 }) {
       ${data.map((d, i) => `<text x="${scaleX(i)}" y="${height - 6}" text-anchor="middle" font-size="10" fill="var(--color-stone)">${esc(d.label)}</text>`).join('')}
     </svg>`;
 }
-
-function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }

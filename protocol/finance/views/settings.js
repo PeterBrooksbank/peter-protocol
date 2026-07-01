@@ -2,30 +2,21 @@
 
 import * as api from '../api/client.js';
 import { modal, field, textInput, select, checkbox, twoCol, val, num, bool } from '../components/forms.js';
+import { esc, overlay as baseOverlay, actionLink, errorState } from '../components/ui.js';
 
 /** Open the Settings overlay. Calls onClose() after save if anything changed. */
 export function openSettings(onClose) {
   let settings = {}, people = [];
   let dirty = false;
 
-  const overlay = document.createElement('div');
-  overlay.className = 'fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 overflow-y-auto';
-  overlay.innerHTML = `
-    <div class="bg-paper rounded-lg shadow-2xl w-full max-w-lg my-auto">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-warm-light">
-        <h2 class="font-display text-xl text-ink">Settings</h2>
-        <button data-act="close" class="text-stone hover:text-ink text-xl leading-none">&times;</button>
-      </div>
-      <div class="px-6 py-5 space-y-6" data-body>
-        <div data-loading class="text-stone text-sm">Loading…</div>
-      </div>
-    </div>`;
+  const { overlay, body, close: closeOverlay } = baseOverlay({
+    title: 'Settings',
+    bodyClass: 'px-6 py-5 space-y-6',
+    bodyHtml: '<div data-loading class="text-stone text-sm">Loading…</div>',
+  });
 
-  const close = () => { overlay.remove(); if (dirty) onClose?.(); };
+  const close = () => { closeOverlay(); if (dirty) onClose?.(); };
   overlay.querySelector('[data-act="close"]').onclick = close;
-  document.body.appendChild(overlay);
-
-  const body = overlay.querySelector('[data-body]');
 
   async function load() {
     const [s, p] = await Promise.all([api.getSettings(), api.getPeople()]);
@@ -93,8 +84,7 @@ export function openSettings(onClose) {
           <span class="text-sm font-medium text-ink">${esc(p.display_name)}</span>
           ${p.is_earner ? '' : '<span class="ml-2 text-xs text-stone">(not earner)</span>'}
         </div>
-        <button data-act="edit-person" data-id="${p.id}"
-          class="text-xs text-stone hover:text-ink underline">Edit</button>
+        ${actionLink('Edit', { data: { act: 'edit-person', id: p.id } })}
       </li>`;
   }
 
@@ -159,9 +149,5 @@ export function openSettings(onClose) {
     });
   }
 
-  load().catch(err => { body.innerHTML = `<p class="text-signal text-sm">${err.message}</p>`; });
-}
-
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  load().catch(err => { body.innerHTML = errorState(err); });
 }

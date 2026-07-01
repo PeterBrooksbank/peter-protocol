@@ -4,14 +4,16 @@ import * as api from '../api/client.js';
 import { computePersonIncome } from '../engine/tax-engine.js';
 import { projectBalance, monthsBetween } from '../engine/projections.js';
 import { penceToCompact, penceToDisplay } from '../models/money.js';
+import { formatMonth } from '../models/dates.js';
 import { groupedBarChart } from '../components/charts.js';
+import { esc, loadingState, errorState } from '../components/ui.js';
 
 const TODAY = new Date().toISOString().slice(0, 10);
 const THIS_MONTH = TODAY.slice(0, 7);
 const HISTORY_MONTHS = 6;
 
 export function mount(el) {
-  el.innerHTML = `<div class="p-4 text-stone text-sm animate-pulse">Loading dashboard…</div>`;
+  el.innerHTML = loadingState('dashboard');
   load(el);
 }
 
@@ -88,7 +90,7 @@ async function load(el) {
       btn.onclick = () => window.showFinanceView?.(btn.dataset.goto);
     });
   } catch (err) {
-    el.innerHTML = `<div class="p-4 text-signal text-sm">${err.message}</div>`;
+    el.innerHTML = errorState(err);
   }
 }
 
@@ -242,5 +244,4 @@ function toEngineSource(s) {
   };
 }
 
-const fmtMonthShort = (s) => new Date(s + '-01T00:00:00').toLocaleDateString('en-GB', { month: 'short' });
-function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+const fmtMonthShort = (s) => formatMonth(s, { year: false });

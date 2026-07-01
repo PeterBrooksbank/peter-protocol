@@ -2,7 +2,9 @@
 
 import * as api from '../api/client.js';import { projectBalance, monthsBetween } from '../engine/projections.js';
 import { penceToDisplay, penceToCompact } from '../models/money.js';
+import { formatDate } from '../models/dates.js';
 import { modal, field, textInput, numberInput, select, checkbox, twoCol, val, num, bool } from '../components/forms.js';
+import { esc, loadingState, errorState, actionLink } from '../components/ui.js';
 
 const TODAY = new Date().toISOString().slice(0, 10);
 
@@ -20,7 +22,7 @@ const TYPE_META = {
 const GROUP_ORDER = ['mortgage','student_loan','pension','isa','savings','investment','current','other'];
 
 export function mount(el) {
-  el.innerHTML = `<div class="p-4 text-stone text-sm animate-pulse">Loading accounts…</div>`;
+  el.innerHTML = loadingState('accounts');
   load(el);
 }
 
@@ -32,7 +34,7 @@ async function load(el) {
         <div id="net-worth"></div>
         <div id="account-groups" class="space-y-6"></div>
         <div class="pt-2 border-t border-warm-light">
-          <button data-act="add" class="text-sm text-stone hover:text-ink underline">+ Add account</button>
+          ${actionLink('+ Add account', { data: { act: 'add' }, size: 'sm' })}
         </div>
       </div>`;
 
@@ -49,7 +51,7 @@ async function load(el) {
       if (acc) btn.onclick = () => configureAccountModal(acc, accounts, () => load(el));
     });
   } catch (err) {
-    el.innerHTML = `<div class="p-4 text-signal text-sm">${err.message}</div>`;
+    el.innerHTML = errorState(err);
   }
 }
 
@@ -108,7 +110,7 @@ function renderAccount(a) {
 
   const balLabel = isProjected ? `${penceToCompact(bal)} <span class="text-xs text-stone">(est)</span>` : penceToCompact(bal);
   const snapshotInfo = a.snapshot_date
-    ? `Logged ${fmtDate(a.snapshot_date)}${stale ? ' — <span class="text-warm">update needed</span>' : ''}`
+    ? `Logged ${formatDate(a.snapshot_date)}${stale ? ' — <span class="text-warm">update needed</span>' : ''}`
     : '<span class="text-warm">No balance logged yet</span>';
 
   return `
@@ -124,8 +126,8 @@ function renderAccount(a) {
       <div class="ml-4 text-right shrink-0">
         <div class="text-sm font-medium text-ink">${balLabel}</div>
         <div class="flex gap-2 mt-1 justify-end">
-          <button data-act="log" data-id="${a.id}" class="text-xs text-stone hover:text-ink underline">Log balance</button>
-          <button data-act="configure" data-id="${a.id}" class="text-xs text-stone hover:text-ink underline">Configure</button>
+          ${actionLink('Log balance', { data: { act: 'log', id: a.id } })}
+          ${actionLink('Configure', { data: { act: 'configure', id: a.id } })}
         </div>
       </div>
     </div>`;
@@ -303,6 +305,3 @@ function configureAccountModal(account, allAccounts, reload) {
     },
   });
 }
-
-const fmtDate = (s) => s ? new Date(s + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }

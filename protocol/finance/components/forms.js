@@ -1,5 +1,7 @@
 // finance/components/forms.js — shared modal and field utilities
 
+import { esc, overlay as baseOverlay } from './ui.js';
+
 const cls = 'w-full border border-warm-light rounded px-3 py-2 bg-paper text-ink text-sm focus:outline-none focus:ring-1 focus:ring-warm';
 
 export const textInput   = (name, val = '', ph = '', attrs = '') =>
@@ -36,25 +38,20 @@ export const twoCol = (a, b) =>
 
 /** Open a modal overlay. Returns { overlay, close }. */
 export function modal({ title, bodyHtml, onMount, onSubmit, submitLabel = 'Save' }) {
-  const overlay = document.createElement('div');
-  overlay.className = 'fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 overflow-y-auto';
-  overlay.innerHTML = `
-    <div class="bg-paper rounded-lg shadow-2xl w-full max-w-lg my-auto">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-warm-light">
-        <h2 class="font-display text-xl text-ink">${title}</h2>
-        <button data-act="close" class="text-stone hover:text-ink leading-none text-xl">&times;</button>
-      </div>
-      <div class="px-6 py-5" data-body>${bodyHtml ?? ''}</div>
+  const footerHtml = `
       <div class="flex justify-end gap-3 px-6 py-4 border-t border-warm-light">
         <button data-act="cancel" class="px-4 py-2 text-sm text-stone hover:text-ink">Cancel</button>
         <button data-act="submit" class="px-5 py-2 text-sm bg-ink text-paper rounded hover:bg-stone transition-colors">
           ${submitLabel}
         </button>
-      </div>
-    </div>`;
+      </div>`;
 
-  const close = () => overlay.remove();
-  overlay.querySelector('[data-act="close"]').onclick  = close;
+  const { overlay, close } = baseOverlay({
+    title,
+    bodyClass: '',
+    bodyHtml: `<div class="px-6 py-5" data-form-body>${bodyHtml ?? ''}</div>${footerHtml}`,
+  });
+  const body = overlay.querySelector('[data-form-body]');
   overlay.querySelector('[data-act="cancel"]').onclick = close;
 
   const btn = overlay.querySelector('[data-act="submit"]');
@@ -68,7 +65,7 @@ export function modal({ title, bodyHtml, onMount, onSubmit, submitLabel = 'Save'
         if (!errEl) {
           errEl = Object.assign(document.createElement('p'), { dataset: { error: '' } });
           errEl.className = 'mt-3 text-sm text-signal';
-          overlay.querySelector('[data-body]').appendChild(errEl);
+          body.appendChild(errEl);
         }
         errEl.textContent = err.message;
         btn.disabled = false; btn.textContent = submitLabel;
@@ -76,7 +73,6 @@ export function modal({ title, bodyHtml, onMount, onSubmit, submitLabel = 'Save'
     };
   }
 
-  document.body.appendChild(overlay);
   if (onMount) onMount(overlay, close);
   return { overlay, close };
 }
@@ -86,7 +82,3 @@ export const val  = (overlay, name) => overlay.querySelector(`[name="${name}"]`)
 export const num  = (overlay, name) => Number(overlay.querySelector(`[name="${name}"]`)?.value ?? 0);
 export const bool = (overlay, name) => !!(overlay.querySelector(`[name="${name}"]`)?.checked);
 
-/** Escape HTML entities in values. */
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-}

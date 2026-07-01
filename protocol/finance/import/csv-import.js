@@ -1,6 +1,8 @@
 // finance/import/csv-import.js — ESM CSV import wizard
 // Pure parse functions ported from protocol/csv-import.js + new match-review UI.
 
+import { esc, overlay as baseOverlay } from '../components/ui.js';
+
 // ── Pure parsing functions ────────────────────────────────────────────────────
 
 /** RFC 4180 CSV parser. Returns array of rows (each row = array of field strings). */
@@ -97,23 +99,8 @@ const cls = 'w-full border border-warm-light rounded px-3 py-2 bg-paper text-ink
 export function openImportWizard(accounts, onImport) {
   if (!accounts.length) { alert('Add an account first — statements import into an account.'); return; }
 
-  const overlay = document.createElement('div');
-  overlay.className = 'fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4';
-  overlay.innerHTML = `
-    <div class="bg-paper rounded-lg shadow-2xl w-full max-w-lg">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-warm-light">
-        <h2 class="font-display text-xl text-ink" id="wiz-title">Import statement</h2>
-        <button id="wiz-close" class="text-stone hover:text-ink text-xl leading-none">&times;</button>
-      </div>
-      <div class="px-6 py-5" id="wiz-body"></div>
-    </div>`;
-
-  const close = () => overlay.remove();
-  overlay.querySelector('#wiz-close').onclick = close;
-  document.body.appendChild(overlay);
-
-  const body  = overlay.querySelector('#wiz-body');
-  const title = overlay.querySelector('#wiz-title');
+  const { overlay, body, close } = baseOverlay({ title: 'Import statement' });
+  const title = overlay.querySelector('[data-title]');
 
   let parsed = null;
 
@@ -286,5 +273,3 @@ export function openImportWizard(accounts, onImport) {
     };
   }
 }
-
-function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
