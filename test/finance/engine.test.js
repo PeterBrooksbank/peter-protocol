@@ -223,6 +223,34 @@ test('student loan plan 1: different threshold', () => {
   assert.ok(Math.abs(result.total_student_loan_monthly_pence - 17_756) <= 1, `got ${result.total_student_loan_monthly_pence}`);
 });
 
+// ── Student loan + salary sacrifice: SL base must match the NI base ─────────
+// Salary sacrifice genuinely lowers contractual pay, so SL (like NI) is owed
+// on the post-sacrifice figure — not the pre-sacrifice nominal gross.
+
+test('salary sacrifice reduces the student loan base (same as NI)', () => {
+  const withSS = computePersonIncome(PERSON, [src({
+    gross_monthly_pence: 400_000, student_loan_plan: '2',
+    pension_method: 'salary_sacrifice', pension_ee_type: 'pct', pension_ee_value: 500, // 5%
+  })], [], NO_SETTINGS, DATE);
+  const noSS = computePersonIncome(PERSON, [src({
+    gross_monthly_pence: 400_000, student_loan_plan: '2',
+  })], [], NO_SETTINGS, DATE);
+  assert.ok(withSS.total_student_loan_monthly_pence < noSS.total_student_loan_monthly_pence,
+    'salary sacrifice should reduce the student loan repayment');
+});
+
+test('net pay pension does NOT reduce the student loan base', () => {
+  // Net pay/relief-at-source don't change contractual pay, so SL stays on full gross.
+  const withNP = computePersonIncome(PERSON, [src({
+    gross_monthly_pence: 400_000, student_loan_plan: '2',
+    pension_method: 'net_pay', pension_ee_type: 'pct', pension_ee_value: 500,
+  })], [], NO_SETTINGS, DATE);
+  const noPension = computePersonIncome(PERSON, [src({
+    gross_monthly_pence: 400_000, student_loan_plan: '2',
+  })], [], NO_SETTINGS, DATE);
+  assert.equal(withNP.total_student_loan_monthly_pence, noPension.total_student_loan_monthly_pence);
+});
+
 // ── Dividends: £8k dividends on top of £40k salary ───────────────────────────
 // Non-div taxable: 4,800,000 - 1,257,000 = 3,543,000p (all in basic band)
 // Dividend: 800,000p. Allowance: 50,000p. Taxable divs: 750,000p.

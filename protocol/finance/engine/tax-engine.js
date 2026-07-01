@@ -317,8 +317,11 @@ export function computePersonIncome(
       }
       // NI on NI-gross (salary sacrifice reduces NI base)
       ni_monthly = monthlyNI(s.niMonthly, rates);
-      // Student loan on full gross (regardless of pension method)
-      sl_monthly = Math.round(annualSL(s.gross_monthly_pence * 12, s.student_loan_plan, rates) / 12);
+      // Student loan uses the same base as NI: salary sacrifice genuinely lowers
+      // contractual pay, so it reduces SL-liable earnings too, same as NI. Net
+      // pay/relief-at-source arrangements don't change contractual pay, so SL
+      // stays on full gross for those (s.niMonthly === s.gross_monthly_pence).
+      sl_monthly = Math.round(annualSL(s.niMonthly * 12, s.student_loan_plan, rates) / 12);
 
     } else if (s.kind === 'rental') {
       // Income tax but no NI or SL
